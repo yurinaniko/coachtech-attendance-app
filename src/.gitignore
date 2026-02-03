@@ -17,4 +17,3 @@ yarn-error.log
 /docker/mysql/data/
 /docker/mysql/
 /docker/mysql/logs/
-/docker/mysql/conf/
