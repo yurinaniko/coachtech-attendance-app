@@ -1,0 +1,92 @@
+html,
+body {
+    overflow-x: hidden;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    flex: 1;
+}
+
+.wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    width: 100%;
+    overflow-x: hidden;
+    background: #000;
+    color: #fff;
+    border-bottom: none;
+}
+
+.header__inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    max-width: 1400px;
+    padding: 10px 20px;
+    margin: 0 auto;
+}
+
+.header__logo {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.header__logo-img {
+    margin-left: 20px;
+    height: 30px;
+}
+
+.header__nav {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.header__nav-list {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.header__nav-list a,
+.header__nav-item button {
+    color: #F0EFF2;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.header__logout-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    }
+
+.header__logout:hover {
+    text-decoration: underline;
+}
+
+/* ===== background ===== */
+
+/* 勤怠アプリ用の背景 */
+.body--app {
+    background-color: #F0EFF2;
+}
+/*ログイン・登録・メール認証用の背景*/
+.body--auth {
+    background-color: #fff;
+}

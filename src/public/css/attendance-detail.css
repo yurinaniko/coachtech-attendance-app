@@ -1,0 +1,144 @@
+.attendance-detail {
+    max-width: 800px;
+    margin: 80px auto;
+}
+
+.attendance-detail__title {
+    position: relative;
+    padding-left: 14px;
+    margin-bottom: 40px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.attendance-detail__title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 20px;
+    background-color: #000;
+}
+
+/* ===== テーブル ===== */
+.attendance-detail__wrapper {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 30px;
+}
+
+.attendance-detail__table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.attendance-detail__table th,
+.attendance-detail__table td {
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.attendance-detail__table th {
+    width: 30%;
+    background-color: #fff;
+    font-weight: normal;
+    text-align: left;
+    color: #555;
+}
+
+.attendance-detail__table td {
+    width: 70%;
+    color: #333;
+    font-weight: 700;
+}
+
+.attendance-detail__date {
+    display: flex;
+    gap: 180px;
+}
+
+.attendance-detail__date span {
+    font-weight: 700;
+}
+
+/* ===== 操作エリア ===== */
+.attendance-detail__actions {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.attendance-detail__edit-btn {
+    display: inline-block;
+    padding: 8px 24px;
+    margin-top: 20px;
+    background-color: #000;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.attendance-detail__edit-btn:hover {
+    opacity: 0.8;
+}
+
+/* 承認待ちメッセージ */
+.attendance-detail__notice {
+    color: #d32f2f;
+    font-size: 13px;
+}
+
+.attendance-detail__time-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 60px;
+}
+
+.attendance-detail__time-display {
+    background-color: #f9f9f9;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+    display: none;
+}
+
+input[type="time"] {
+    appearance: none;
+}
+
+.attendance-detail__time-input {
+    width: 90px;
+    height: 28px;
+    padding: 2px 6px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+    color: #333;
+}
+
+.attendance-detail__time-group span {
+    line-height: 1;
+}
+
+.attendance-detail__note {
+    width: 65%;
+    resize: none;
+    border-radius: 4px;
+    border-color: #e0e0e0;
+}
+
+.attendance-detail__table tr:last-child td {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.attendance-detail__name,
+.attendance-detail__year {
+    margin-left: 12px;
+}

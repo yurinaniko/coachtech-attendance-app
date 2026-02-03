@@ -1,0 +1,38 @@
+.form__error {
+    color: red;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.form__group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 20px;
+}
+
+.form__label {
+    font-size: 18px;
+    color: #444;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.form__input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #C4C4C4;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form__input--textarea {
+    height: 120px;
+    resize: none;
+}
+
+.form__error--global {
+    margin-bottom: 16px;
+    text-align: center;
+}

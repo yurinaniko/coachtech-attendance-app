@@ -1,0 +1,88 @@
+.request-index {
+    max-width: 900px;
+    margin: 40px auto;
+}
+
+.request-index__title {
+    position: relative;
+    padding-left: 14px;
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.request-index__title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 20px;
+    background: #000;
+}
+
+.request-index__table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.request-index__table th,
+.request-index__table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    color: #737373;
+}
+
+.request-index__status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.request-index__status--pending {
+    background: #eee;
+}
+
+.request-index__status--approved {
+    background: #c8e6c9;
+}
+
+.request-index__status--rejected {
+    background: #ffcdd2;
+}
+
+.request-index__detail {
+    text-decoration: underline;
+}
+
+.request-index__empty {
+    padding: 20px;
+}
+
+.request-index__tabs {
+    display: flex;
+    gap: 30px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+
+.request-index__tab {
+    padding: 10px 0;
+    color: #666;
+    text-decoration: none;
+    position: relative;
+}
+
+.request-index__tab.is-active {
+    color: #000;
+    font-weight: bold;
+}
+
+.request-index__table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #fff;
+    background-color: #fff;
+}

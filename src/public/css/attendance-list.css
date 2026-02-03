@@ -1,0 +1,115 @@
+.attendance-list {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #F0EFF2;
+}
+
+.attendance-list__title {
+    position: relative;
+    padding-left: 14px;
+    text-align: left;
+    font-size: 20px;
+    margin-bottom: 40px;
+    margin-top: 80px;
+}
+
+.attendance-list__title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 20px;
+    background: #000;
+}
+
+.attendance-list__month {
+    border-radius: 10px;
+    border-color: #fff;
+    background-color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    margin-bottom: 40px;
+}
+
+.attendance-list__month-btn {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 5px 12px;
+    cursor: pointer;
+}
+
+.attendance-list__month a {
+    text-decoration: none;
+    color:#737373;
+}
+
+.attendance-list__month-text {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: bold;
+}
+
+.attendance-list__calendar {
+    width: 16px;
+    height: 16px;
+}
+
+.attendance-list__table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #fff;
+}
+
+.attendance-list__table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.attendance-list__table th,
+.attendance-list__table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 16px;
+    color: #737373;
+}
+
+.attendance-list__date-main {
+    margin-right: 4px;
+}
+
+.attendance-list__date-week {
+    color: #777;
+    font-size: 14px;
+}
+
+.attendance-list__table th {
+    background: #f8f8f8;
+    font-weight: bold;
+    color: #737373;
+}
+
+.attendance-list__detail {
+    color: #000;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.attendance-list__detail:hover {
+    text-decoration: underline;
+}
+
+.attendance-list__table th.attendance-list__col-date,
+.attendance-list__table td.attendance-list__date {
+    text-align: left;
+    padding-left: 40px;
+    max-width: 80px;
+    white-space: nowrap;
+}

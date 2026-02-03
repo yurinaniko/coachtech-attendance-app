@@ -1,0 +1,68 @@
+.attendance {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.attendance-wrapper {
+    max-width: 680px;
+    margin: 0 auto;
+    padding-top: 120px;
+}
+
+.attendance__status {
+    display: inline-block;
+    padding: 6px 16px;
+    margin-bottom: 16px;
+    border-radius: 999px;
+    background-color: #E0E0E0;
+    color: #555;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+}
+
+.attendance__date {
+    font-size: 28px;
+    text-align: center;
+    color: #000;
+    margin: 0 auto;
+}
+
+.attendance__time {
+    font-size: 64px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 60px;
+}
+
+.attendance__button {
+    min-width: 160px;
+    padding: 12px 0;
+    border-radius: 6px;
+    background: #000;
+    color: #fff;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.attendance__button--sub {
+    background: #fff;
+    color: #000;
+    border: 1px solid #fff;
+}
+
+.attendance__buttons {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+}
+
+.attendance__message {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}

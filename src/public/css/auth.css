@@ -1,0 +1,123 @@
+.auth {
+    width: 680px;
+    padding: 30px;
+    background: #fff;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.auth--register .auth__submit {
+    margin-top: 30px;
+}
+
+.auth__wrapper {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+.auth__title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.auth__link {
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    color: #298BEF;
+    margin-top: 10px;
+    background: none;
+    border: none;
+}
+
+.auth__link:hover {
+    opacity: 0.7;
+}
+
+.auth__submit {
+    width: 100%;
+    background: #000;
+    border: none;
+    color: #fff;
+    padding: 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    margin: 20px 0;
+}
+
+.auth--login .auth__submit {
+    margin-top: 60px;
+    margin-bottom: 20px;
+}
+
+.auth__wrapper--verify {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth--verify .auth__text {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.8;
+    margin: 0 auto;
+    color: #333;
+}
+
+.auth--verify .auth__text:last-of-type {
+    margin-bottom: 28px;
+}
+
+.auth--verify .auth__button {
+    text-decoration: none;
+    color: #333;
+    background: #E0E0E0;
+    border: 1px solid #000;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 16px;
+}
+
+.auth--verify form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.auth__verify-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.auth__verify-actions .auth__button {
+    order: 1;
+}
+
+.auth__verify-actions form {
+    order: 2;
+}
+
+.auth--login .form__group {
+    margin: 60px auto 40px;
+}
+
+.auth__flash {
+    position: fixed;
+    top: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #000;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 6px;
+    z-index: 1000;
+}
