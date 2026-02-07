@@ -11,13 +11,13 @@
                 <nav class="header__nav">
                     <ul class="header__nav-list">
                         <li>
-                            <a href="#">勤怠</a>
+                            <a href="{{ route('admin.attendance.list') }}">勤怠一覧</a>
                         </li>
                         <li>
-                            <a href="#">勤怠一覧</a>
+                            <a href="{{ route('admin.staff.list') }}">スタッフ一覧</a>
                         </li>
                         <li>
-                            <a href="#">申請</a>
+                            <a href="{{ route('admin.stamp_correction_requests.index') }}">申請一覧</a>
                         </li>
                         <li>
                             <form method="POST" action="{{ route('admin.logout') }}">

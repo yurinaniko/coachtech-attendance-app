@@ -99,23 +99,17 @@ class AttendanceController extends Controller
 
     public function list(Request $request)
     {
-        $user = auth()->user();
+        $month = $request->input('month')
+            ? Carbon::createFromFormat('Y-m', $request->month): now();
 
-        // 表示対象の年月（URLパラメータがなければ今月）
-        $month = $request->get('month', now()->format('Y-m'));
-        $carbonMonth = Carbon::createFromFormat('Y-m', $month);
+        $startOfMonth = $month->copy()->startOfMonth();
+        $endOfMonth   = $month->copy()->endOfMonth();
 
-        $attendances = Attendance::where('user_id', $user->id)
-            ->whereYear('work_date', $carbonMonth->year)
-            ->whereMonth('work_date', $carbonMonth->month)
-            ->orderBy('work_date')
+        $attendances = Attendance::where('user_id', auth()->id())
+            ->whereBetween('work_date', [$startOfMonth, $endOfMonth])
             ->get()
-            ->keyBy(fn ($a) => $a->work_date->format('Y-m-d'));
-
-        return view('attendance.list', [
-            'month' => $carbonMonth,
-            'attendances' => $attendances,
-        ]);
+            ->keyBy(fn ($attendance) => $attendance->work_date->format('Y-m-d'));
+        return view('attendance.list', compact('attendances', 'month'));
     }
 
     public function show($id)

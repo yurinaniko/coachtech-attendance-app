@@ -54,26 +54,51 @@ class Attendance extends Model
         return $this->breaks->get($index);
     }
 
-    public function totalBreakMinutes(): int
+    public function getBreakSecondsAttribute(): int
     {
-        return $this->breaks
-            ->whereNotNull('break_end_at')
-            ->sum(function ($break) {
-                return Carbon::parse($break->break_end_at)
-                ->diffInMinutes(Carbon::parse($break->break_start_at));
-            });
+        return $this->breaks->sum(function ($b) {
+            if (!$b->break_start_at || !$b->break_end_at) return 0;
+            return Carbon::parse($b->break_end_at)->diffInSeconds(Carbon::parse($b->break_start_at));
+        });
     }
 
-    public function totalWorkingMinutes(): int
+    public function getWorkSecondsAttribute(): int
     {
-        if (!$this->clock_in_at || !$this->clock_out_at) {
-        return 0;
-        }
+        if (!$this->clock_in_at || !$this->clock_out_at) return 0;
 
-        $workMinutes =
-            Carbon::parse($this->clock_out_at)
-                ->diffInMinutes(Carbon::parse($this->clock_in_at));
+        $work = Carbon::parse($this->clock_out_at)->diffInSeconds(Carbon::parse($this->clock_in_at));
+        $work -= $this->break_seconds;
 
-        return $workMinutes - $this->totalBreakMinutes();
+        return max(0, $work);
+    }
+
+    public function getWorkTimeHhmmAttribute(): string
+    {
+        $sec = $this->work_seconds;
+        $h = intdiv($sec, 3600);
+        $m = intdiv($sec % 3600, 60);
+        return sprintf('%02d:%02d', $h, $m);
+    }
+
+    public function getBreakTimeHhmmAttribute(): string
+    {
+        $sec = $this->break_seconds;
+        $h = intdiv($sec, 3600);
+        $m = intdiv($sec % 3600, 60);
+        return sprintf('%02d:%02d', $h, $m);
+    }
+
+    public function getClockInTimeAttribute(): ?string
+    {
+        return $this->clock_in_at
+            ? $this->clock_in_at->format('H:i')
+            : null;
+    }
+
+    public function getClockOutTimeAttribute(): ?string
+    {
+        return $this->clock_out_at
+            ? $this->clock_out_at->format('H:i')
+            : null;
     }
 }

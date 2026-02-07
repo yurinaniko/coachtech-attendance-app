@@ -18,12 +18,21 @@ class StampCorrectionRequest extends Model
         'status',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function attendance()
+    {
+        return $this->belongsTo(Attendance::class);
+    }
+
     public function getStatusLabelAttribute()
     {
         return match ($this->status) {
             'pending' => '承認待ち',
             'approved' => '承認済み',
-            default => '',
         };
     }
 

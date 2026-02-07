@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\StampCorrectionRequest;
 use Illuminate\Http\Request;
+use App\Models\Attendance;
+use App\Models\StampCorrectionBreak;
+use Carbon\Carbon;
 
 class StampCorrectionRequestController extends Controller
 {
@@ -29,4 +32,61 @@ class StampCorrectionRequestController extends Controller
         return view('stamp_correction_requests.show', compact('request'));
     }
 
+    public function store(Request $request)
+    {
+        $request->validate([
+        'attendance_id' => ['required', 'exists:attendances,id'],
+        'clock_in_at'   => ['nullable'],
+        'clock_out_at'  => ['nullable'],
+        'note'          => ['required', 'string'],
+    ]);
+
+        $attendance = Attendance::where('id', $request->attendance_id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $requestedClockIn = $request->clock_in_at ? $attendance->work_date
+            ->copy()
+            ->setTimeFromTimeString($request->clock_in_at): null;
+
+        $requestedClockOut = $request->clock_out_at ? $attendance->work_date
+            ->copy()
+            ->setTimeFromTimeString($request->clock_out_at): null;
+        // 親：打刻修正申請
+        $correctionRequest = StampCorrectionRequest::create([
+            'attendance_id' => $attendance->id,
+            'user_id'       => auth()->id(),
+            'requested_clock_in_at'  => $requestedClockIn,
+            'requested_clock_out_at' => $requestedClockOut,
+            'requested_note'         => $request->note,
+            'status' => 'pending',
+        ]);
+
+        foreach ($request->breaks as $break) {
+
+            if (empty($break['attendance_break_id']) &&
+                empty($break['break_start_at']) &&
+                empty($break['break_end_at'])) {
+                continue;
+            }
+            $breakStart = $break['break_start_at'] ? $attendance->work_date
+                ->copy()
+                ->setTimeFromTimeString($break['break_start_at']): null;
+
+            $breakEnd = $break['break_end_at'] ? $attendance->work_date
+                ->copy()
+                ->setTimeFromTimeString($break['break_end_at']): null;
+
+            StampCorrectionBreak::create([
+                'stamp_correction_request_id' => $correctionRequest->id,
+                'attendance_break_id' => $break['attendance_break_id'],
+                'break_start_at' => $breakStart,
+                'break_end_at'   => $breakEnd,
+            ]);
+        }
+
+        return redirect()
+            ->route('attendance.show', $attendance->id)
+            ->with('success', '修正申請を送信しました');
+    }
 }

@@ -31,30 +31,22 @@
 .request-index__table td {
     padding: 10px;
     text-align: center;
+    font-size: 16px;
+    font-weight: bold;
     border-bottom: 1px solid #ccc;
     color: #737373;
 }
 
 .request-index__status {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 13px;
-}
-
-.request-index__status--pending {
-    background: #eee;
-}
-
-.request-index__status--approved {
-    background: #c8e6c9;
-}
-
-.request-index__status--rejected {
-    background: #ffcdd2;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 .request-index__detail {
-    text-decoration: underline;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    color: #000;
 }
 
 .request-index__empty {
@@ -73,11 +65,14 @@
     color: #666;
     text-decoration: none;
     position: relative;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 .request-index__tab.is-active {
     color: #000;
     font-weight: bold;
+    font-size: 16px;
 }
 
 .request-index__table-wrapper {

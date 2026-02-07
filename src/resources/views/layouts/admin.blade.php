@@ -11,7 +11,6 @@
 </head>
 <body class="@yield('body-class', 'body--app')">
 <div class="wrapper">
-    {{-- 管理者ログイン後のみヘッダー表示 --}}
     @auth('admin')
         @include('layouts.admin-header')
     @endauth

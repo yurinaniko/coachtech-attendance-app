@@ -7,6 +7,9 @@
 @section('content')
 <div class="attendance-detail">
     <h1 class="attendance-detail__title">勤怠詳細</h1>
+    <form method="POST" action="{{ route('stamp_correction_requests.store') }}">
+        @csrf
+        <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
         <div class="attendance-detail__wrapper">
             <table class="attendance-detail__table">
                 <tbody>
@@ -33,44 +36,45 @@
                         <th>出勤・退勤</th>
                         <td>
                             <div class="attendance-detail__time-group">
-                                <input type="text" name="clock_in_at" class="attendance-detail__time-input"
-                                value="{{ optional($attendance->clock_in_at)->format('H:i') }}" placeholder="00:00">
+                                <input type="time" name="clock_in_at" class="attendance-detail__time-input"
+                                value="{{ optional($attendance->clock_in_at)->format('H:i') }}">
                                 <span>〜</span>
-                                <input type="text" name="clock_out_at" class="attendance-detail__time-input"
-                                value="{{ optional($attendance->clock_out_at)->format('H:i') }}" placeholder="00:00">
+                                <input type="time" name="clock_out_at" class="attendance-detail__time-input"
+                                value="{{ optional($attendance->clock_out_at)->format('H:i') }}">
                             </div>
                         </td>
                     </tr>
                     <tr>
-                        @php
-                            $break1 = $attendance->breaks->get(0);
-                            $break2 = $attendance->breaks->get(1);
-                            $break1Start = optional($break1?->break_start_at)->format('H:i');
-                            $break1End   = optional($break1?->break_end_at)->format('H:i');
-                            $break2Start = optional($break2?->break_start_at)->format('H:i');
-                            $break2End   = optional($break2?->break_end_at)->format('H:i');
-                        @endphp
                         <th>休憩</th>
                         <td>
-                            <div class="attendance-detail__time-group">
-                                <input type=text class="attendance-detail__time-input" value="{{ $break1Start ?? '' }}"
-                                {{ $break1Start ? '' : 'readonly' }}>
-                                <span>〜</span>
-                                <input type=text class="attendance-detail__time-input" value="{{ $break1End ?? '' }}"
-                                {{ $break1End ? '' : 'readonly' }}>
-                            </div>
+                            @php $break = $attendance->breaks->get(0); @endphp
+                                <div class="attendance-detail__time-group">
+                                {{-- 休憩1 --}}
+                                    @if ($break)
+                                        <input type="hidden" name="breaks[0][attendance_break_id]" value="{{ $break->id }}" class="attendance-detail__time-input">
+                                    @endif
+                                    <input type="time" name="breaks[0][break_start_at]" value="{{ $break?->break_start_at?->format('H:i') }}"class="attendance-detail__time-input">
+                                    <span>〜</span>
+                                    <input type="time" name="breaks[0][break_end_at]" value="{{ $break?->break_end_at?->format('H:i') }}"class="attendance-detail__time-input">
+                                </div>
                         </td>
                     </tr>
                     <tr>
                         <th>休憩2</th>
                         <td>
-                            <div class="attendance-detail__time-group">
-                                <input type="text"class="attendance-detail__time-input" value="{{ $break2Start ?? '' }}"
-                                {{ $break2Start ? '' : 'readonly' }}>
-                                <span>〜</span>
-                                <input type="text" class="attendance-detail__time-input" value="{{ $break2End ?? '' }}"
-                                {{ $break2End ? '' : 'readonly' }}>
-                            </div>
+                            @php $break = $attendance->breaks->get(1); @endphp
+                                <div class="attendance-detail__time-group">
+                                    @if ($break)
+                                        {{-- 休憩2 --}}
+                                        <input type="hidden"  name="breaks[1][attendance_break_id]"
+                                        value="{{ $break->id }}" class="attendance-detail__time-input">
+                                    @endif
+                                    <input type="time" name="breaks[1][break_start_at]"
+                                    value="{{ $break?->break_start_at?->format('H:i') }}"class="attendance-detail__time-input">
+                                    <span>〜</span>
+                                    <input type="time" name="breaks[1][break_end_at]"
+                                    value="{{ $break?->break_end_at?->format('H:i') }}"class="attendance-detail__time-input">
+                                </div>
                         </td>
                     </tr>
                     <tr>
@@ -92,12 +96,9 @@
                     ※承認待ちのため修正できません。
                 </p>
             @else
-                <form method="POST" action="{{ route('stamp_correction_requests.store') }}">
-                    @csrf
-                    <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
-                    <button type="submit" class="attendance-detail__edit-btn">修正</button>
-                </form>
+                <button type="submit" class="attendance-detail__edit-btn">修正</button>
             @endif
         </div>
+    </form>
 </div>
 @endsection

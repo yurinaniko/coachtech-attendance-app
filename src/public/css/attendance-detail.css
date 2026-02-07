@@ -99,16 +99,8 @@
     gap: 60px;
 }
 
-.attendance-detail__time-display {
-    background-color: #f9f9f9;
-}
-
 input[type="time"]::-webkit-calendar-picker-indicator {
     display: none;
-}
-
-input[type="time"] {
-    appearance: none;
 }
 
 .attendance-detail__time-input {
@@ -121,6 +113,13 @@ input[type="time"] {
     border-radius: 4px;
     border: 1px solid #e0e0e0;
     color: #333;
+}
+
+.attendance-detail__time-input[readonly],
+.attendance-detail__note[readonly] {
+    pointer-events: none;
+    background-color: #f5f5f5;
+    color: #555;
 }
 
 .attendance-detail__time-group span {

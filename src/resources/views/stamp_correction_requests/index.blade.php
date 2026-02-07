@@ -38,9 +38,9 @@
                                 </span>
                             </td>
                             <td>{{ $request->user->name }}</td>
-                            <td>{{ $request->target_date->format('Y/m/d') }}</td>
+                            <td>{{ optional($request->target_date)->format('Y/m/d') ?? '-' }}</td>
                             <td>{{ $request->reason }}</td>
-                            <td>{{ $request->created_at->format('Y/m/d') }}</td>
+                            <td>{{ optional($request->created_at)->format('Y/m/d') }}</td>
                             <td>
                                 <a href="{{ route('stamp_correction_requests.show', $request->id) }}"class="request-index__detail">詳細</a>
                             </td>

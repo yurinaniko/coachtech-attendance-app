@@ -24,7 +24,7 @@
     background: #000;
 }
 
-.attendance-list__month {
+.attendance-list__date {
     border-radius: 10px;
     border-color: #fff;
     background-color: #fff;
@@ -35,19 +35,19 @@
     margin-bottom: 40px;
 }
 
-.attendance-list__month-btn {
+.attendance-list__date-btn {
     background: #fff;
     border: 1px solid #ccc;
     padding: 5px 12px;
     cursor: pointer;
 }
 
-.attendance-list__month a {
+.attendance-list__date a {
     text-decoration: none;
     color:#737373;
 }
 
-.attendance-list__month-text {
+.attendance-list__date-text {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -106,10 +106,46 @@
     text-decoration: underline;
 }
 
-.attendance-list__table th.attendance-list__col-date,
-.attendance-list__table td.attendance-list__date {
+.attendance-list__detail--disabled {
+    color: #000;
+    cursor: default;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+.attendance-list__col-primary{
     text-align: left;
     padding-left: 40px;
     max-width: 80px;
     white-space: nowrap;
+}
+
+.attendance-list__detail-link {
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.attendance-list__detail-link:hover {
+    opacity: 0.7;
+}
+
+.attendance-list__actions {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.attendance-list__csv-btn {
+    display: inline-block;
+    padding: 8px 24px;
+    margin-top: 20px;
+    background-color: #000;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.attendance-list__csv-btn:hover {
+    opacity: 0.8;
 }

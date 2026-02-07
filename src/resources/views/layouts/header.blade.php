@@ -10,9 +10,9 @@
             <img src="{{ asset('images/coachtech.png') }}" class="header__logo-img" alt="COACHTECH">
         </div>
         @if (!$hideNav)
-            <nav class="header__nav">
-                <ul class="header__nav-list">
-                    @auth
+            @auth
+                <nav class="header__nav">
+                    <ul class="header__nav-list">
                         <li>
                             <a href="{{ route('attendance.index') }}">勤怠</a>
                         </li>
@@ -28,9 +28,9 @@
                                     <button class="header__logout-button">ログアウト</button>
                             </form>
                         </li>
-                    @endauth
-                </ul>
-            </nav>
+                    </ul>
+                </nav>
+            @endauth
         @endif
     </div>
 </header>

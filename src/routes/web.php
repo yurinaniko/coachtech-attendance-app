@@ -1,15 +1,15 @@
 <?php
-
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\StampCorrectionRequestController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
-use App\Http\Controllers\Admin\StaffController as AdminStaffController;
 use App\Http\Controllers\Admin\StampCorrectionRequestController as AdminStampCorrectionRequestController;
 use App\Http\Controllers\Admin\ApprovalController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\StaffAttendanceController;
 
 // 一般ユーザー 認証
 Route::get('/login', [AuthController::class, 'showLogin'])
@@ -18,7 +18,7 @@ Route::get('/login', [AuthController::class, 'showLogin'])
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/logout', [AuthController::class, 'logout'])
-    ->name('auth.logout');
+    ->name('logout');
 
 Route::get('/register', [AuthController::class, 'showRegister'])
     ->name('register.form');
@@ -47,31 +47,35 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/attendance', [AttendanceController::class, 'index'])
-        ->name('attendance.index');
-    Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])
-        ->name('attendance.clockIn');
-    Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])
-        ->name('attendance.clockOut');
-    Route::post('/attendance/break-start', [AttendanceController::class, 'breakStart'])
-        ->name('attendance.breakStart');
-    Route::post('/attendance/break-end', [AttendanceController::class, 'breakEnd'])
-        ->name('attendance.breakEnd');
-    Route::get('/attendance/list', [AttendanceController::class, 'list'])
-        ->name('attendance.list');
-    Route::get('/attendance/{id}', [AttendanceController::class, 'show'])
-        ->name('attendance.show');
-    Route::get('/stamp_correction_requests', [StampCorrectionRequestController::class, 'index'])
-        ->name('stamp_correction_requests.index');
-        Route::get('/stamp_correction_requests/{id}',
-    [StampCorrectionRequestController::class, 'show'])
-        ->name('stamp_correction_requests.show');
-    Route::post('/stamp_correction_requests', [StampCorrectionRequestController::class, 'store'])
-        ->name('stamp_correction_requests.store');
-    Route::get('/stamp_correction_requests/create/{attendance}',
-    [StampCorrectionRequestController::class, 'create'])
-        ->name('stamp_correction_requests.create');
+    Route::prefix('attendance')->group(function () {
+        Route::get('/', [AttendanceController::class, 'index'])
+            ->name('attendance.index');
+        Route::get('/list', [AttendanceController::class, 'list'])
+            ->name('attendance.list');
+        Route::get('/detail/{attendance}', [AttendanceController::class, 'show'])
+            ->name('attendance.show');
+        Route::post('/clock-in', [AttendanceController::class, 'clockIn'])
+            ->name('attendance.clockIn');
+        Route::post('/clock-out', [AttendanceController::class, 'clockOut'])
+            ->name('attendance.clockOut');
+        Route::post('/break-start', [AttendanceController::class, 'breakStart'])
+            ->name('attendance.breakStart');
+        Route::post('/break-end', [AttendanceController::class, 'breakEnd'])
+            ->name('attendance.breakEnd');
+    });
+
+    Route::prefix('stamp_correction_requests')->group(function () {
+        Route::get('/', [StampCorrectionRequestController::class, 'index'])
+            ->name('stamp_correction_requests.index');
+        Route::post('/', [StampCorrectionRequestController::class, 'store'])
+            ->name('stamp_correction_requests.store');
+        Route::get('/create/{attendance}', [StampCorrectionRequestController::class, 'create'])
+            ->name('stamp_correction_requests.create');
+        Route::get('/{stampCorrectionRequest}', [StampCorrectionRequestController::class, 'show'])
+            ->name('stamp_correction_requests.show');
+    });
 });
+
 
 Route::prefix('admin')->group(function () {
 
@@ -95,12 +99,43 @@ Route::prefix('admin')->group(function () {
                 [AdminAttendanceController::class, 'detail']
             )->name('attendance.detail');
 
-            Route::get('/staff/list',
-                [AdminStaffController::class, 'index']
+            Route::post('attendance/{id}/update',
+                [AdminAttendanceController::class, 'update']
+            )->name('attendance.update');
+
+            Route::get('staff/list', [StaffController::class, 'list']
             )->name('staff.list');
 
-            Route::get('/stamp_correction_requests/list',
+            // スタッフ別 月次勤怠一覧
+            Route::get('staff/{user}/attendances',
+                [StaffAttendanceController::class, 'index']
+            )->name('staff.attendance.index');
+
+            // CSV出力
+            Route::get('staff/{user}/attendances/csv',
+                [Admin\StaffAttendanceController::class, 'csv']
+            )->name('staff.attendance.csv');
+
+            Route::get('/stamp_correction_requests/index',
                 [AdminStampCorrectionRequestController::class, 'index']
-            )->name('stamp_correction_requests.list');
-        });
+            )->name('stamp_correction_requests.index');
+
+            Route::post('/stamp_correction_requests',
+                [StampCorrectionRequestController::class, 'store']
+            )->name('stamp_correction_requests.store');
+
+            Route::get('/stamp_correction_requests/{id}',
+                [AdminStampCorrectionRequestController::class, 'show']
+            )->name('stamp_correction_requests.show');
+
+        Route::post(
+            '/stamp_correction_requests/approve/{id}',
+            [AdminStampCorrectionRequestController::class, 'approve']
+        )->name('stamp_correction_requests.approve');
+    });
 });
+
+Route::get('/route-check', function () {
+    return 'route ok';
+    });
+
