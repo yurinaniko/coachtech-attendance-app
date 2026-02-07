@@ -47,10 +47,10 @@
                         </span>
                     </td>
                     <td>
-                        {{ $attendance?->clock_in_at?->format('H:i') }}
+                        {{ optional($attendance)->clock_in_at?->format('H:i') }}
                     </td>
                     <td>
-                        {{ $attendance?->clock_out_at?->format('H:i') }}
+                        {{ optional($attendance)->clock_out_at?->format('H:i') }}
                     </td>
                     <td>
                         @if ($attendance && $attendance->break_seconds > 0)
@@ -64,7 +64,7 @@
                     </td>
                     <td>
                         @if ($attendance)
-                            <a href="{{ route('attendance.show', $attendance->id) }}" class="attendance-list__detail">
+                            <a href="{{ route('attendance.detail', $attendance->id) }}" class="attendance-list__detail">
                                 詳細
                             </a>
                         @endif

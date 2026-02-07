@@ -35,11 +35,24 @@ class StampCorrectionRequestController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-        'attendance_id' => ['required', 'exists:attendances,id'],
-        'clock_in_at'   => ['nullable'],
-        'clock_out_at'  => ['nullable'],
-        'note'          => ['required', 'string'],
-    ]);
+            'attendance_id' => ['required', 'exists:attendances,id'],
+            'clock_in_at'   => ['nullable'],
+            'clock_out_at'  => ['nullable'],
+            'note'          => ['required', 'string'],
+        ]);
+
+        $attendance = Attendance::findOrFail($request->attendance_id);
+
+        $existsPending = StampCorrectionRequest::where('user_id', auth()->id())
+            ->where('attendance_id', $attendance->id)
+            ->where('status', 'pending')
+            ->exists();
+
+        if ($existsPending) {
+            return back()->withErrors([
+                'message' => 'この日の修正申請はすでに承認待ちです。'
+            ]);
+        }
 
         $attendance = Attendance::where('id', $request->attendance_id)
             ->where('user_id', auth()->id())
@@ -64,22 +77,25 @@ class StampCorrectionRequestController extends Controller
 
         foreach ($request->breaks as $break) {
 
-            if (empty($break['attendance_break_id']) &&
-                empty($break['break_start_at']) &&
-                empty($break['break_end_at'])) {
-                continue;
-            }
-            $breakStart = $break['break_start_at'] ? $attendance->work_date
-                ->copy()
-                ->setTimeFromTimeString($break['break_start_at']): null;
+            $attendanceBreakId = $break['attendance_break_id'] ?? null;
+            $breakStartAt      = $break['break_start_at'] ?? null;
+            $breakEndAt        = $break['break_end_at'] ?? null;
 
-            $breakEnd = $break['break_end_at'] ? $attendance->work_date
-                ->copy()
-                ->setTimeFromTimeString($break['break_end_at']): null;
+            if (!$attendanceBreakId && !$breakStartAt && !$breakEndAt) {
+            continue;
+            }
+
+            $breakStart = $breakStartAt
+            ? $attendance->work_date->copy()->setTimeFromTimeString($breakStartAt)
+            : null;
+
+            $breakEnd = $breakEndAt
+            ? $attendance->work_date->copy()->setTimeFromTimeString($breakEndAt)
+            : null;
 
             StampCorrectionBreak::create([
                 'stamp_correction_request_id' => $correctionRequest->id,
-                'attendance_break_id' => $break['attendance_break_id'],
+                'attendance_break_id' => $attendanceBreakId,
                 'break_start_at' => $breakStart,
                 'break_end_at'   => $breakEnd,
             ]);

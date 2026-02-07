@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
 use Carbon\Carbon;
+use App\Models\StampCorrectionRequest;
 
 class AttendanceController extends Controller
 {
@@ -112,18 +113,17 @@ class AttendanceController extends Controller
         return view('attendance.list', compact('attendances', 'month'));
     }
 
-    public function show($id)
+    public function detail(Attendance $attendance,Request $request)
     {
-        $attendance = Attendance::with(['user', 'breaks'])
-        ->where('user_id', auth()->id())
-        ->findOrFail($id);
+        $stampRequest = null;
 
-        $breaks = $attendance->breaks;
+        if ($request->from === 'request' && $request->request_id) {
+        $stampRequest = StampCorrectionRequest::find($request->request_id);
+        }
 
         return view('attendance.detail', [
             'attendance' => $attendance,
-            'break1' => $breaks->get(0),
-            'break2' => $breaks->get(1),
+            'stampRequest' => $stampRequest,
         ]);
     }
 }

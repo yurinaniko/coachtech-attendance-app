@@ -42,7 +42,9 @@
                             <td>{{ $request->reason }}</td>
                             <td>{{ optional($request->created_at)->format('Y/m/d') }}</td>
                             <td>
-                                <a href="{{ route('stamp_correction_requests.show', $request->id) }}"class="request-index__detail">詳細</a>
+                                <a href="{{ route('attendance.detail', ['attendance' => $request->attendance_id,'from' => 'request','request_id' => $request->id,]) }}" class="request-index__detail">
+                                    詳細
+                                </a>
                             </td>
                         </tr>
                     @empty
