@@ -115,15 +115,31 @@ class AttendanceController extends Controller
 
     public function detail(Attendance $attendance,Request $request)
     {
-        $stampRequest = null;
+        $latestRequest = $attendance->latestStampRequest();
 
-        if ($request->from === 'request' && $request->request_id) {
-        $stampRequest = StampCorrectionRequest::find($request->request_id);
+        $disabled = false;
+        $notice = null;
+
+        if ($latestRequest && $latestRequest->status === StampCorrectionRequest::STATUS_PENDING) {
+        $disabled = true;
+        $notice = '※承認待ちのため修正できません。';
         }
 
+        $breaks = $attendance->breaks()
+        ->orderBy('break_start_at')
+        ->get();
+
+        $oldBreaks = old('breaks');
+
+        $displayCount = min($breaks->count() + 1, 5);
+
         return view('attendance.detail', [
-            'attendance' => $attendance,
-            'stampRequest' => $stampRequest,
+            'attendance'   => $attendance,
+            'breaks'       => $breaks,
+            'displayCount' => $displayCount,
+            'disabled'     => $disabled,
+            'notice'       => $notice,
         ]);
     }
+
 }

@@ -17,6 +17,7 @@ class AuthController extends Controller
     public function login(AdminLoginRequest $request)
     {
         $credentials = $request->only('email', 'password');
+        $credentials['is_admin'] = true;
 
         if (!Auth::guard('admin')->attempt($credentials)) {
             return back()->withErrors([

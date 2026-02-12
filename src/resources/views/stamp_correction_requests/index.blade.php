@@ -1,24 +1,24 @@
 @extends('layouts.app')
 
 @section('css')
-<link rel="stylesheet" href="{{ asset('css/request.css') }}">
+<link rel="stylesheet" href="{{ asset('css/stamp-request.css') }}">
 @endsection
 
 @section('content')
-<div class="request-index">
-    <h1 class="request-index__title">申請一覧</h1>
-        <div class="request-index__tabs">
+<div class="stamp-request-index">
+    <h1 class="stamp-request-index__title">申請一覧</h1>
+        <div class="stamp-request-index__tabs">
             <a href="{{ route('stamp_correction_requests.index', ['status' => 'pending']) }}"
-            class="request-index__tab {{ request('status', 'pending') === 'pending' ? 'is-active' : '' }}">
+            class="stamp-request-index__tab {{ request('status', 'pending') === 'pending' ? 'is-active' : '' }}">
                 承認待ち
             </a>
             <a href="{{ route('stamp_correction_requests.index', ['status' => 'approved']) }}"
-            class="request-index__tab {{ request('status') === 'approved' ? 'is-active' : '' }}">
+            class="stamp-request-index__tab {{ request('status') === 'approved' ? 'is-active' : '' }}">
                 承認済み
             </a>
         </div>
-        <div class="request-index__table-wrapper">
-            <table class="request-index__table">
+        <div class="stamp-request-index__table-wrapper">
+            <table class="stamp-request-index__table">
                 <thead>
                     <tr>
                         <th>状態</th>
@@ -33,7 +33,7 @@
                     @forelse ($requests as $request)
                         <tr>
                             <td>
-                                <span class="request-index__status request-index__status--{{ $request->status }}">
+                                <span class="stamp-request-index__status stamp-request-index__status--{{ $request->status }}">
                                 {{ $request->status_label }}
                                 </span>
                             </td>
@@ -42,14 +42,14 @@
                             <td>{{ $request->reason }}</td>
                             <td>{{ optional($request->created_at)->format('Y/m/d') }}</td>
                             <td>
-                                <a href="{{ route('attendance.detail', ['attendance' => $request->attendance_id,'from' => 'request','request_id' => $request->id,]) }}" class="request-index__detail">
+                                <a href="{{ route('attendance.detail', ['attendance' => $request->attendance_id,'from' => 'request','request_id' => $request->id,]) }}" class="stamp-request-index__detail">
                                     詳細
                                 </a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="request-index__empty">
+                            <td colspan="6" class="stamp-request-index__empty">
                             申請はありません
                             </td>
                         </tr>

@@ -11,6 +11,9 @@
     {{-- 月切り替え --}}
     <div class="attendance-list__date">
         <a href="{{ route('admin.staff.attendance.index', ['user' => $user->id,'month' => $month->copy()->subMonth()->format('Y-m')]) }}">← 前月</a>
+        <span class="attendance-list__date-text">
+            <img src="{{ asset('images/calendar.png') }}" alt="" class="attendance-list__calendar"> {{ $month->format('Y/m') }}
+        </span>
         <a href="{{ route('admin.staff.attendance.index', ['user' => $user->id,'month' => $month->copy()->addMonth()->format('Y-m')]) }}">翌月 →</a>
     </div>
     {{-- テーブル --}}

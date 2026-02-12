@@ -101,4 +101,11 @@ class Attendance extends Model
             ? $this->clock_out_at->format('H:i')
             : null;
     }
+
+    public function latestStampRequest(): ?StampCorrectionRequest
+    {
+        return $this->stampCorrectionRequests()
+            ->latest()
+            ->first();
+    }
 }

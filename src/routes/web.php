@@ -114,7 +114,7 @@ Route::prefix('admin')->group(function () {
 
             // CSV出力
             Route::get('staff/{user}/attendances/csv',
-                [Admin\StaffAttendanceController::class, 'csv']
+                [StaffAttendanceController::class, 'csv']
             )->name('staff.attendance.csv');
 
             Route::get('/stamp_correction_requests/index',
@@ -122,12 +122,12 @@ Route::prefix('admin')->group(function () {
             )->name('stamp_correction_requests.index');
 
             Route::post('/stamp_correction_requests',
-                [StampCorrectionRequestController::class, 'store']
+                [AdminStampCorrectionRequestController::class, 'store']
             )->name('stamp_correction_requests.store');
 
-            Route::get('/stamp_correction_requests/{id}',
-                [AdminStampCorrectionRequestController::class, 'show']
-            )->name('stamp_correction_requests.show');
+            Route::get('/stamp_correction_requests/{id}/edit',
+                [AdminStampCorrectionRequestController::class, 'edit']
+            )->name('stamp_correction_requests.edit');
 
         Route::post(
             '/stamp_correction_requests/approve/{id}',

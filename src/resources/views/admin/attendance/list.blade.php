@@ -39,7 +39,8 @@
                             <td>{{ optional($attendance->clock_in_at)->format('H:i') }}</td>
                             <td>{{ optional($attendance->clock_out_at)->format('H:i') }}</td>
                             <td>{{ $attendance->break_time_hhmm }}</td>
-                            <td>{{ $attendance->work_time_hhmm }}</td>
+                            <td>{{ $attendance->work_time_hhmm }}
+                            </td>
                             <td>
                                 <a href="{{ route('admin.attendance.detail', $attendance->id) }}" class="attendance-list__detail-link">
                                     詳細

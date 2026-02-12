@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\StampCorrectionRequest;
+use App\Models\AttendanceBreak;
 
 class StampCorrectionBreak extends Model
 {
@@ -18,5 +19,10 @@ class StampCorrectionBreak extends Model
     public function stampCorrectionRequest()
     {
         return $this->belongsTo(StampCorrectionRequest::class);
+    }
+
+    public function attendanceBreak()
+    {
+        return $this->belongsTo(AttendanceBreak::class);
     }
 }

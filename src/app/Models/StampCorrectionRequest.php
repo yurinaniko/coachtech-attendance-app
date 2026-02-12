@@ -9,6 +9,8 @@ use App\Models\StampCorrectionBreak;
 class StampCorrectionRequest extends Model
 {
     use HasFactory;
+    public const STATUS_PENDING  = 'pending';
+    public const STATUS_APPROVED = 'approved';
     protected $fillable = [
         'attendance_id',
         'user_id',

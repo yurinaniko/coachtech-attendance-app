@@ -1,86 +1,91 @@
 @extends('layouts.admin')
 
 @section('css')
-<link rel="stylesheet" href= "{{ asset('css/attendance-detail.css') }}">
+<link rel="stylesheet" href="{{ asset('css/stamp-request-detail.css') }}">
 @endsection
 
 @section('content')
-<div class="attendance-detail">
-    <h1 class="attendance-detail__title">勤怠詳細</h1>
-        <div class="attendance-detail__wrapper">
-            <table class="attendance-detail__table">
-                <tbody>
-                    <tr>
-                        <th>名前</th>
-                        <td>
-                            <span class="attendance-detail__name">{{ $attendance->user->name }}</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>日付</th>
-                        <td>
-                            <div class="attendance-detail__date">
-                                <span class="attendance-detail__year">
-                                    {{ $attendance->work_date->format('Y') }}年
-                                </span>
-                                <span class="attendance-detail__month-day">
-                                    {{ $attendance->work_date->format('n') }}月{{ $attendance->work_date->format('j') }}日
-                                </span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>出勤・退勤</th>
-                        <td>
-                            <div class="attendance-detail__time-group">
-                                {{ optional($attendance->clock_in_at)->format('H:i') ?? '--:--' }}
-                                〜
-                                {{ optional($attendance->clock_out_at)->format('H:i') ?? '--:--' }}
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        @php
-                            $break1 = $attendance->breaks->get(0);
-                            $break2 = $attendance->breaks->get(1);
-                            $break1Start = optional($break1?->break_start_at)->format('H:i');
-                            $break1End   = optional($break1?->break_end_at)->format('H:i');
-                            $break2Start = optional($break2?->break_start_at)->format('H:i');
-                            $break2End   = optional($break2?->break_end_at)->format('H:i');
-                        @endphp
-                        <th>休憩</th>
-                        <td>
-                            <div class="attendance-detail__time-group">
-                                {{ $break1Start ?? '--:--' }} 〜 {{ $break1End ?? '--:--' }}
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>休憩2</th>
-                        <td>
-                            <div class="attendance-detail__time-group">
-                                {{ $break2Start ?? '--:--' }} 〜 {{ $break2End ?? '--:--' }}
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>備考</th>
-                        <td>
-                            {{ $attendance->note ?? '—' }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="attendance-detail__actions">
+<div class="stamp-request-detail">
+    <h1 class="stamp-request-detail__title">勤怠詳細</h1>
+
+    <div class="stamp-request-detail__wrapper">
+        <table class="stamp-request-detail__table">
+            <tbody>
+                <tr>
+                    <th>名前</th>
+                    <td>
+                        <span class="stamp-request-detail__row-value stamp-request-detail__row-value--name">
+                            {{ $request->attendance->user->name }}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>日付</th>
+                    <td>
+                        <div class="stamp-request-detail__row-value stamp-request-detail__row-value--date">
+                            <span>{{ $request->attendance->work_date->format('Y') }}年</span>
+                            <span>{{ $request->attendance->work_date->format('n') }}月{{ $request->attendance->work_date->format('j') }}日</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>出勤・退勤</th>
+                    <td>
+                        <div class="stamp-request-detail__row-value stamp-request-detail__row-value--time">
+                            <span>{{ optional($request->attendance->clock_in_at)->format('H:i') ?? '--:--' }}</span>
+                            <span>〜</span>
+                            <span>{{ optional($request->attendance->clock_out_at)->format('H:i') ?? '--:--' }}</span>
+                        </div>
+                    </td>
+                </tr>
+                    @php
+                        $break1 = $request->attendance->breaks->get(0);
+                        $break2 = $request->attendance->breaks->get(1);
+                        $break1Start = optional($break1?->break_start_at)->format('H:i');
+                        $break1End   = optional($break1?->break_end_at)->format('H:i');
+                        $break2Start = optional($break2?->break_start_at)->format('H:i');
+                        $break2End   = optional($break2?->break_end_at)->format('H:i');
+                    @endphp
+                <tr>
+                    <th>休憩</th>
+                    <td>
+                        <div class="stamp-request-detail__row-value stamp-request-detail__row-value--time">
+                            <span>{{ optional($break1?->break_start_at)->format('H:i') ?? '--:--' }}</span>
+                            <span>〜</span>
+                            <span>{{ optional($break1?->break_end_at)->format('H:i') ?? '--:--' }}</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>休憩2</th>
+                    <td>
+                        <div class="stamp-request-detail__row-value stamp-request-detail__row-value--time">
+                            <span>{{ optional($break2?->break_start_at)->format('H:i') ?? '--:--' }}</span>
+                            <span>〜</span>
+                            <span>{{ optional($break2?->break_end_at)->format('H:i') ?? '--:--' }}</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>備考</th>
+                    <td>
+                        <span class="stamp-request-detail__row-value stamp-request-detail__row-value--note">
+                            {{ $request->requested_note ?? '—' }}
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="stamp-request-detail__actions">
+        @if ($request->status === 'pending')
             <form method="POST" action="{{ route('admin.stamp_correction_requests.approve', $request->id) }}">
                 @csrf
+                <button type="submit" class="stamp-request-detail__approve-button">承認</button>
             </form>
-            <form method="POST" action="{{ route('stamp_correction_requests.store') }}">
-                @csrf
-                <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
-                <button type="submit">修正申請</button>
-            </form>
-        </div>
+        @else
+            <button class="stamp-request-detail__approved-button" disabled>承認済み</button>
+        @endif
+    </div>
 </div>
 @endsection

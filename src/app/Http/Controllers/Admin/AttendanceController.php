@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Attendance;
+use App\Http\Requests\StoreStampCorrectionRequest;
 
 class AttendanceController extends Controller
 {
@@ -64,30 +65,66 @@ class AttendanceController extends Controller
         $attendance = Attendance::with(['user', 'breaks'])
             ->findOrFail($id);
 
-        return view('admin.attendance.detail', compact('attendance'));
+        $breaks = $attendance->breaks()
+            ->orderBy('break_start_at')
+            ->get();
+
+        $oldBreaks = old('breaks');
+
+        $displayCount = min($breaks->count() + 1, 5);
+
+        return view('admin.attendance.detail', compact(
+            'attendance',
+            'breaks',
+            'displayCount'
+        ));
     }
 
-    public function update(Request $request, $id)
+    public function update(StoreStampCorrectionRequest $request, $id)
     {
-        $attendance = Attendance::findOrFail($id);
+        $attendance = Attendance::with('breaks')->findOrFail($id);
 
-        $data = [];
+        $data = $request->validated();
+        $attendance->update([
+            'clock_in_at'  => $data['clock_in_at'],
+            'clock_out_at' => $data['clock_out_at'],
+            'note'         => $data['note'] ?? null,
+        ]);
 
-        if ($request->filled('clock_in_at')) {
-        $data['clock_in_at'] = $request->clock_in_at;
+        // 休憩更新
+
+        if (!empty($data['breaks'])) {
+
+            foreach ($data['breaks'] as $index => $breakData) {
+
+                if (empty($breakData['break_start_at']) &&
+                empty($breakData['break_end_at'])) {
+                    continue;
+                }
+
+                $break = $attendance->breaks->get($index);
+
+                if ($break) {
+
+                    /* 既存更新 */
+                    $break->update([
+                        'break_start_at' => $breakData['break_start_at'],
+                        'break_end_at'   => $breakData['break_end_at'],
+                    ]);
+
+                } else {
+
+                    /* 新規作成 */
+                    $attendance->breaks()->create([
+                        'break_start_at' => $breakData['break_start_at'],
+                        'break_end_at'   => $breakData['break_end_at'],
+                    ]);
+                }
+            }
         }
-
-        if ($request->filled('clock_out_at')) {
-        $data['clock_out_at'] = $request->clock_out_at;
-        }
-
-        if ($request->filled('note')) {
-        $data['note'] = $request->note;
-        }
-
-        $attendance->update($data);
-        return redirect()
-            ->route('admin.attendance.detail', $attendance->id)
-            ->with('success', '勤怠を修正しました');
+            return redirect()
+                ->route('admin.attendance.detail', $attendance->id)
+                ->with('success', '勤怠を修正しました');
     }
+
 }

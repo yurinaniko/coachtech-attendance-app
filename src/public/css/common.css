@@ -90,3 +90,22 @@ main {
 .body--auth {
     background-color: #fff;
 }
+
+.error {
+    color: #ff4d4f;
+    font-size: 14px;
+    margin-top: 6px;
+    text-align: left;
+    font-weight: 500;
+}
+
+.success-message {
+    margin: 20px auto;
+    padding: 12px 16px;
+    max-width: 500px;
+    background: #e6f4ea;
+    color: #2e7d32;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 14px;
+}

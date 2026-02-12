@@ -22,15 +22,15 @@ class StampCorrectionRequestController extends Controller
         return view('admin.stamp_correction_requests.index', compact('requests'));
     }
 
-    public function show($id)
+    public function edit($id)
     {
         $request = StampCorrectionRequest::with([
             'user',
             'attendance',
-            'attendance.breaks'
+            'stampCorrectionBreaks.attendanceBreak',
         ])->findOrFail($id);
 
-        return view('admin.stamp_correction_requests.show', compact('request'));
+        return view('admin.stamp_correction_requests.edit', compact('request'));
     }
 
     public function store(Request $request)
@@ -53,16 +53,40 @@ class StampCorrectionRequestController extends Controller
     {
         DB::transaction(function () use ($id) {
 
-            $correctionRequest = StampCorrectionRequest::with('attendance')
-                ->findOrFail($id);
-
+            $correctionRequest = StampCorrectionRequest::with([
+                'attendance',
+                'stampCorrectionBreaks.attendanceBreak',
+            ])->findOrFail($id);
+            // 二重承認防止
+            if ($correctionRequest->status !== 'pending') {
+                abort(403, 'この申請はすでに処理されています');
+            }
+            // null ガード
+            if (
+                is_null($correctionRequest->requested_clock_in_at) &&
+                is_null($correctionRequest->requested_clock_out_at)
+            ) {
+                abort(400, '修正内容が存在しません');
+            }
             $attendance = $correctionRequest->attendance;
 
             $attendance->update([
-                'clock_in_at'  => $correctionRequest->clock_in_at,
-                'clock_out_at' => $correctionRequest->clock_out_at,
-                'note'         => $correctionRequest->reason,
+                'clock_in_at'  => $correctionRequest->requested_clock_in_at,
+                'clock_out_at' => $correctionRequest->requested_clock_out_at,
+                'note'         => $correctionRequest->requested_note,
             ]);
+
+            // ② 休憩を反映
+            foreach ($correctionRequest->stampCorrectionBreaks as $correctionBreak) {
+            $attendanceBreak = $correctionBreak->attendanceBreak;
+
+            if ($attendanceBreak) {
+                $attendanceBreak->update([
+                    'break_start_at' => $correctionBreak->break_start_at,
+                    'break_end_at'   => $correctionBreak->break_end_at,
+                ]);
+                }
+            }
 
             $correctionRequest->update([
                 'status' => 'approved',

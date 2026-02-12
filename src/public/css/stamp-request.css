@@ -1,9 +1,9 @@
-.request-index {
+.stamp-request-index {
     max-width: 900px;
     margin: 40px auto;
 }
 
-.request-index__title {
+.stamp-request-index__title {
     position: relative;
     padding-left: 14px;
     margin-bottom: 20px;
@@ -11,7 +11,7 @@
     font-weight: bold;
 }
 
-.request-index__title::before {
+.stamp-request-index__title::before {
     content: "";
     position: absolute;
     left: 0;
@@ -22,13 +22,13 @@
     background: #000;
 }
 
-.request-index__table {
+.stamp-request-index__table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.request-index__table th,
-.request-index__table td {
+.stamp-request-index__table th,
+.stamp-request-index__table td {
     padding: 10px;
     text-align: center;
     font-size: 16px;
@@ -37,30 +37,30 @@
     color: #737373;
 }
 
-.request-index__status {
+.stamp-request-index__status {
     font-size: 16px;
     font-weight: bold;
 }
 
-.request-index__detail {
+.stamp-request-index__detail {
     text-decoration: none;
     font-size: 16px;
     font-weight: bold;
     color: #000;
 }
 
-.request-index__empty {
+.stamp-request-index__empty {
     padding: 20px;
 }
 
-.request-index__tabs {
+.stamp-request-index__tabs {
     display: flex;
     gap: 30px;
     border-bottom: 1px solid #ccc;
     margin-bottom: 20px;
 }
 
-.request-index__tab {
+.stamp-request-index__tab {
     padding: 10px 0;
     color: #666;
     text-decoration: none;
@@ -69,13 +69,13 @@
     font-weight: bold;
 }
 
-.request-index__tab.is-active {
+.stamp-request-index__tab.is-active {
     color: #000;
     font-weight: bold;
     font-size: 16px;
 }
 
-.request-index__table-wrapper {
+.stamp-request-index__table-wrapper {
     overflow-x: auto;
     border-radius: 10px;
     border: 1px solid #fff;
