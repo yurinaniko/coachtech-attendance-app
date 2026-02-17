@@ -55,6 +55,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/attendance/{attendance}',
         [AttendanceController::class, 'detail']
             )->name('attendance.detail');
+        Route::get('/attendance/detail/date/{date}',
+        [AttendanceController::class, 'detailByDate']
+            )->name('attendance.detail.byDate');
         Route::post('/clock-in', [AttendanceController::class, 'clockIn'])
             ->name('attendance.clockIn');
         Route::post('/clock-out', [AttendanceController::class, 'clockOut'])

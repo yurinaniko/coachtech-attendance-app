@@ -40,6 +40,10 @@ class StampCorrectionRequestController extends Controller
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
+        $pendingRequest = StampCorrectionRequest::where('attendance_id', $attendance->id)
+            ->where('status', 'pending')
+            ->first();
+
         $requestedClockIn = $data['clock_in_at']
             ? $attendance->work_date->copy()->setTimeFromTimeString($data['clock_in_at'])
             : null;
@@ -101,7 +105,9 @@ class StampCorrectionRequestController extends Controller
         }
 
         return redirect()
-            ->route('attendance.detail', $attendance->id)
+            ->route('attendance.detail.byDate', [
+            'date' => $attendance->work_date->format('Y-m-d')
+        ])
             ->with('success', '修正申請を送信しました');
     }
 }

@@ -46,28 +46,26 @@
                             （{{ $date->isoFormat('dd') }}）
                         </span>
                     </td>
-                    <td>
+                    <td class="attendance-list__time">
                         {{ optional($attendance)->clock_in_at?->format('H:i') }}
                     </td>
-                    <td>
+                    <td class="attendance-list__time">
                         {{ optional($attendance)->clock_out_at?->format('H:i') }}
                     </td>
-                    <td>
+                    <td class="attendance-list__time">
                         @if ($attendance && $attendance->break_seconds > 0)
                             {{ $attendance->break_time_hhmm }}
                         @endif
                     </td>
-                    <td>
+                    <td class="attendance-list__time">
                         @if ($attendance && $attendance->work_seconds > 0)
                             {{ $attendance->work_time_hhmm }}
                         @endif
                     </td>
                     <td>
-                        @if ($attendance)
-                            <a href="{{ route('attendance.detail', $attendance->id) }}" class="attendance-list__detail">
+                            <a href="{{ route('attendance.detail.byDate', ['date' => $dateKey]) }}" class="attendance-list__detail">
                                 詳細
                             </a>
-                        @endif
                     </td>
                 </tr>
             @endfor

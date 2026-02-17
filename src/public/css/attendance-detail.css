@@ -54,12 +54,29 @@
     width: 70%;
     color: #333;
     font-weight: 700;
+    text-align: left;
 }
 
-.attendance-detail__date {
+.attendance-detail__date--view,
+.attendance-detail__date--edit {
     display: flex;
     align-items: center;
-    gap: 180px;
+}
+
+.attendance-detail__date--view .attendance-detail__year {
+    width: 182px;
+}
+
+.attendance-detail__date--view .attendance-detail__month-day {
+    width: 140px;
+}
+
+.attendance-detail__date--edit .attendance-detail__year {
+    width: 220px;
+}
+
+.attendance-detail__date--edit .attendance-detail__month-day {
+    width: 140px;
 }
 
 .attendance-detail__date span {
@@ -98,11 +115,9 @@
     font-size: 13px;
 }
 
-.attendance-detail__time-group {
+.attendance-detail__group {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 60px;
+    flex-direction: column;
 }
 
 input[type="time"]::-webkit-calendar-picker-indicator {
@@ -128,15 +143,15 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     color: #555;
 }
 
-.attendance-detail__time-group span {
-    line-height: 1;
-}
-
 .attendance-detail__note {
     width: 65%;
     resize: none;
     border-radius: 4px;
     border-color: #e0e0e0;
+}
+
+.attendance-detail__note-text {
+    margin-left: 12px;
 }
 
 .attendance-detail__table tr:last-child td {
@@ -148,3 +163,47 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     margin-left: 12px;
 }
 
+/* 空のときだけ --:-- を見えなくする（＝中身も消えるので、フォーカス中は戻す） */
+.attendance-detail__time-input.is-empty {
+    color: transparent;
+}
+
+/* 入力しようとしてる時は見えるようにする */
+.attendance-detail__time-input.is-empty:focus {
+    color: #000;
+}
+
+/* 値があるときは普通に見える */
+.attendance-detail__time-input:not(.is-empty) {
+    color: #000;
+}
+
+.attendance-detail__time {
+    margin-left: 12px;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+}
+
+.attendance-detail__row {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.attendance-detail__separator{
+    margin: 0 36px;
+}
+
+.attendance-detail__time-field {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    width: 100px;
+}
+
+.attendance-detail__error {
+    font-size: 13px;
+    color: #d32f2f;
+    line-height: 1.2;
+}

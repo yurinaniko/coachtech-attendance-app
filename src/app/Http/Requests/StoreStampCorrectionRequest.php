@@ -14,58 +14,72 @@ class StoreStampCorrectionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'attendance_id' => ['required', 'integer', 'exists:attendances,id'],
             'clock_in_at'  => ['required', 'date_format:H:i'],
             'clock_out_at' => ['required', 'date_format:H:i', 'after:clock_in_at'],
-            'note' => ['required', 'string', 'max:255'],
             'breaks' => ['nullable', 'array'],
-            'breaks.*.attendance_break_id' => ['nullable', 'integer'],
-            'breaks.*.break_start_at' => ['nullable'],
-            'breaks.*.break_end_at'   => ['nullable'],
+            'breaks.*.break_start_at' => ['nullable', 'date_format:H:i'],
+            'breaks.*.break_end_at'   => ['nullable', 'date_format:H:i'],
+            'note' => ['required', 'string', 'max:255'],
         ];
     }
 
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+
             $clockIn  = $this->input('clock_in_at');
             $clockOut = $this->input('clock_out_at');
-            $breakStart = $this->input('break_start_at');
-            $breakEnd   = $this->input('break_end_at');
 
-           // 休憩どちらか片方だけ
-            if (($breakStart && !$breakEnd) || (!$breakStart && $breakEnd)) {
-                $validator->errors()->add(
-                    'break_start_at',
-                    '休憩時間が不適切な値です'
-                );
-            return;
-            }
+            foreach ($this->input('breaks', []) as $index => $break) {
 
-            if ($breakStart && $breakEnd) {
-                // 休憩開始 < 休憩終了
-            if ($breakStart >= $breakEnd) {
-                $validator->errors()->add(
-                    'break_start_at',
-                    '休憩時間が不適切な値です'
-                );
-            }
+                $breakStart = $break['break_start_at'] ?? null;
+                $breakEnd   = $break['break_end_at'] ?? null;
 
-            // 出勤 <= 休憩開始
-            if ($clockIn && $breakStart < $clockIn) {
-                $validator->errors()->add(
-                    'break_start_at',
-                    '休憩時間が不適切な値です'
-                );
-            }
+                // ✅ 片方だけ入力
+                if (($breakStart && !$breakEnd) || (!$breakStart && $breakEnd)) {
 
-            // 休憩終了 <= 退勤
-            if ($clockOut && $breakEnd > $clockOut) {
-                $validator->errors()->add(
-                    'break_end_at',
-                    '休憩時間もしくは退勤時間が不適切な値です'
-                );
+                    if ($breakStart && !$breakEnd) {
+                        $validator->errors()->add(
+                            "breaks.$index.break_end_at",
+                            '終了時間を入力してください'
+                        );
+                    }
+
+                    if (!$breakStart && $breakEnd) {
+                        $validator->errors()->add(
+                            "breaks.$index.break_start_at",
+                            '開始時間を入力してください'
+                        );
+                    }
+
+                    continue;
+                }
+
+                if ($breakStart && $breakEnd) {
+
+                    if ($breakStart >= $breakEnd) {
+                        $validator->errors()->add(
+                            "breaks.$index.break_start_at",
+                            '休憩時間が不適切な値です'
+                        );
+                    }
+
+                    if ($clockIn && $breakStart < $clockIn) {
+                        $validator->errors()->add(
+                            "breaks.$index.break_start_at",
+                            '休憩時間が不適切な値です'
+                        );
+                    }
+
+                    if ($clockOut && $breakEnd > $clockOut) {
+                        $validator->errors()->add(
+                            "breaks.$index.break_end_at",
+                            '休憩時間もしくは退勤時間が不適切な値です'
+                        );
+                    }
+                }
             }
-        }
         });
     }
 

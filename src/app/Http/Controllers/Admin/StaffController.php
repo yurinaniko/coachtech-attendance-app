@@ -35,6 +35,9 @@ class StaffController extends Controller
     {
         $request = StampCorrectionRequest::with('attendance')->findOrFail($id);
         $request->attendance->update([
+            'clock_in_at'  => $request->clock_in_at,
+            'clock_out_at' => $request->clock_out_at,
+            'note'         => $request->note,
         ]);
 
         $request->update(['status' => 'approved']);

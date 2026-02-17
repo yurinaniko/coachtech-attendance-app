@@ -8,6 +8,9 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Attendance;
 use App\Http\Requests\StoreStampCorrectionRequest;
+use Illuminate\Support\Facades\DB;
+use App\Models\AttendanceBreak;
+use App\Models\StampCorrectionRequest;
 
 class AttendanceController extends Controller
 {
@@ -43,23 +46,6 @@ class AttendanceController extends Controller
         );
     }
 
-    public function list(Request $request)
-    {
-        $date = Carbon::parse(
-        $request->query('date', now()->toDateString())
-        );
-
-        $attendances = Attendance::with('user')
-            ->whereDate('work_date', $date)
-            ->orderBy('user_id')
-            ->get();
-
-        return view('admin.attendance.list', [
-            'date' => $date,
-            'attendances' => $attendances,
-        ]);
-    }
-
     public function detail($id)
     {
         $attendance = Attendance::with(['user', 'breaks'])
@@ -84,47 +70,50 @@ class AttendanceController extends Controller
     {
         $attendance = Attendance::with('breaks')->findOrFail($id);
 
+        DB::transaction(function () use ($request, $attendance) {
+
         $data = $request->validated();
         $attendance->update([
             'clock_in_at'  => $data['clock_in_at'],
             'clock_out_at' => $data['clock_out_at'],
             'note'         => $data['note'] ?? null,
+            'status' => 'approved',
         ]);
 
-        // 休憩更新
-
-        if (!empty($data['breaks'])) {
-
-            foreach ($data['breaks'] as $index => $breakData) {
+            // 休憩時間の更新と作成
+            foreach ($data['breaks'] ?? [] as $breakData) {
 
                 if (empty($breakData['break_start_at']) &&
                 empty($breakData['break_end_at'])) {
                     continue;
                 }
 
-                $break = $attendance->breaks->get($index);
-
-                if ($break) {
-
-                    /* 既存更新 */
-                    $break->update([
-                        'break_start_at' => $breakData['break_start_at'],
-                        'break_end_at'   => $breakData['break_end_at'],
-                    ]);
+                if (!empty($breakData['attendance_break_id'])) {
+                    // 更新
+                    AttendanceBreak::where('id', $breakData['attendance_break_id'])
+                        ->update([
+                            'break_start_at' => $breakData['break_start_at'],
+                            'break_end_at'   => $breakData['break_end_at'],
+                        ]);
 
                 } else {
-
-                    /* 新規作成 */
+                    // 新規作成
                     $attendance->breaks()->create([
                         'break_start_at' => $breakData['break_start_at'],
                         'break_end_at'   => $breakData['break_end_at'],
                     ]);
                 }
             }
-        }
-            return redirect()
-                ->route('admin.attendance.detail', $attendance->id)
-                ->with('success', '勤怠を修正しました');
+
+            StampCorrectionRequest::where('attendance_id', $attendance->id)
+            ->where('status', 'pending')
+            ->update([
+                'status' => 'approved',
+            ]);
+        });
+                return redirect()
+                    ->route('admin.attendance.detail', $attendance->id)
+                    ->with('success', '勤怠を修正しました');
     }
 
 }

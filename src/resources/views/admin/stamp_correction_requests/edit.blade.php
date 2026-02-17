@@ -32,9 +32,9 @@
                     <th>出勤・退勤</th>
                     <td>
                         <div class="stamp-request-detail__row-value stamp-request-detail__row-value--time">
-                            <span>{{ optional($request->attendance->clock_in_at)->format('H:i') ?? '--:--' }}</span>
+                            <span>{{ optional($request->requested_clock_in_at)->format('H:i') ?? '--:--' }}</span>
                             <span>〜</span>
-                            <span>{{ optional($request->attendance->clock_out_at)->format('H:i') ?? '--:--' }}</span>
+                            <span>{{ optional($request->requested_clock_out_at)->format('H:i') ?? '--:--' }}</span>
                         </div>
                     </td>
                 </tr>
@@ -49,21 +49,25 @@
                 <tr>
                     <th>休憩</th>
                     <td>
-                        <div class="stamp-request-detail__row-value stamp-request-detail__row-value--time">
-                            <span>{{ optional($break1?->break_start_at)->format('H:i') ?? '--:--' }}</span>
-                            <span>〜</span>
-                            <span>{{ optional($break1?->break_end_at)->format('H:i') ?? '--:--' }}</span>
-                        </div>
+                        @if ($break1?->break_start_at || $break1?->break_end_at)
+                            <div class="stamp-request-detail__row-value stamp-request-detail__row-value--time">
+                                <span>{{ optional($break1?->break_start_at)->format('H:i')}}</span>
+                                <span>〜</span>
+                                <span>{{ optional($break1?->break_end_at)->format('H:i')}}</span>
+                            </div>
+                        @endif
                     </td>
                 </tr>
                 <tr>
                     <th>休憩2</th>
                     <td>
-                        <div class="stamp-request-detail__row-value stamp-request-detail__row-value--time">
-                            <span>{{ optional($break2?->break_start_at)->format('H:i') ?? '--:--' }}</span>
-                            <span>〜</span>
-                            <span>{{ optional($break2?->break_end_at)->format('H:i') ?? '--:--' }}</span>
-                        </div>
+                        @if ($break2?->break_start_at || $break2?->break_end_at)
+                            <div class="stamp-request-detail__row-value stamp-request-detail__row-value--time">
+                                <span>{{ optional($break2?->break_start_at)->format('H:i')}}</span>
+                                <span>〜</span>
+                                <span>{{ optional($break2?->break_end_at)->format('H:i')}}</span>
+                            </div>
+                        @endif
                     </td>
                 </tr>
                 <tr>

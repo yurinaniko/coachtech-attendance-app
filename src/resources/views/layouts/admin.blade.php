@@ -10,13 +10,14 @@
     @yield('css')
 </head>
 <body class="@yield('body-class', 'body--app')">
-<div class="wrapper">
-    @auth('admin')
-        @include('layouts.admin-header')
-    @endauth
-    <main class="main">
-        @yield('content')
-    </main>
-</div>
+    <div class="wrapper">
+        @auth('admin')
+            @include('layouts.admin-header')
+        @endauth
+        <main class="main">
+            @yield('content')
+        </main>
+    </div>
+    @stack('scripts')
 </body>
 </html>

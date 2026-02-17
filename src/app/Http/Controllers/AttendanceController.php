@@ -129,6 +129,10 @@ class AttendanceController extends Controller
         ->orderBy('break_start_at')
         ->get();
 
+        $pendingRequest = StampCorrectionRequest::where('attendance_id', $attendance->id)
+        ->where('status', 'pending')
+        ->first();
+
         $oldBreaks = old('breaks');
 
         $displayCount = min($breaks->count() + 1, 5);
@@ -139,7 +143,34 @@ class AttendanceController extends Controller
             'displayCount' => $displayCount,
             'disabled'     => $disabled,
             'notice'       => $notice,
+            'pendingRequest'  => $pendingRequest,
         ]);
     }
 
+    public function detailByDate($date)
+    {
+        $user = auth()->user();
+
+        $attendance = Attendance::firstOrCreate(
+            [
+                'user_id'   => $user->id,
+                'work_date' => $date,
+            ]
+        );
+
+        $breaks = $attendance->breaks()
+        ->orderBy('break_start_at')
+        ->get();
+
+        $pendingRequest = StampCorrectionRequest::where('attendance_id', $attendance->id)
+            ->where('status', 'pending')
+            ->first();
+
+        return view('attendance.detail', [
+            'attendance'   => $attendance,
+            'breaks'       => $breaks,
+            'displayCount' => 2,
+            'pendingRequest' => $pendingRequest,
+        ]);
+    }
 }

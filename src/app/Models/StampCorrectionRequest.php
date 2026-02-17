@@ -20,6 +20,11 @@ class StampCorrectionRequest extends Model
         'status',
     ];
 
+    protected $casts = [
+        'requested_clock_in_at'  => 'datetime',
+        'requested_clock_out_at' => 'datetime',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\StampCorrectionRequest;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class StampCorrectionRequestController extends Controller
 {
@@ -14,7 +15,7 @@ class StampCorrectionRequestController extends Controller
     {
         $status = $request->query('status', 'pending');
 
-        $requests = StampCorrectionRequest::with(['user', 'attendance'])
+        $requests = StampCorrectionRequest::with(['user', 'attendance', 'attendance.breaks'])
             ->when($status, fn ($q) => $q->where('status', $status))
             ->orderBy('created_at', 'desc')
             ->get();
@@ -35,11 +36,20 @@ class StampCorrectionRequestController extends Controller
 
     public function store(Request $request)
     {
+        $attendance = Attendance::findOrFail($request->attendance_id);
+
+        $clockIn = $request->clock_in_at
+            ? $attendance->work_date->copy()->setTimeFromTimeString($request->clock_in_at)
+            : null;
+
+        $clockOut = $request->clock_out_at
+            ? $attendance->work_date->copy()->setTimeFromTimeString($request->clock_out_at)
+            : null;
         StampCorrectionRequest::create([
             'attendance_id'          => $request->attendance_id,
             'user_id'                => auth()->id(),
-            'requested_clock_in_at'  => $request->clock_in_at,
-            'requested_clock_out_at' => $request->clock_out_at,
+            'requested_clock_in_at'  => $clockIn,
+            'requested_clock_out_at' => $clockOut,
             'requested_note'         => $request->note,
             'status'                 => 'pending',
         ]);
@@ -96,5 +106,31 @@ class StampCorrectionRequestController extends Controller
         return redirect()
             ->route('admin.stamp_correction_requests.index')
             ->with('success', '申請を承認しました');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $correctionRequest = StampCorrectionRequest::findOrFail($id);
+
+        $attendance = $correctionRequest->attendance;
+
+        $clockIn = $request->clock_in_at
+            ? $attendance->work_date->copy()->setTimeFromTimeString($request->clock_in_at)
+            : null;
+
+        $clockOut = $request->clock_out_at
+            ? $attendance->work_date->copy()->setTimeFromTimeString($request->clock_out_at)
+            : null;
+
+        $correctionRequest->update([
+            'requested_clock_in_at'  => $clockIn,
+            'requested_clock_out_at' => $clockOut,
+            'requested_note'         => $request->note,
+            'status'                 => 'pending',
+        ]);
+
+    return redirect()
+        ->route('admin.stamp_correction_requests.index')
+        ->with('success', '修正しました');
     }
 }

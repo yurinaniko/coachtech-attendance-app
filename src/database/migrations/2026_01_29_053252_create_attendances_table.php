@@ -15,6 +15,7 @@ class CreateAttendancesTable extends Migration
         $table->dateTime('clock_in_at')->nullable();
         $table->dateTime('clock_out_at')->nullable();
         $table->text('note')->nullable();
+        $table->string('status')->default('pending');
         $table->timestamps();
         $table->unique(['user_id', 'work_date']);
         });

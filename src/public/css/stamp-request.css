@@ -81,3 +81,14 @@
     border: 1px solid #fff;
     background-color: #fff;
 }
+
+.stamp-request-index__date {
+    letter-spacing: -0.08em;
+}
+
+.stamp-request-index__reason {
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

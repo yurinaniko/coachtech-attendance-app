@@ -93,10 +93,13 @@ main {
 
 .error {
     color: #ff4d4f;
-    font-size: 14px;
-    margin-top: 6px;
+    font-size: 12px;
+    margin: 4px 0;
     text-align: left;
     font-weight: 500;
+    height: 16px;
+    line-height: 16px;
+    white-space: nowrap;
 }
 
 .success-message {
