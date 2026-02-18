@@ -36,7 +36,6 @@ class StoreStampCorrectionRequest extends FormRequest
                 $breakStart = $break['break_start_at'] ?? null;
                 $breakEnd   = $break['break_end_at'] ?? null;
 
-                // ✅ 片方だけ入力
                 if (($breakStart && !$breakEnd) || (!$breakStart && $breakEnd)) {
 
                     if ($breakStart && !$breakEnd) {

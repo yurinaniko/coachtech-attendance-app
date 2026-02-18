@@ -11,6 +11,7 @@ use App\Http\Requests\StoreStampCorrectionRequest;
 use Illuminate\Support\Facades\DB;
 use App\Models\AttendanceBreak;
 use App\Models\StampCorrectionRequest;
+use App\Http\Requests\AdminAttendanceUpdateRequest;
 
 class AttendanceController extends Controller
 {
@@ -66,21 +67,28 @@ class AttendanceController extends Controller
         ));
     }
 
-    public function update(StoreStampCorrectionRequest $request, $id)
+    public function update(AdminAttendanceUpdateRequest $request, $id)
     {
         $attendance = Attendance::with('breaks')->findOrFail($id);
 
         DB::transaction(function () use ($request, $attendance) {
 
-        $data = $request->validated();
-        $attendance->update([
-            'clock_in_at'  => $data['clock_in_at'],
-            'clock_out_at' => $data['clock_out_at'],
-            'note'         => $data['note'] ?? null,
-            'status' => 'approved',
-        ]);
+            $data = $request->validated();
 
-            // 休憩時間の更新と作成
+            $clockIn = $data['clock_in_at']
+                ? $attendance->work_date->copy()->setTimeFromTimeString($data['clock_in_at'])
+                : null;
+
+            $clockOut = $data['clock_out_at']
+                ? $attendance->work_date->copy()->setTimeFromTimeString($data['clock_out_at'])
+                : null;
+
+            $attendance->update([
+                'clock_in_at'  => $clockIn,
+                'clock_out_at' => $clockOut,
+                'note'         => $data['note'] ?? null,
+            ]);
+
             foreach ($data['breaks'] ?? [] as $breakData) {
 
                 if (empty($breakData['break_start_at']) &&
@@ -88,32 +96,44 @@ class AttendanceController extends Controller
                     continue;
                 }
 
+                $breakStart = $breakData['break_start_at']
+                    ? $attendance->work_date->copy()->setTimeFromTimeString($breakData['break_start_at'])
+                    : null;
+
+                $breakEnd = $breakData['break_end_at']
+                    ? $attendance->work_date->copy()->setTimeFromTimeString($breakData['break_end_at'])
+                    : null;
+
                 if (!empty($breakData['attendance_break_id'])) {
-                    // 更新
+
                     AttendanceBreak::where('id', $breakData['attendance_break_id'])
-                        ->update([
-                            'break_start_at' => $breakData['break_start_at'],
-                            'break_end_at'   => $breakData['break_end_at'],
-                        ]);
+                    ->update([
+                        'break_start_at' => $breakStart,
+                        'break_end_at'   => $breakEnd,
+                    ]);
 
                 } else {
-                    // 新規作成
+
                     $attendance->breaks()->create([
-                        'break_start_at' => $breakData['break_start_at'],
-                        'break_end_at'   => $breakData['break_end_at'],
+                        'break_start_at' => $breakStart,
+                        'break_end_at'   => $breakEnd,
                     ]);
                 }
             }
 
-            StampCorrectionRequest::where('attendance_id', $attendance->id)
-            ->where('status', 'pending')
-            ->update([
-                'status' => 'approved',
+
+            StampCorrectionRequest::create([
+                'attendance_id'          => $attendance->id,
+                'user_id'                => $attendance->user_id,
+                'requested_clock_in_at'  => $clockIn,
+                'requested_clock_out_at' => $clockOut,
+                'requested_note'         => $data['note'] ?? null,
+                'status'                 => StampCorrectionRequest::STATUS_APPROVED,
+                'type'                   => StampCorrectionRequest::TYPE_ADMIN,
             ]);
         });
-                return redirect()
-                    ->route('admin.attendance.detail', $attendance->id)
-                    ->with('success', '勤怠を修正しました');
-    }
 
+        return redirect()
+            ->route('admin.attendance.detail', $attendance->id);
+    }
 }

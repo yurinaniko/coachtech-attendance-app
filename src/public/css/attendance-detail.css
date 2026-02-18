@@ -163,11 +163,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     margin-left: 12px;
 }
 
-/* 空のときだけ --:-- を見えなくする（＝中身も消えるので、フォーカス中は戻す） */
-.attendance-detail__time-input.is-empty {
-    color: transparent;
-}
-
 /* 入力しようとしてる時は見えるようにする */
 .attendance-detail__time-input.is-empty:focus {
     color: #000;
@@ -176,6 +171,10 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 /* 値があるときは普通に見える */
 .attendance-detail__time-input:not(.is-empty) {
     color: #000;
+}
+
+.attendance-detail__time-input.is-empty {
+    color: transparent;
 }
 
 .attendance-detail__time {

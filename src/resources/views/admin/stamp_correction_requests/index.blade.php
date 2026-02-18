@@ -30,19 +30,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($requests as $request)
+                    @forelse ($requests as $stampRequest)
                         <tr>
                             <td>
-                                <span class="stamp-request-index__status request-index__status--{{ $request->status }}">
-                                {{ $request->status_label }}
+                                <span class="stamp-request-index__status request-index__status--{{ $stampRequest->status }}">
+                                {{ $stampRequest->status_label }}
                                 </span>
                             </td>
-                            <td>{{ $request->user->name }}</td>
-                            <td class="stamp-request-index__date">{{ optional($request->attendance?->work_date)->format('Y/m/d') ?? '-' }}</td>
-                            <td class="stamp-request-index__reason">{{ $request->requested_note }}</td>
-                            <td class="stamp-request-index__date">{{ $request->created_at->format('Y/m/d') }}</td>
+                            <td>{{ $stampRequest->user->name }}</td>
+                            <td class="stamp-request-index__date">{{ optional($stampRequest->attendance?->work_date)->format('Y/m/d') ?? '-' }}</td>
+                            <td class="stamp-request-index__reason">{{ $stampRequest->requested_note }}</td>
+                            <td class="stamp-request-index__date">{{ $stampRequest->created_at->format('Y/m/d') }}</td>
                             <td>
-                                <a href="{{ route('admin.stamp_correction_requests.edit', $request->id) }}"class="stamp-request-index__detail">詳細</a>
+                                <a href="{{ route('admin.stamp_correction_requests.edit', $stampRequest->id) }}"class="stamp-request-index__detail">詳細</a>
                             </td>
                         </tr>
                     @empty

@@ -15,10 +15,14 @@ class StampCorrectionRequestController extends Controller
     {
         $status = $request->query('status', 'pending');
 
-        $requests = StampCorrectionRequest::with(['user', 'attendance', 'attendance.breaks'])
-            ->when($status, fn ($q) => $q->where('status', $status))
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $requests = StampCorrectionRequest::with([
+            'user',
+            'attendance',
+            'attendance.breaks'
+        ])
+        ->where('status', $status)
+        ->orderBy('created_at', 'desc')
+        ->get();
 
         return view('admin.stamp_correction_requests.index', compact('requests'));
     }
@@ -47,11 +51,12 @@ class StampCorrectionRequestController extends Controller
             : null;
         StampCorrectionRequest::create([
             'attendance_id'          => $request->attendance_id,
-            'user_id'                => auth()->id(),
+            'user_id'                => $attendance->user_id,
             'requested_clock_in_at'  => $clockIn,
             'requested_clock_out_at' => $clockOut,
             'requested_note'         => $request->note,
-            'status'                 => 'pending',
+            'status'                 => StampCorrectionRequest::STATUS_APPROVED,
+            'type'                   => StampCorrectionRequest::TYPE_ADMIN,
         ]);
 
         return redirect()
@@ -126,8 +131,26 @@ class StampCorrectionRequestController extends Controller
             'requested_clock_in_at'  => $clockIn,
             'requested_clock_out_at' => $clockOut,
             'requested_note'         => $request->note,
-            'status'                 => 'pending',
+            'status' => 'approved',
         ]);
+
+        $attendance->update([
+            'clock_in_at'  => $clockIn,
+            'clock_out_at' => $clockOut,
+            'note'         => $request->note,
+        ]);
+
+        foreach ($correctionRequest->stampCorrectionBreaks as $correctionBreak) {
+
+        $attendanceBreak = $correctionBreak->attendanceBreak;
+
+            if ($attendanceBreak) {
+                $attendanceBreak->update([
+                    'break_start_at' => $correctionBreak->break_start_at,
+                    'break_end_at'   => $correctionBreak->break_end_at,
+                ]);
+            }
+        }
 
     return redirect()
         ->route('admin.stamp_correction_requests.index')

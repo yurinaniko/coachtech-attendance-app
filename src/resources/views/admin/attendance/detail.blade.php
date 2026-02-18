@@ -14,9 +14,10 @@
         @endif
     <form method="POST" action="{{ route('admin.attendance.update', $attendance->id) }}">
         @csrf
+        @method('PUT')
         <div class="attendance-detail__wrapper">
             <table class="attendance-detail__table">
-                <tbody>
+                <tbody id="break-table">
                     <tr>
                         <th>名前</th>
                         <td>
@@ -43,7 +44,7 @@
                                 <div class="attendance-detail__row">
                                     <div class="attendance-detail__time-field">
                                         <input type="time" name="clock_in_at" class="attendance-detail__time-input"
-                                        value="{{ old('clock_in_at', optional($attendance->clock_in_at)->format('H:i')) }}">
+                                        value="{{ old('clock_in_at', optional($attendance->clock_in_at)->format('H:i')) }}" placeholder="--:--">
                                         <div class="attendance-detail__error">
                                             @error('clock_in_at')
                                                 <p class="error">{{ $message }}</p>
@@ -53,7 +54,7 @@
                                     <span class="attendance-detail__separator">〜</span>
                                     <div class="attendance-detail__time-field">
                                         <input type="time" name="clock_out_at" class="attendance-detail__time-input"
-                                        value="{{ old('clock_out_at', optional($attendance->clock_out_at)->format('H:i')) }}">
+                                        value="{{ old('clock_out_at', optional($attendance->clock_out_at)->format('H:i')) }}" placeholder="--:--">
                                         @error('clock_out_at')
                                             <p class="error">{{ $message }}</p>
                                         @enderror
@@ -74,18 +75,18 @@
                                     $break?->break_end_at?->format('H:i')
                                 );
                             @endphp
-                            <tr>
+                            <tr class="attendance-detail__break-row">
                                 <th>休憩{{ $i === 0 ? '' : $i + 1 }}</th>
                                 <td>
                                     <div class ="attendance-detail__group">
                                         <div class="attendance-detail__row">
                                             @if ($break)
                                                 <input type="hidden" name="breaks[{{ $i }}][attendance_break_id]"
-                                                value="{{ $break->id }}">
+                                                value="{{ $break->id }}" placeholder="--:--">
                                             @endif
                                             <div class="attendance-detail__time-field">
                                                 <input type="time" name="breaks[{{ $i }}][break_start_at]"
-                                                class="attendance-detail__time-input" value="{{ $start ?: '' }}">
+                                                class="attendance-detail__time-input" value="{{ $start ?: '' }}" placeholder="--:--">
                                                 <div class="attendance-detail__error">
                                                     @error("breaks.$i.break_start_at")
                                                         <p class="error">{{ $message }}</p>
@@ -95,7 +96,7 @@
                                             <span class="attendance-detail__separator">〜</span>
                                             <div class="attendance-detail__time-field">
                                                 <input type="time" name="breaks[{{ $i }}][break_end_at]"
-                                                class="attendance-detail__time-input" value="{{ $end ?: '' }}">
+                                                class="attendance-detail__time-input" value="{{ $end ?: '' }}" placeholder="--:--">
                                                 <div class="attendance-detail__error">
                                                     @error("breaks.$i.break_end_at")
                                                         <p class="error">{{ $message }}</p>
@@ -107,15 +108,37 @@
                                 </td>
                             </tr>
                         @endfor
-                    <tr>
-                        <th>備考</th>
-                        <td>
-                            <textarea name="note" class="form_input attendance-detail__note" rows="3">{{ old('note', $attendance->note) }}</textarea>
-                            @error('note')
-                                <p class="error">{{ $message }}</p>
-                            @enderror
-                        </td>
-                    </tr>
+                        <template id="break-row-template">
+                            <tr class="attendance-detail__break-row">
+                                <th>休憩__INDEX__</th>
+                                <td>
+                                    <div class="attendance-detail__group">
+                                        <div class="attendance-detail__row">
+
+                                            <input type="time"
+                                            name="breaks[__INDEX__][break_start_at]"
+                                            class="attendance-detail__time-input" placeholder="--:--">
+
+                                            <span class="attendance-detail__separator">〜</span>
+
+                                            <input type="time"
+                                            name="breaks[__INDEX__][break_end_at]"
+                                            class="attendance-detail__time-input" placeholder="--:--">
+
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr class="attendance-detail__note-row">
+                            <th>備考</th>
+                            <td>
+                                <textarea name="note" class="form_input attendance-detail__note" rows="3">{{ old('note', $attendance->note) }}</textarea>
+                                @error('note')
+                                    <p class="error">{{ $message }}</p>
+                                @enderror
+                            </td>
+                        </tr>
                 </tbody>
             </table>
         </div>
@@ -127,19 +150,73 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const inputs = document.querySelectorAll('.attendance-detail__time-input[type="time"]');
+
+    const tbody = document.getElementById('break-table');
+    const template = document.getElementById('break-row-template');
+
+    if (!tbody || !template) return;
 
     const refresh = (el) => {
         if (!el.value) el.classList.add('is-empty');
         else el.classList.remove('is-empty');
     };
 
-    inputs.forEach((el) => {
-        refresh(el);
-        el.addEventListener('input', () => refresh(el));
-        el.addEventListener('change', () => refresh(el));
-    });
+    const attachListeners = (input) => {
+        refresh(input);
+
+        input.addEventListener('input', () => {
+            refresh(input);
+            checkAndAddRow();
+        });
+
+        input.addEventListener('change', () => {
+            refresh(input);
+            checkAndAddRow();
+        });
+    };
+
+    const checkAndAddRow = () => {
+
+        const rows = tbody.querySelectorAll('.attendance-detail__break-row');
+        const lastRow = rows[rows.length - 1];
+
+        if (!lastRow) return;
+
+        const inputs = lastRow.querySelectorAll('input[type="time"]');
+        const hasValue = Array.from(inputs).some(input => input.value);
+
+        if (!hasValue) return;
+
+        addNewRow(rows.length);
+    };
+
+    const addNewRow = (index) => {
+
+        const clone = template.content.cloneNode(true);
+
+        const th = clone.querySelector('th');
+        th.textContent = `休憩${index + 1}`;
+
+        const start = clone.querySelector('input[name*="break_start_at"]');
+        const end   = clone.querySelector('input[name*="break_end_at"]');
+
+        start.name = `breaks[${index}][break_start_at]`;
+        end.name   = `breaks[${index}][break_end_at]`;
+
+        const noteRow = document.querySelector('.attendance-detail__note-row');
+        tbody.insertBefore(clone, noteRow);
+
+        attachListeners(start);
+        attachListeners(end);
+    };
+
+    document
+        .querySelectorAll('.attendance-detail__time-input[type="time"]')
+        .forEach(input => attachListeners(input));
+
+    checkAndAddRow();
 });
 </script>
 @endpush
+
 @endsection

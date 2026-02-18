@@ -103,7 +103,7 @@ Route::prefix('admin')->group(function () {
                 [AdminAttendanceController::class, 'detail']
             )->name('attendance.detail');
 
-            Route::post('attendance/{id}/update',
+            Route::put('attendance/{id}/update',
                 [AdminAttendanceController::class, 'update']
             )->name('attendance.update');
 
