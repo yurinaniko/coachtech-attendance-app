@@ -60,10 +60,15 @@ class AttendanceController extends Controller
 
         $displayCount = min($breaks->count() + 1, 5);
 
+        $pendingRequest = StampCorrectionRequest::where('attendance_id', $id)
+        ->where('status', 'pending')
+        ->first();
+
         return view('admin.attendance.detail', compact(
             'attendance',
             'breaks',
-            'displayCount'
+            'displayCount',
+            'pendingRequest'
         ));
     }
 

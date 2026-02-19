@@ -5,6 +5,9 @@
 @endsection
 
 @section('content')
+@php
+    $disabled = $pendingRequest !== null;
+@endphp
 <div class="attendance-detail">
     <h1 class="attendance-detail__title">勤怠詳細</h1>
         @if (session('success'))
@@ -143,7 +146,15 @@
             </table>
         </div>
         <div class="attendance-detail__actions">
-            <button type="submit" class="attendance-detail__edit-btn">修正</button>
+            @if ($disabled)
+                <p class="attendance-detail__notice">
+                    ※承認待ちのため修正できません。
+                </p>
+            @else
+                <button type="submit" class="attendance-detail__edit-btn">
+                    修正
+                </button>
+            @endif
         </div>
     </form>
 </div>

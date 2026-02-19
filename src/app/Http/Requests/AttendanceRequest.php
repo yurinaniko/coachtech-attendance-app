@@ -81,7 +81,7 @@ class AttendanceRequest extends FormRequest
 
             'break_start_at.date_format' => '休憩時間が不適切な値です',
             'break_end_at.date_format'   => '休憩時間が不適切な値です',
-            'break_end_at.after' => '休憩時間が不適切な値です',
+            'break_end_at.after' => '休憩時間もしくは退勤時間が不適切な値です',
 
             'note.required' => '備考を記入してください',
             'note.max' => '備考は255文字以内で入力してください',
