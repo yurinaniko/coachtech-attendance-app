@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\StampCorrectionRequest;
-use App\Models\Attendance;
-use Carbon\Carbon;
 
 class StaffController extends Controller
 {

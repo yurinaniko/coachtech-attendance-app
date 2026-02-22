@@ -46,7 +46,7 @@
                             <td>{{ $request->requested_note }}</td>
                             <td>{{ optional($request->created_at)->format('Y/m/d') }}</td>
                             <td>
-                                <a href="{{ route('attendance.detail', ['attendance' => $request->attendance_id,'from' => 'request','request_id' => $request->id,]) }}" class="stamp-request-index__detail">
+                                <a href="{{ route('attendance.detailByDate', $request->attendance->work_date->format('Y-m-d')) }}"  class="stamp-request-index__detail">
                                     詳細
                                 </a>
                             </td>

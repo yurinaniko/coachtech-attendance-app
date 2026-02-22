@@ -63,7 +63,7 @@
                         @endif
                     </td>
                     <td>
-                            <a href="{{ route('attendance.detail.byDate', ['date' => $dateKey]) }}" class="attendance-list__detail">
+                            <a href="{{ route('attendance.detailByDate', ['date' => $dateKey]) }}" class="attendance-list__detail">
                                 詳細
                             </a>
                     </td>

@@ -15,7 +15,7 @@ class CreateStampCorrectionRequestsTable extends Migration
         $table->dateTime('requested_clock_in_at')->nullable();
         $table->dateTime('requested_clock_out_at')->nullable();
         $table->text('requested_note');
-        $table->string('status')->default('pending');
+        $table->string('status', 20)->default('pending');
         $table->timestamps();
         });
     }

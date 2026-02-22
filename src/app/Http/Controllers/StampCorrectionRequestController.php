@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\StampCorrectionRequest;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
-use App\Models\StampCorrectionBreak;
 use App\Http\Requests\StoreStampCorrectionRequest;
 use Illuminate\Support\Facades\DB;
 use App\Models\AttendanceBreak;
+use App\Models\StampCorrectionBreak;
 
 class StampCorrectionRequestController extends Controller
 {
@@ -41,10 +41,6 @@ class StampCorrectionRequestController extends Controller
         $attendance = Attendance::where('id', $request->attendance_id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
-
-        $pendingRequest = StampCorrectionRequest::where('attendance_id', $attendance->id)
-            ->where('status', 'pending')
-            ->first();
 
         $requestedClockIn = $data['clock_in_at']
             ? $attendance->work_date->copy()->setTimeFromTimeString($data['clock_in_at'])
@@ -93,10 +89,21 @@ class StampCorrectionRequestController extends Controller
 
             $attendanceBreakId = $attendanceBreak->id;
             }
+
+            StampCorrectionBreak::updateOrCreate(
+                [
+                    'stamp_correction_request_id' => $correctionRequest->id,
+                    'attendance_break_id'         => $attendanceBreakId,
+                ],
+                [
+                    'break_start_at' => $breakStart,
+                    'break_end_at'   => $breakEnd,
+                ]
+            );
         }
 
         return redirect()
-            ->route('attendance.detail.byDate', [
+            ->route('attendance.detailByDate', [
             'date' => $attendance->work_date->format('Y-m-d')
         ])
             ->with('success', '修正申請を送信しました');
@@ -104,7 +111,9 @@ class StampCorrectionRequestController extends Controller
 
     public function update(StoreStampCorrectionRequest $request, $id)
     {
-        $attendance = Attendance::with('breaks')->findOrFail($id);
+        $correctionRequest = StampCorrectionRequest::where('user_id', auth()->id())
+            ->findOrFail($id);
+        $attendance = $correctionRequest->attendance;
 
         DB::transaction(function () use ($request, $attendance) {
 
@@ -118,20 +127,10 @@ class StampCorrectionRequestController extends Controller
                 ? $attendance->work_date->copy()->setTimeFromTimeString($data['clock_out_at'])
                 : null;
 
-            $correctionRequest = StampCorrectionRequest::create([
-                'attendance_id' => $attendance->id,
-                'user_id'       => auth()->id(), // ← 管理者IDでOK
+            $correctionRequest->update([
                 'requested_clock_in_at'  => $clockIn,
                 'requested_clock_out_at' => $clockOut,
                 'requested_note'         => $data['note'],
-                'status' => 'approved',
-            ]);
-
-            $attendance->update([
-                'clock_in_at'  => $clockIn,
-                'clock_out_at' => $clockOut,
-                'note'         => $data['note'],
-                'status'       => 'approved',
             ]);
 
             foreach ($data['breaks'] ?? [] as $breakData) {
@@ -144,16 +143,24 @@ class StampCorrectionRequestController extends Controller
                         ? $attendance->work_date->copy()->setTimeFromTimeString($breakData['break_end_at'])
                         : null;
 
-                    $attendanceBreak->update([
-                        'break_start_at' => $breakStart,
-                        'break_end_at'   => $breakEnd,
-                    ]);
+                    StampCorrectionBreak::updateOrCreate(
+                        [
+                            'stamp_correction_request_id' => $correctionRequest->id,
+                            'attendance_break_id'         => $attendanceBreak->id,
+                        ],
+                        [
+                            'break_start_at' => $breakStart,
+                            'break_end_at'   => $breakEnd,
+                        ]
+                    );
                 }
             }
     });
 
     return redirect()
-        ->route('admin.attendance.detail', $attendance->id)
-        ->with('success', '勤怠を修正しました');
+        ->route('attendance.detailByDate', [
+            'date' => $attendance->work_date->format('Y-m-d')
+        ])
+        ->with('success', '修正申請を更新しました');
     }
 }

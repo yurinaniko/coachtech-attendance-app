@@ -130,20 +130,27 @@ class AttendanceController extends Controller
         ->get();
 
         $pendingRequest = StampCorrectionRequest::where('attendance_id', $attendance->id)
-        ->where('status', 'pending')
+        ->where('status', StampCorrectionRequest::STATUS_PENDING)
+        ->latest()
         ->first();
 
-        $oldBreaks = old('breaks');
+        $disabled = false;
+        $notice = null;
+
+        if ($pendingRequest) {
+            $disabled = true;
+            $notice = '※承認待ちのため修正できません。';
+        }
 
         $displayCount = min($breaks->count() + 1, 5);
 
         return view('attendance.detail', [
-            'attendance'   => $attendance,
-            'breaks'       => $breaks,
-            'displayCount' => $displayCount,
-            'disabled'     => $disabled,
-            'notice'       => $notice,
-            'pendingRequest'  => $pendingRequest,
+            'attendance'     => $attendance,
+            'breaks'         => $breaks,
+            'displayCount'   => $displayCount,
+            'disabled'       => $disabled,
+            'notice'         => $notice,
+            'pendingRequest' => $pendingRequest,
         ]);
     }
 
@@ -163,14 +170,27 @@ class AttendanceController extends Controller
         ->get();
 
         $pendingRequest = StampCorrectionRequest::where('attendance_id', $attendance->id)
-            ->where('status', 'pending')
-            ->first();
+        ->where('status', StampCorrectionRequest::STATUS_PENDING)
+        ->latest()
+        ->first();
+
+        $disabled = false;
+        $notice   = null;
+
+        if ($pendingRequest) {
+            $disabled = true;
+            $notice = '※承認待ちのため修正できません。';
+        }
+
+        $displayCount = min($breaks->count() + 1, 5);
 
         return view('attendance.detail', [
-            'attendance'   => $attendance,
-            'breaks'       => $breaks,
-            'displayCount' => 2,
+            'attendance'     => $attendance,
+            'breaks'         => $breaks,
+            'displayCount'   => $displayCount,
             'pendingRequest' => $pendingRequest,
+            'disabled'       => $disabled,
+            'notice'         => $notice,
         ]);
     }
 }

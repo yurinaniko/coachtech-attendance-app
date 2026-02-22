@@ -7,11 +7,10 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Attendance;
-use App\Http\Requests\StoreStampCorrectionRequest;
 use Illuminate\Support\Facades\DB;
 use App\Models\AttendanceBreak;
 use App\Models\StampCorrectionRequest;
-use App\Http\Requests\AdminAttendanceUpdateRequest;
+use App\Http\Requests\Admin\AttendanceUpdateRequest;
 
 class AttendanceController extends Controller
 {
@@ -52,6 +51,9 @@ class AttendanceController extends Controller
         $attendance = Attendance::with(['user', 'breaks'])
             ->findOrFail($id);
 
+        $clockIn  = $attendance->clock_in_at;
+        $clockOut = $attendance->clock_out_at;
+
         $breaks = $attendance->breaks()
             ->orderBy('break_start_at')
             ->get();
@@ -66,13 +68,15 @@ class AttendanceController extends Controller
 
         return view('admin.attendance.detail', compact(
             'attendance',
+            'clockIn',
+            'clockOut',
             'breaks',
             'displayCount',
             'pendingRequest'
         ));
     }
 
-    public function update(AdminAttendanceUpdateRequest $request, $id)
+    public function update(AttendanceUpdateRequest $request, $id)
     {
         $attendance = Attendance::with('breaks')->findOrFail($id);
 
@@ -126,16 +130,19 @@ class AttendanceController extends Controller
                 }
             }
 
-
-            StampCorrectionRequest::create([
-                'attendance_id'          => $attendance->id,
-                'user_id'                => $attendance->user_id,
-                'requested_clock_in_at'  => $clockIn,
-                'requested_clock_out_at' => $clockOut,
-                'requested_note'         => $data['note'] ?? null,
-                'status'                 => StampCorrectionRequest::STATUS_APPROVED,
-                'type'                   => StampCorrectionRequest::TYPE_ADMIN,
-            ]);
+            StampCorrectionRequest::updateOrCreate(
+                [
+                    'attendance_id' => $attendance->id,
+                    'type'          => StampCorrectionRequest::TYPE_ADMIN,
+                ],
+                [
+                    'user_id'                => $attendance->user_id,
+                    'requested_clock_in_at'  => $clockIn,
+                    'requested_clock_out_at' => $clockOut,
+                    'requested_note'         => $data['note'] ?? null,
+                    'status'                 => StampCorrectionRequest::STATUS_APPROVED,
+                ]
+            );
         });
 
         return redirect()

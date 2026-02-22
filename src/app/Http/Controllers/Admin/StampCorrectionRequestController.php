@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\StampCorrectionRequest;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class StampCorrectionRequestController extends Controller
 {
@@ -61,7 +60,7 @@ class StampCorrectionRequestController extends Controller
 
         return redirect()
             ->back()
-            ->with('success', '修正申請を送信しました');
+            ->with('success', '勤怠を修正しました');
     }
 
     public function approve(Request $request, $id)
@@ -72,14 +71,16 @@ class StampCorrectionRequestController extends Controller
                 'attendance',
                 'stampCorrectionBreaks.attendanceBreak',
             ])->findOrFail($id);
-            // 二重承認防止
+
             if ($correctionRequest->status !== 'pending') {
                 abort(403, 'この申請はすでに処理されています');
             }
-            // null ガード
+
             if (
                 is_null($correctionRequest->requested_clock_in_at) &&
-                is_null($correctionRequest->requested_clock_out_at)
+                is_null($correctionRequest->requested_clock_out_at) &&
+                is_null($correctionRequest->requested_note) &&
+                $correctionRequest->stampCorrectionBreaks->isEmpty()
             ) {
                 abort(400, '修正内容が存在しません');
             }
@@ -91,7 +92,6 @@ class StampCorrectionRequestController extends Controller
                 'note'         => $correctionRequest->requested_note,
             ]);
 
-            // ② 休憩を反映
             foreach ($correctionRequest->stampCorrectionBreaks as $correctionBreak) {
             $attendanceBreak = $correctionBreak->attendanceBreak;
 

@@ -9,7 +9,7 @@ class AddTypeToStampCorrectionRequestsTable extends Migration
     public function up()
     {
         Schema::table('stamp_correction_requests', function (Blueprint $table) {
-            $table->string('type')->default('user')->after('status');
+            $table->string('type', 20)->default('user')->after('status');
         });
     }
 

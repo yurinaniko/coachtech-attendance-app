@@ -18,6 +18,13 @@ class UserSeeder extends Seeder
             'is_admin' => true,
         ]);
 
+        User::create([
+            'name' => 'テストユーザー',
+            'email' => 'user@example.com',
+            'password' => Hash::make('password456'),
+            'email_verified_at' => now(),
+        ]);
+
         User::factory()->count(10)->create([
             'password' => Hash::make('password'),
             'is_admin' => false,

@@ -47,7 +47,7 @@
                                 <div class="attendance-detail__row">
                                     <div class="attendance-detail__time-field">
                                         <input type="time" name="clock_in_at" class="attendance-detail__time-input"
-                                        value="{{ old('clock_in_at', optional($attendance->clock_in_at)->format('H:i')) }}" placeholder="--:--">
+                                        value="{{ old('clock_in_at', optional($clockIn)->format('H:i')) }}" placeholder="--:--">
                                         <div class="attendance-detail__error">
                                             @error('clock_in_at')
                                                 <p class="error">{{ $message }}</p>
@@ -57,7 +57,7 @@
                                     <span class="attendance-detail__separator">〜</span>
                                     <div class="attendance-detail__time-field">
                                         <input type="time" name="clock_out_at" class="attendance-detail__time-input"
-                                        value="{{ old('clock_out_at', optional($attendance->clock_out_at)->format('H:i')) }}" placeholder="--:--">
+                                        value="{{ old('clock_out_at', optional($clockOut)->format('H:i')) }}"placeholder="--:--">
                                         @error('clock_out_at')
                                             <p class="error">{{ $message }}</p>
                                         @enderror

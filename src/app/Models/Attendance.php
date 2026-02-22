@@ -46,7 +46,7 @@ class Attendance extends Model
     public function hasPendingRequest(): bool
     {
         return $this->stampCorrectionRequests()
-            ->where('status', 'pending')
+            ->where('status', StampCorrectionRequest::STATUS_PENDING)
             ->exists();
     }
 
