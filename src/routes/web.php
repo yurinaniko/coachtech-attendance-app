@@ -89,7 +89,7 @@ Route::prefix('admin')->group(function () {
         ->name('admin.logout');
 
     // 管理者ログイン後
-    Route::middleware(['auth:admin'])
+    Route::middleware(['ensure.admin'])
         ->name('admin.')
         ->group(function () {
 
