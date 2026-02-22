@@ -41,6 +41,15 @@ class AttendanceController extends Controller
         $user = auth()->user();
         $today = now()->toDateString();
 
+        $attendance = Attendance::where('user_id', $user->id)
+            ->whereDate('work_date', $today)
+            ->first();
+        if ($attendance) {
+            return back()->withErrors([
+                'clock_in' => '既に出勤しています'
+            ]);
+        }
+
         Attendance::create([
             'user_id' => $user->id,
             'work_date' => $today,
@@ -60,6 +69,17 @@ class AttendanceController extends Controller
         return redirect()->route('attendance.index');
         }
 
+        $latestBreak = $attendance->breaks()
+        ->whereNull('break_end_at')
+        ->latest()
+        ->first();
+
+        if ($latestBreak) {
+            return back()->withErrors([
+                'clock_out' => '休憩中は退勤できません'
+            ]);
+        }
+
         $attendance->update([
             'clock_out_at' => now(),
         ]);
@@ -75,7 +95,7 @@ class AttendanceController extends Controller
 
         $attendance = Attendance::where('user_id', $user->id)
             ->whereDate('work_date', $today)
-            ->first();
+            ->firstOrFail();
 
         $attendance->breaks()->create([
             'break_start_at' => now(),
@@ -90,8 +110,11 @@ class AttendanceController extends Controller
         $today = now()->toDateString();
         $attendance = Attendance::where('user_id', $user->id)
             ->whereDate('work_date', $today)
-            ->first();
-        $latestBreak = $attendance->breaks()->latest()->first();
+            ->firstOrFail();
+        $latestBreak = $attendance->breaks()
+        ->whereNull('break_end_at')
+        ->latest()
+        ->firstOrFail();
         $latestBreak->update([
             'break_end_at' => now(),
         ]);
