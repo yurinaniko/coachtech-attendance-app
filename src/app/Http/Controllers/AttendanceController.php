@@ -17,7 +17,11 @@ class AttendanceController extends Controller
         ->whereDate('work_date', $today)
         ->first();
         $latestBreak = $attendance
-        ? $attendance->breaks()->latest()->first(): null;
+        ? $attendance->breaks()
+        ->whereNull('break_end_at')
+            ->orderByDesc('break_start_at')
+            ->first()
+        : null;
 
         if (!$attendance) {
             $status = 'before_work';
@@ -62,17 +66,19 @@ class AttendanceController extends Controller
     public function clockOut()
     {
         $attendance = Attendance::where('user_id', auth()->id())
-        ->whereDate('work_date', now()->toDateString())
-        ->firstOrFail();
+            ->whereDate('work_date', now()->toDateString())
+            ->firstOrFail();
 
         if ($attendance->clock_out_at) {
-        return redirect()->route('attendance.index');
+            return back()->withErrors([
+                'clock_out' => '既に退勤済みです'
+            ]);
         }
 
         $latestBreak = $attendance->breaks()
-        ->whereNull('break_end_at')
-        ->latest()
-        ->first();
+            ->whereNull('break_end_at')
+            ->latest()
+            ->first();
 
         if ($latestBreak) {
             return back()->withErrors([
