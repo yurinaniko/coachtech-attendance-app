@@ -53,7 +53,7 @@
                         {{ optional($attendance)->clock_out_at?->format('H:i') }}
                     </td>
                     <td class="attendance-list__time">
-                        @if ($attendance && $attendance->break_seconds > 0)
+                        @if ($attendance && $attendance->breaks->isNotEmpty())
                             {{ $attendance->break_time_hhmm }}
                         @endif
                     </td>

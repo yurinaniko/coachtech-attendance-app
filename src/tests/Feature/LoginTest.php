@@ -24,8 +24,7 @@ class LoginTest extends TestCase
     /** @test */
     public function email_must_be_valid_format()
     {
-        $response = $this->post('/register', [
-            'name' => 'テストユーザー',
+        $response = $this->post('/login', [
             'email' => 'not-an-email',
             'password' => 'password123',
             'password_confirmation' => 'password123',
