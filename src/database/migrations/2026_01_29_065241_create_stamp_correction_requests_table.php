@@ -12,9 +12,9 @@ class CreateStampCorrectionRequestsTable extends Migration
         $table->id();
         $table->foreignId('attendance_id')->constrained()->cascadeOnDelete();
         $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-        $table->dateTime('requested_clock_in_at')->nullable();
-        $table->dateTime('requested_clock_out_at')->nullable();
-        $table->text('requested_note');
+        $table->timestamp('requested_clock_in_at')->nullable();
+        $table->timestamp('requested_clock_out_at')->nullable();
+        $table->text('requested_note')->nullable();
         $table->string('status', 20)->default('pending');
         $table->timestamps();
         });

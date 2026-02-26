@@ -18,8 +18,8 @@ class CreateStampCorrectionBreaksTable extends Migration
             ->constrained()
             ->cascadeOnDelete();
 
-        $table->dateTime('break_start_at');
-        $table->dateTime('break_end_at')->nullable();
+        $table->timestamp('break_start_at')->nullable();
+        $table->timestamp('break_end_at')->nullable();
         $table->timestamps();
         });
     }

@@ -103,6 +103,14 @@ class AttendanceController extends Controller
             ->whereDate('work_date', $today)
             ->firstOrFail();
 
+        $activeBreak = $attendance->breaks()
+            ->whereNull('break_end_at')
+            ->exists();
+
+        if ($activeBreak) {
+            return redirect()->route('attendance.index');
+        }
+
         $attendance->breaks()->create([
             'break_start_at' => now(),
         ]);
@@ -119,7 +127,7 @@ class AttendanceController extends Controller
             ->firstOrFail();
         $latestBreak = $attendance->breaks()
         ->whereNull('break_end_at')
-        ->latest()
+        ->orderBy('break_start_at')
         ->firstOrFail();
         $latestBreak->update([
             'break_end_at' => now(),

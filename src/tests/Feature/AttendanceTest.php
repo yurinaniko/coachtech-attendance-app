@@ -285,6 +285,8 @@ class AttendanceTest extends TestCase
         $response = $this->actingAs($user)->get('/attendance');
 
         $response->assertSee('出勤中');
+
+        Carbon::setTestNow();
     }
 
     /** @test */

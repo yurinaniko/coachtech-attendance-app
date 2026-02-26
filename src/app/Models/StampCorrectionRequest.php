@@ -11,8 +11,8 @@ class StampCorrectionRequest extends Model
     use HasFactory;
     public const STATUS_PENDING  = 'pending';
     public const STATUS_APPROVED = 'approved';
-    const TYPE_USER  = 'user';
-    const TYPE_ADMIN = 'admin';
+    public const TYPE_USER  = 'user';
+    public const TYPE_ADMIN = 'admin';
     protected $fillable = [
         'attendance_id',
         'user_id',
