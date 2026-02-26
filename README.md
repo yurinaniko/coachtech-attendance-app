@@ -138,7 +138,7 @@ MailHog の画面へ遷移します。
 
 ## ER 図
 
-![ER Diagram](docs/attendance-app.drawio.png)
+![ER Diagram](docs/attendance-app.png)
 
 ## テーブル仕様
 
@@ -263,7 +263,7 @@ status は、
 本アプリケーションでは以下の状態を採用しています。
 値	意味
 ```php
-pending	承認待ち状態
+pending	  承認待ち状態
 approved	承認済み状態
 ```
 (設計背景)
@@ -341,11 +341,8 @@ status カラムを導入しています。
 - 修正申請機能
 
 各機能について、
-正常系
-異常系（バリデーション / 権限制御 / 未ログイン時の挙動）
-を中心にテストを実装しています。
-Docker 環境上でテストを実行し、
-すべてのテストが PASS することを確認しています。
+正常系と異常系（バリデーション / 権限制御 / 未ログイン時の挙動）を中心にテストを実装しています。
+
 ※ テスト実行時は phpunit.xml にて、
 キャッシュ / セッション / メール等をテスト用設定へ切り替えています。
 
@@ -367,6 +364,7 @@ CREATE DATABASE laravel_test;
 SHOW DATABASES;
 ```
 SHOW DATABASES;入力後、laravel_testが作成されていれば成功です。
+
 2. configファイルの変更
 configディレクトリの中のdatabase.phpに以下の編集を行う。
 ```env
@@ -435,3 +433,5 @@ phpunit.xml にてテスト環境用の設定を定義しています。
 php artisan migrate:fresh --env=testing
 php artisan test
 ```
+Docker 環境上でテストを実行し、
+すべてのテストが PASS することを確認しています。
