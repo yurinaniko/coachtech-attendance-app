@@ -26,11 +26,6 @@ class AttendanceBreak extends Model
         return $this->belongsTo(Attendance::class);
     }
 
-    public function stampCorrectionRequests()
-    {
-        return $this->hasMany(StampCorrectionRequest::class);
-    }
-
     public function latestStampRequest()
     {
         return $this->stampCorrectionRequests()

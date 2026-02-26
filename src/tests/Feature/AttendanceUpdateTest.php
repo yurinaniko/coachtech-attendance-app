@@ -1,0 +1,283 @@
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\User;
+use App\Models\Attendance;
+use Carbon\Carbon;
+use App\Models\StampCorrectionRequest;
+
+class AttendanceUpdateTest extends TestCase
+{
+    use RefreshDatabase;
+
+    /** @test */
+    public function clock_in_time_cannot_be_later_than_clock_out_time()
+    {
+        Carbon::setTestNow(Carbon::create(2026, 2, 1));
+
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'work_date' => today(),
+        ]);
+
+        $response = $this->actingAs($user)->post(
+            route('stamp_correction_requests.store'),
+            [
+                'clock_in_at'  => '18:00',
+                'clock_out_at' => '09:00',
+                'note' => 'テスト'
+            ]
+        );
+
+        $response->assertSessionHasErrors([
+            'clock_in_at'
+        ]);
+    }
+
+    /** @test */
+    public function break_start_time_cannot_be_later_than_clock_out_time()
+    {
+        Carbon::setTestNow(Carbon::create(2026, 2, 1, 9, 0));
+
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id'      => $user->id,
+            'work_date'    => today(),
+            'clock_in_at'  => now(),
+            'clock_out_at' => now()->setTime(18, 0),
+        ]);
+
+        $response = $this->actingAs($user)->post(
+            route('stamp_correction_requests.store'),
+            [
+                'clock_in_at'  => '09:00',
+                'clock_out_at' => '18:00',
+                'breaks' => [
+                    [
+                        'break_start_at' => '19:00',
+                        'break_end_at'   => '20:00',
+                    ]
+                ],
+
+                'note' => 'テスト'
+            ]
+        );
+
+        $response->assertSessionHasErrors([
+            'breaks.0.break_start_at'
+        ]);
+
+        Carbon::setTestNow();
+    }
+    /** @test */
+    public function break_end_time_cannot_be_later_than_clock_out_time()
+    {
+        Carbon::setTestNow(Carbon::create(2026, 2, 1, 9, 0));
+
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id'      => $user->id,
+            'work_date'    => today(),
+            'clock_in_at'  => now(),
+            'clock_out_at' => now()->setTime(18, 0),
+        ]);
+
+        $response = $this->actingAs($user)->post(
+            route('stamp_correction_requests.store'),
+            [
+                'clock_in_at'  => '09:00',
+                'clock_out_at' => '18:00',
+
+                'breaks' => [
+                    [
+                        'break_start_at' => '17:00',
+                        'break_end_at'   => '19:00',
+                    ]
+                ],
+
+                'note' => 'テスト'
+            ]
+        );
+
+        $response->assertSessionHasErrors([
+            'breaks.0.break_end_at'
+        ]);
+
+        Carbon::setTestNow();
+    }
+
+    /** @test */
+    public function note_is_required()
+    {
+        Carbon::setTestNow(Carbon::create(2026, 2, 1, 9, 0));
+
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id'      => $user->id,
+            'work_date'    => today(),
+            'clock_in_at'  => now(),
+            'clock_out_at' => now()->setTime(18, 0),
+        ]);
+
+        $response = $this->actingAs($user)->post(
+            route('stamp_correction_requests.store'),
+            [
+                'clock_in_at'  => '09:00',
+                'clock_out_at' => '18:00',
+
+                'note' => ''
+            ]
+        );
+
+        $response->assertSessionHasErrors([
+            'note'
+        ]);
+
+        Carbon::setTestNow();
+    }
+
+    /** @test */
+    public function correction_request_is_visible_on_admin_screens()
+    {
+        Carbon::setTestNow(Carbon::create(2026, 2, 22, 9, 0));
+
+        $user = User::factory()->create([
+            'is_admin' => false,
+            'name' => '一般ユーザー'
+        ]);
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'work_date' => today(),
+            'clock_in_at' => now(),
+        ]);
+
+        $this->actingAs($user)->post(
+            route('stamp_correction_requests.store'),
+            [
+                'attendance_id' => $attendance->id,
+                'clock_in_at'   => '10:00',
+                'clock_out_at'  => '19:00',
+                'note'          => '修正申請テスト'
+            ]
+        );
+
+        $admin = User::factory()->create([
+            'is_admin' => true,
+            'name' => '管理者'
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.stamp_correction_requests.index'));
+
+        $response->assertSee('修正申請テスト');
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.attendance.list'));
+
+        $response->assertSee('一般ユーザー');
+
+        Carbon::setTestNow();
+    }
+
+    /** @test */
+    public function pending_request_becomes_visible_after_approval()
+    {
+        Carbon::setTestNow(Carbon::create(2026, 2, 22, 9, 0));
+
+        $user = User::factory()->create([
+            'is_admin' => false,
+            'name' => '一般ユーザー'
+        ]);
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'work_date' => today(),
+            'clock_in_at' => now(),
+        ]);
+
+        $request = StampCorrectionRequest::factory()->create([
+            'attendance_id' => $attendance->id,
+            'requested_clock_in_at'  => '10:00',
+            'requested_clock_out_at' => '19:00',
+            'requested_note' => '承認テスト',
+            'status' => 'pending'
+        ]);
+
+        $admin = User::factory()->create([
+            'is_admin' => true
+        ]);
+
+        $this->actingAs($admin)->post(
+            route('admin.stamp_correction_requests.approve', $request->id)
+        );
+
+        $response = $this->actingAs($admin)->get(
+            route('admin.stamp_correction_requests.index', [
+            'status' => 'approved'
+            ])
+        );
+
+        $response->assertSee('承認テスト');
+
+        Carbon::setTestNow();
+    }
+
+    /** @test */
+    public function approved_requests_are_visible_on_approved_tab()
+    {
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'work_date' => today(),
+        ]);
+
+        StampCorrectionRequest::factory()->create([
+            'attendance_id' => $attendance->id,
+            'requested_note' => '承認テスト',
+            'status' => 'approved',
+        ]);
+
+        $admin = User::factory()->create([
+            'is_admin' => true,
+        ]);
+
+        $response = $this->actingAs($admin)->get(
+            route('admin.stamp_correction_requests.index', [
+                'status' => 'approved'
+            ])
+        );
+
+        $response->assertSee('承認テスト');
+    }
+
+    /** @test */
+    public function user_can_navigate_to_attendance_detail_page()
+    {
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'work_date' => today(),
+        ]);
+
+        $response = $this->actingAs($user)->get('/attendance/list');
+
+        $response->assertSee('詳細');
+
+        $detailResponse = $this->actingAs($user)->get(
+            route('attendance.detail', $attendance->id)
+        );
+
+        $detailResponse->assertStatus(200);
+    }
+}
