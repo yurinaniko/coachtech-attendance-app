@@ -11,7 +11,7 @@
 </head>
 <body class="@yield('body-class', 'body--app')">
     <div class="wrapper">
-        @auth('admin')
+        @if(Auth::check() && Auth::user()->is_admin)
             @include('layouts.admin-header')
         @endauth
         <main class="main">

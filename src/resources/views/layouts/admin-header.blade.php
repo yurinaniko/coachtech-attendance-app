@@ -7,7 +7,7 @@
             <img src="{{ asset('images/coachtech.png') }}" class="header__logo-img" alt="COACHTECH">
         </div>
         @if (!$hideNav)
-            @auth('admin')
+            @if(Auth::check() && Auth::user()->is_admin)
                 <nav class="header__nav">
                     <ul class="header__nav-list">
                         <li>
@@ -27,7 +27,7 @@
                         </li>
                     </ul>
                 </nav>
-            @endauth
+            @endif
         @endif
     </div>
 </header>

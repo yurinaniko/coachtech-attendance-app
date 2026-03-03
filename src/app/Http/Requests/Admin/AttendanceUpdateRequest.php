@@ -107,8 +107,8 @@ class AttendanceUpdateRequest extends FormRequest
             'clock_in_at.date_format' => '出勤時間は正しい形式で入力してください',
             'clock_out_at.required' => '退勤時間を入力してください',
             'clock_out_at.date_format' => '退勤時間は正しい形式で入力してください',
-            'break_start_at.date_format' => '休憩時間が不適切な値です',
-            'break_end_at.date_format'   => '休憩時間が不適切な値です',
+            'breaks.*.break_start_at.date_format' => '休憩時間が不適切な値です',
+            'breaks.*.break_end_at.date_format'   => '休憩時間が不適切な値です',
             'note.required' => '備考を記入してください',
             'note.max' => '備考は255文字以内で入力してください',
         ];

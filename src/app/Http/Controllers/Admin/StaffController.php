@@ -25,8 +25,7 @@ class StaffController extends Controller
         ]);
 
         return redirect()
-            ->route('attendance.list')
-            ->with('message', '修正申請を送信しました');
+            ->route('attendance.list');
     }
 
     public function approve($id)

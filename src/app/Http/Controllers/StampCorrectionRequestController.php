@@ -16,7 +16,7 @@ class StampCorrectionRequestController extends Controller
     {
         $status = $request->query('status', 'pending');
 
-        $requests = StampCorrectionRequest::with('user')
+        $requests = StampCorrectionRequest::with(['user', 'attendance'])
             ->where('user_id', auth()->id())
             ->where('status', $status)
             ->orderByDesc('created_at')
@@ -36,11 +36,15 @@ class StampCorrectionRequestController extends Controller
 
     public function store(StoreStampCorrectionRequest $request)
     {
-        $data = $request->validated();
-
         $attendance = Attendance::where('id', $request->attendance_id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
+
+        if ($attendance->work_date->isFuture()) {
+            return back()->with('error', '※未来日のため修正できません。');
+        }
+
+        $data = $request->validated();
 
         $requestedClockIn = $data['clock_in_at']
             ? $attendance->work_date->copy()->setTimeFromTimeString($data['clock_in_at'])
@@ -50,18 +54,24 @@ class StampCorrectionRequestController extends Controller
             ? $attendance->work_date->copy()->setTimeFromTimeString($data['clock_out_at'])
             : null;
 
-        $correctionRequest = StampCorrectionRequest::updateOrCreate(
-            [
-                'attendance_id' => $attendance->id,
-                'user_id'       => auth()->id(),
-                'status'        => 'pending',
-            ],
-            [
-                'requested_clock_in_at'  => $requestedClockIn,
-                'requested_clock_out_at' => $requestedClockOut,
-                'requested_note'         => $data['note'],
-            ]
-        );
+        $exists = StampCorrectionRequest::where('attendance_id', $attendance->id)
+            ->where('user_id', auth()->id())
+            ->where('status', 'pending')
+            ->exists();
+
+        if ($exists) {
+            return back()->with('error', '承認待ちの申請があります');
+        }
+
+        $correctionRequest = StampCorrectionRequest::create([
+            'attendance_id' => $attendance->id,
+            'user_id'       => auth()->id(),
+            'status'        => 'pending',
+
+            'requested_clock_in_at'  => $requestedClockIn,
+            'requested_clock_out_at' => $requestedClockOut,
+            'requested_note'         => $data['note'],
+        ]);
 
         foreach ($data['breaks'] ?? [] as $break) {
             $attendanceBreakId = $break['attendance_break_id'] ?? null;
@@ -80,16 +90,6 @@ class StampCorrectionRequestController extends Controller
             ? $attendance->work_date->copy()->setTimeFromTimeString($breakEndAt)
             : null;
 
-            // 既存の休憩がない場合は attendance_breaks に作成
-            if (!$attendanceBreakId) {
-                $attendanceBreak = $attendance->breaks()->create([
-                'break_start_at' => $breakStart,
-                'break_end_at'   => $breakEnd,
-            ]);
-
-            $attendanceBreakId = $attendanceBreak->id;
-            }
-
             StampCorrectionBreak::updateOrCreate(
                 [
                     'stamp_correction_request_id' => $correctionRequest->id,
@@ -105,8 +105,7 @@ class StampCorrectionRequestController extends Controller
         return redirect()
             ->route('attendance.detailByDate', [
             'date' => $attendance->work_date->format('Y-m-d')
-        ])
-            ->with('success', '修正申請を送信しました');
+        ]);
     }
 
     public function update(StoreStampCorrectionRequest $request, $id)
@@ -160,7 +159,6 @@ class StampCorrectionRequestController extends Controller
     return redirect()
         ->route('attendance.detailByDate', [
             'date' => $attendance->work_date->format('Y-m-d')
-        ])
-        ->with('success', '修正申請を更新しました');
+        ]);
     }
 }

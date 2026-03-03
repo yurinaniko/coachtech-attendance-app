@@ -48,6 +48,6 @@ class StampCorrectionRequest extends Model
 
     public function stampCorrectionBreaks()
     {
-        return $this->hasMany(StampCorrectionBreak::class);
+        return $this->hasMany(StampCorrectionBreak::class,'stamp_correction_request_id');
     }
 }

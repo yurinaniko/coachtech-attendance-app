@@ -117,17 +117,15 @@
                                 <td>
                                     <div class="attendance-detail__group">
                                         <div class="attendance-detail__row">
-
-                                            <input type="time"
-                                            name="breaks[__INDEX__][break_start_at]"
-                                            class="attendance-detail__time-input" placeholder="--:--">
-
+                                            <div class="attendance-detail__time-field">
+                                                <input type="time" name="breaks[__INDEX__][break_start_at]"
+                                                class="attendance-detail__time-input" placeholder="--:--">
+                                            </div>
                                             <span class="attendance-detail__separator">〜</span>
-
-                                            <input type="time"
-                                            name="breaks[__INDEX__][break_end_at]"
-                                            class="attendance-detail__time-input" placeholder="--:--">
-
+                                            <div class="attendance-detail__time-field">
+                                                <input type="time" name="breaks[__INDEX__][break_end_at]"
+                                                class="attendance-detail__time-input" placeholder="--:--">
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
