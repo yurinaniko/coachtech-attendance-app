@@ -15,6 +15,7 @@ class CreateStampCorrectionBreaksTable extends Migration
             ->cascadeOnDelete();
 
         $table->foreignId('attendance_break_id')
+            ->nullable()
             ->constrained()
             ->cascadeOnDelete();
 

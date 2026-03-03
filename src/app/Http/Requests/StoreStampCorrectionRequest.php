@@ -22,12 +22,27 @@ class StoreStampCorrectionRequest extends FormRequest
             'breaks.*.break_start_at' => ['nullable', 'date_format:H:i'],
             'breaks.*.break_end_at'   => ['nullable', 'date_format:H:i'],
             'note' => ['required', 'string', 'max:255'],
-    ];
+        ];
     }
+
+    protected $casts = [
+        'requested_clock_in_at'  => 'datetime',
+        'requested_clock_out_at' => 'datetime',
+    ];
 
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+
+            $attendance = \App\Models\Attendance::find($this->attendance_id);
+
+            if ($attendance && \Carbon\Carbon::parse($attendance->work_date)->isFuture()) {
+                $validator->errors()->add(
+                    'attendance_id',
+                    '未来日の勤怠は修正申請できません。'
+                );
+                return;
+            }
 
             $clockIn  = $this->input('clock_in_at');
             $clockOut = $this->input('clock_out_at');
@@ -104,5 +119,19 @@ class StoreStampCorrectionRequest extends FormRequest
                 }
             }
         });
+    }
+
+    public function messages(): array
+    {
+        return [
+            'clock_in_at.required'  => '出勤時間を入力してください',
+            'clock_in_at.date_format' => '出勤時間は正しい形式で入力してください',
+            'clock_out_at.required' => '退勤時間を入力してください',
+            'clock_out_at.date_format' => '退勤時間は正しい形式で入力してください',
+            'breaks.*.break_start_at.date_format' => '休憩時間が不適切な値です',
+            'breaks.*.break_end_at.date_format'   => '休憩時間が不適切な値です',
+            'note.required' => '備考を記入してください',
+            'note.max' => '備考は255文字以内で入力してください',
+        ];
     }
 }

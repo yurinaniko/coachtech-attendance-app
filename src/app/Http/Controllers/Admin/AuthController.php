@@ -19,7 +19,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
         $credentials['is_admin'] = true;
 
-        if (!Auth::guard('admin')->attempt($credentials)) {
+        if (!Auth::attempt($credentials)) {
             return back()->withErrors([
                 'admin.login' => 'ログイン情報が登録されていません',
             ])->withInput();
@@ -32,7 +32,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::guard('admin')->logout();
+        Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

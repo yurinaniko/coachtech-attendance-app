@@ -58,7 +58,7 @@ class AdminLoginTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors();
-        $this->assertGuest('admin');
+        $this->assertGuest();
     }
 
     /** @test */
@@ -76,7 +76,7 @@ class AdminLoginTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors();
-        $this->assertGuest('admin');
+        $this->assertGuest();
     }
 
     /** @test */
@@ -88,7 +88,7 @@ class AdminLoginTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors();
-        $this->assertGuest('admin');
+        $this->assertGuest();
     }
 
     /** @test */
@@ -107,7 +107,7 @@ class AdminLoginTest extends TestCase
 
         $response->assertSessionHasNoErrors();
         $response->assertRedirect(route('admin.attendance.list'));
-        $this->assertAuthenticatedAs($admin, 'admin');
+        $this->assertAuthenticatedAs($admin);
     }
 
     /** @test */
@@ -138,8 +138,8 @@ class AdminLoginTest extends TestCase
             'is_admin' => true,
         ]);
 
-        $response = $this->actingAs($admin, 'admin')
-            ->get('/admin/attendance/list');
+        $response = $this->actingAs($admin)
+        ->get('/admin/attendance/list');
 
         $response->assertStatus(200);
     }

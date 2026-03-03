@@ -40,6 +40,8 @@ class StaffAttendanceController extends Controller
                 $month->copy()->startOfMonth(),
                 $month->copy()->endOfMonth(),
             ])
+            ->whereNotNull('clock_in_at')
+            ->whereNotNull('clock_out_at')
             ->orderBy('work_date')
             ->get();
 

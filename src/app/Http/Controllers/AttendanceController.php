@@ -16,6 +16,14 @@ class AttendanceController extends Controller
         $attendance = Attendance::where('user_id', $user->id)
         ->whereDate('work_date', $today)
         ->first();
+
+        if (!$attendance) {
+            return view('attendance.index', [
+                'user' => $user,
+                'today' => $today,
+                'status' => 'before_work'
+            ]);
+        }
         $latestBreak = $attendance
         ? $attendance->breaks()
         ->whereNull('break_end_at')
@@ -23,7 +31,7 @@ class AttendanceController extends Controller
             ->first()
         : null;
 
-        if (!$attendance) {
+        if (!$attendance || !$attendance->clock_in_at) {
             $status = 'before_work';
         } elseif ($attendance->clock_out_at) {
             $status = 'after_work';
@@ -48,17 +56,22 @@ class AttendanceController extends Controller
         $attendance = Attendance::where('user_id', $user->id)
             ->whereDate('work_date', $today)
             ->first();
-        if ($attendance) {
+
+        if ($attendance && $attendance->clock_in_at) {
             return back()->withErrors([
                 'clock_in' => '既に出勤しています'
             ]);
         }
 
-        Attendance::create([
-            'user_id' => $user->id,
-            'work_date' => $today,
-            'clock_in_at' => now(),
-        ]);
+        $attendance = Attendance::firstOrCreate(
+            [
+                'user_id'   => auth()->id(),
+                'work_date' => today(),
+            ],
+            [
+                'clock_in_at' => now(),
+            ]
+        );
 
         return redirect()->route('attendance.index');
     }
@@ -66,8 +79,16 @@ class AttendanceController extends Controller
     public function clockOut()
     {
         $attendance = Attendance::where('user_id', auth()->id())
-            ->whereDate('work_date', now()->toDateString())
-            ->firstOrFail();
+            ->whereDate('work_date', today())
+            ->whereNotNull('clock_in_at')
+            ->whereNull('clock_out_at')
+            ->first();
+
+        if (!$attendance) {
+            return back()->withErrors([
+                'clock_out' => '出勤していないため退勤できません'
+            ]);
+        }
 
         if ($attendance->clock_out_at) {
             return back()->withErrors([
@@ -99,16 +120,24 @@ class AttendanceController extends Controller
         $user = auth()->user();
         $today = now()->toDateString();
 
-        $attendance = Attendance::where('user_id', $user->id)
-            ->whereDate('work_date', $today)
-            ->firstOrFail();
+        $attendance = Attendance::where('user_id', auth()->id())
+        ->whereDate('work_date', today())
+        ->whereNotNull('clock_in_at')
+        ->whereNull('clock_out_at')
+        ->first();
+
+        if (!$attendance) {
+            return back()->withErrors([
+                'break_start' => '出勤していないため休憩できません'
+            ]);
+        }
 
         $activeBreak = $attendance->breaks()
-            ->whereNull('break_end_at')
-            ->exists();
+        ->whereNull('break_end_at')
+        ->exists();
 
         if ($activeBreak) {
-            return redirect()->route('attendance.index');
+            return back();
         }
 
         $attendance->breaks()->create([
@@ -122,8 +151,10 @@ class AttendanceController extends Controller
     {
         $user = auth()->user();
         $today = now()->toDateString();
-        $attendance = Attendance::where('user_id', $user->id)
-            ->whereDate('work_date', $today)
+        $attendance = Attendance::where('user_id', auth()->id())
+            ->whereDate('work_date', today())
+            ->whereNotNull('clock_in_at')
+            ->whereNull('clock_out_at')
             ->firstOrFail();
         $latestBreak = $attendance->breaks()
         ->whereNull('break_end_at')
@@ -145,8 +176,12 @@ class AttendanceController extends Controller
 
         $attendances = Attendance::where('user_id', auth()->id())
             ->whereBetween('work_date', [$startOfMonth, $endOfMonth])
+            ->with('breaks')
+            ->orderByDesc('clock_in_at')
             ->get()
-            ->keyBy(fn ($attendance) => $attendance->work_date->format('Y-m-d'));
+            ->groupBy(fn ($a) => $a->work_date->format('Y-m-d'))
+            ->map(fn ($items) => $items->first());
+
         return view('attendance.list', compact('attendances', 'month'));
     }
 
@@ -166,13 +201,11 @@ class AttendanceController extends Controller
         ->orderBy('break_start_at')
         ->get();
 
-        $pendingRequest = StampCorrectionRequest::where('attendance_id', $attendance->id)
-        ->where('status', StampCorrectionRequest::STATUS_PENDING)
-        ->latest()
-        ->first();
-
-        $disabled = false;
-        $notice = null;
+        $pendingRequest = StampCorrectionRequest::with('stampCorrectionBreaks')
+            ->where('attendance_id', $attendance->id)
+            ->where('status', StampCorrectionRequest::STATUS_PENDING)
+            ->latest()
+            ->first();
 
         if ($pendingRequest) {
             $disabled = true;
@@ -194,27 +227,44 @@ class AttendanceController extends Controller
     public function detailByDate($date)
     {
         $user = auth()->user();
+        $isFuture = \Carbon\Carbon::parse($date)->isFuture();
 
-        $attendance = Attendance::firstOrCreate(
-            [
-                'user_id'   => $user->id,
-                'work_date' => $date,
-            ]
-        );
-
-        $breaks = $attendance->breaks()
-        ->orderBy('break_start_at')
-        ->get();
-
-        $pendingRequest = StampCorrectionRequest::where('attendance_id', $attendance->id)
-        ->where('status', StampCorrectionRequest::STATUS_PENDING)
-        ->latest()
+        $attendance = Attendance::where('user_id', $user->id)
+        ->where('work_date', $date)
         ->first();
+
+        if (!$attendance && !$isFuture) {
+            $attendance = Attendance::create([
+                'user_id' => $user->id,
+                'work_date' => $date,
+            ]);
+        }
+
+        $targetDate = $attendance?->work_date ?? Carbon::parse($date);
+
+        $breaks = collect();
+        $pendingRequest = null;
+
+        if ($attendance) {
+            $breaks = $attendance->breaks()
+                ->orderBy('break_start_at')
+                ->get();
+
+            $pendingRequest = StampCorrectionRequest::with('stampCorrectionBreaks')
+                ->where('attendance_id', $attendance->id)
+                ->where('status', StampCorrectionRequest::STATUS_PENDING)
+                ->latest()
+                ->first();
+        }
 
         $disabled = false;
         $notice   = null;
 
-        if ($pendingRequest) {
+        if ($isFuture) {
+            $disabled = true;
+            $notice = '※未来日のため修正できません。';
+        }
+        elseif ($pendingRequest) {
             $disabled = true;
             $notice = '※承認待ちのため修正できません。';
         }
@@ -228,6 +278,8 @@ class AttendanceController extends Controller
             'pendingRequest' => $pendingRequest,
             'disabled'       => $disabled,
             'notice'         => $notice,
+            'isFuture'       => $isFuture,
+            'targetDate'     =>$targetDate
         ]);
     }
 }

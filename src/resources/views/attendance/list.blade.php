@@ -47,10 +47,10 @@
                         </span>
                     </td>
                     <td class="attendance-list__time">
-                        {{ optional($attendance)->clock_in_at?->format('H:i') }}
+                        {{ optional($attendance)->clock_in_time }}
                     </td>
                     <td class="attendance-list__time">
-                        {{ optional($attendance)->clock_out_at?->format('H:i') }}
+                        {{ optional($attendance)->clock_out_time }}
                     </td>
                     <td class="attendance-list__time">
                         @if ($attendance && $attendance->breaks->isNotEmpty())
@@ -58,9 +58,7 @@
                         @endif
                     </td>
                     <td class="attendance-list__time">
-                        @if ($attendance && $attendance->work_seconds > 0)
-                            {{ $attendance->work_time_hhmm }}
-                        @endif
+                        {{ $attendance?->work_time_hhmm ?? '' }}
                     </td>
                     <td>
                             <a href="{{ route('attendance.detailByDate', ['date' => $dateKey]) }}" class="attendance-list__detail">

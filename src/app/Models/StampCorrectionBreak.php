@@ -22,13 +22,13 @@ class StampCorrectionBreak extends Model
         'break_end_at'   => 'datetime',
     ];
 
-    public function stampCorrectionRequest()
-    {
-        return $this->belongsTo(StampCorrectionRequest::class);
-    }
-
     public function attendanceBreak()
     {
         return $this->belongsTo(AttendanceBreak::class);
+    }
+
+    public function stampCorrectionRequest()
+    {
+        return $this->belongsTo(StampCorrectionRequest::class,'stamp_correction_request_id');
     }
 }

@@ -73,20 +73,40 @@ class Attendance extends Model
         return max(0, $work);
     }
 
-    public function getWorkTimeHhmmAttribute(): string
+    public function getWorkTimeHhmmAttribute(): ?string
     {
-        $sec = $this->work_seconds;
-        $h = intdiv($sec, 3600);
-        $m = intdiv($sec % 3600, 60);
-        return sprintf('%02d:%02d', $h, $m);
+        if (!$this->clock_in_at || !$this->clock_out_at) {
+            return null;
+        }
+
+        $workMinutes = $this->clock_out_at->diffInMinutes($this->clock_in_at);
+
+        $breakMinutes = $this->breaks->reduce(function ($carry, $break) {
+            if ($break->break_start_at && $break->break_end_at) {
+                return $carry + $break->break_end_at->diffInMinutes($break->break_start_at);
+            }
+                return $carry;
+        }, 0);
+
+        $net = $workMinutes - $breakMinutes;
+
+        return sprintf('%02d:%02d', intdiv($net, 60), $net % 60);
     }
 
-    public function getBreakTimeHhmmAttribute(): string
+    public function getBreakTimeHhmmAttribute(): ?string
     {
-        $sec = $this->break_seconds;
-        $h = intdiv($sec, 3600);
-        $m = intdiv($sec % 3600, 60);
-        return sprintf('%02d:%02d', $h, $m);
+        if (!$this->clock_in_at || !$this->clock_out_at) {
+            return null;
+        }
+
+        $totalMinutes = $this->breaks->reduce(function ($carry, $break) {
+            if ($break->break_start_at && $break->break_end_at) {
+                return $carry + $break->break_end_at->diffInMinutes($break->break_start_at);
+            }
+                return $carry;
+        }, 0);
+
+        return sprintf('%02d:%02d', intdiv($totalMinutes, 60), $totalMinutes % 60);
     }
 
     public function getClockInTimeAttribute(): ?string

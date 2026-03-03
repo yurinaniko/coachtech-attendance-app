@@ -59,8 +59,7 @@ class StampCorrectionRequestController extends Controller
         ]);
 
         return redirect()
-            ->back()
-            ->with('success', '勤怠を修正しました');
+            ->back();
     }
 
     public function approve(Request $request, $id)
@@ -108,9 +107,10 @@ class StampCorrectionRequestController extends Controller
             ]);
         });
 
-        return redirect()
-            ->route('admin.stamp_correction_requests.index')
-            ->with('success', '申請を承認しました');
+            return redirect()->route(
+                'admin.stamp_correction_requests.edit',
+                $request->id
+            );
     }
 
     public function update(Request $request, $id)
@@ -153,7 +153,6 @@ class StampCorrectionRequestController extends Controller
         }
 
     return redirect()
-        ->route('admin.stamp_correction_requests.index')
-        ->with('success', '修正しました');
+        ->route('admin.stamp_correction_requests.index');
     }
 }

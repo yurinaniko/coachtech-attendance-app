@@ -38,12 +38,8 @@
                                 </span>
                             </td>
                             <td>{{ $request->user->name }}</td>
-                            <td>@if ($request->requested_clock_in_at && $request->requested_clock_out_at)
-                                    {{ $request->requested_clock_in_at->format('Y/m/d') }}<br>
-                                @else
-                                    -
-                                @endif
-                            <td>{{ $request->requested_note }}</td>
+                            <td>{{ optional($request->attendance)->work_date?->format('Y/m/d') ?? '-' }}</td>
+                            <td>{{ $request->requested_note ?? '-' }}</td>
                             <td>{{ optional($request->created_at)->format('Y/m/d') }}</td>
                             <td>
                                 <a href="{{ route('attendance.detailByDate', $request->attendance->work_date->format('Y-m-d')) }}"  class="stamp-request-index__detail">

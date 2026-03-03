@@ -5,44 +5,68 @@
 @endsection
 
 @section('content')
+@if(!$attendance && !$isFuture)
+    <div class="attendance-detail__empty">
+        勤怠データがまだ作成されていません。
+    </div>
+@else
 <div class="attendance-detail">
     <h1 class="attendance-detail__title">勤怠詳細</h1>
+    @if ($errors->any())
+        <div class="error">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <form method="POST" action="{{ route('stamp_correction_requests.store') }}">
         @csrf
-        <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
-        <div class="attendance-detail__wrapper">
-            <table class="attendance-detail__table">
+            @if($attendance)
+                <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
+            @endif
+            @php
+                $isPending = isset($pendingRequest) && $pendingRequest?->status === 'pending';
+                $isStatic = $isFuture || $isPending;
+            @endphp
+            <div class="attendance-detail__wrapper">
+                <table class="attendance-detail__table {{ $isStatic ? 'is-static' : '' }}">
                 <tbody>
                     <tr>
                         <th>名前</th>
                         <td>
-                            <span class="attendance-detail__name">{{ $attendance->user?->name }}</span>
+                            <span class="attendance-detail__name">{{ $attendance?->user?->name ?? auth()->user()->name }}</span>
                         </td>
                     </tr>
-                    <tr>
+                    <tr class="{{ $isStatic ? 'attendance-detail__row--date-static' : '' }}">
                         <th>日付</th>
                         <td>
-                            <div class="attendance-detail__date
-                            {{ $disabled ? 'attendance-detail__date--view' : 'attendance-detail__date--edit' }}">
+                            <div class="attendance-detail__date {{ $isStatic ? 'attendance-detail__date--view' : 'attendance-detail__date--edit' }}">
                                 <span class="attendance-detail__year">
-                                    {{ $attendance->work_date?->format('Y') ?? '--' }}年
+                                    {{ $targetDate->format('Y') }}年
                                 </span>
                                 <span class="attendance-detail__month-day">
-                                    {{ $attendance->work_date?->format('n') }}月{{ $attendance->work_date?->format('j') }}日
+                                    {{ $targetDate->format('n') }}月{{ $targetDate->format('j') }}日
                                 </span>
                             </div>
                         </td>
                     </tr>
                     @php
-                        $clockIn  = $pendingRequest?->requested_clock_in_at  ?? $attendance->clock_in_at;
-                        $clockOut = $pendingRequest?->requested_clock_out_at ?? $attendance->clock_out_at;
+                        $clockIn = $pendingRequest && $pendingRequest->requested_clock_in_at !== null
+                        ? $pendingRequest->requested_clock_in_at
+                        : $attendance?->clock_in_at;
+
+                        $clockOut = $pendingRequest && $pendingRequest->requested_clock_out_at !== null
+                        ? $pendingRequest->requested_clock_out_at
+                        : $attendance?->clock_out_at;
                     @endphp
                     <tr>
                         <th>出勤・退勤</th>
                         <td>
                             <div class ="attendance-detail__group">
                                 <div class="attendance-detail__row">
-                                    @if (!$disabled)
+                                    @if (!$isStatic)
                                         <div class="attendance-detail__time-field">
                                             <input type="time" name="clock_in_at" class="attendance-detail__time-input"
                                             value="{{ old('clock_in_at', $clockIn?->format('H:i')) }}" placeholder="--:--">
@@ -63,13 +87,17 @@
                                             </div>
                                         </div>
                                     @else
-                                        <span class="attendance-detail__time">
-                                            {{ $clockIn?->format('H:i') ?? '--:--' }}
-                                        </span>
+                                        <div class="attendance-detail__time-field">
+                                            <span class="attendance-detail__time">
+                                                {{ $clockIn?->format('H:i') }}
+                                            </span>
+                                        </div>
                                         <span class="attendance-detail__separator">〜</span>
-                                        <span class="attendance-detail__time">
-                                            {{ $clockOut?->format('H:i') ?? '--:--'}}
-                                        </span>
+                                        <div class="attendance-detail__time-field">
+                                            <span class="attendance-detail__time">
+                                                {{ $clockOut?->format('H:i') }}
+                                            </span>
+                                        </div>
                                     @endif
                                 </div>
                             </div>
@@ -78,29 +106,28 @@
                     @php
                         $displayCount = $displayCount ?? 2;
                         $oldBreaks = old('breaks', []);
-                        $loopCount = max($displayCount, count($oldBreaks));
+                        $targetBreaks = $pendingRequest
+                        ? ($pendingRequest->stampCorrectionBreaks ?? collect()): ($breaks ?? collect());
+                        $loopCount = max($displayCount, count($oldBreaks), $targetBreaks->count());
                     @endphp
                         @for ($i = 0; $i < $loopCount; $i++)
                             @php
-                                $break = $breaks->get($i);
+                                $break = $targetBreaks->get($i);
                                 $start = old("breaks.$i.break_start_at")
                                         ?? $break?->break_start_at?->format('H:i');
                                 $end = old("breaks.$i.break_end_at")
                                         ?? $break?->break_end_at?->format('H:i');
                             @endphp
-                                @if ($disabled && is_null($break))
-                                    @continue
-                                @endif
                             <tr class="attendance-detail__break-row">
                                 <th>休憩{{ $i === 0 ? '' : $i + 1 }}</th>
                                 <td>
                                     <div class="attendance-detail__group">
                                         <div class="attendance-detail__row">
-                                            @if (!$disabled)
-                                                @if ($break)
-                                                    <input type="hidden" name="breaks[{{ $i }}][attendance_break_id]" value="{{ $break->id }}">
-                                                @endif
+                                            @if (!$isStatic)
                                                 <div class="attendance-detail__time-field">
+                                                    @if ($break)
+                                                        <input type="hidden" name="breaks[{{ $i }}][attendance_break_id]" value="{{ $break->id }}">
+                                                    @endif
                                                     <input type="time" name="breaks[{{ $i }}][break_start_at]" class="attendance-detail__time-input" value="{{ $start ?? '' }}" placeholder="--:--">
                                                     <div class="attendance-detail__error">
                                                         @error("breaks.$i.break_start_at")
@@ -117,15 +144,33 @@
                                                         @enderror
                                                     </div>
                                                 </div>
-                                                @else
-                                                    <span class="attendance-detail__time">
-                                                        {{ $break?->break_start_at?->format('H:i') ?? '--:--' }}
-                                                    </span>
+                                            @else
+                                                @if ($break)
+                                                    <div class="attendance-detail__time-field">
+                                                        <span class="attendance-detail__time">
+                                                            {{ $break->break_start_at?->format('H:i') }}
+                                                        </span>
+                                                    </div>
                                                     <span class="attendance-detail__separator">〜</span>
-                                                    <span class="attendance-detail__time">
-                                                        {{ $break?->break_end_at?->format('H:i') ?? '--:--' }}
-                                                    </span>
+                                                    <div class="attendance-detail__time-field">
+                                                        <span class="attendance-detail__time">
+                                                            {{ $break->break_end_at?->format('H:i') }}
+                                                        </span>
+                                                    </div>
+                                                @else
+                                                    <div class="attendance-detail__time-field">
+                                                        <span class="attendance-detail__time">
+                                                            {{ $break?->break_start_at?->format('H:i') ?? '' }}
+                                                        </span>
+                                                    </div>
+                                                    <span class="attendance-detail__separator">〜</span>
+                                                    <div class="attendance-detail__time-field">
+                                                        <span class="attendance-detail__time">
+                                                            {{ $break?->break_end_at?->format('H:i') ?? '' }}
+                                                        </span>
+                                                    </div>
                                                 @endif
+                                            @endif
                                         </div>
                                     </div>
                                 </td>
@@ -137,34 +182,34 @@
                                 <td>
                                     <div class="attendance-detail__group">
                                         <div class="attendance-detail__row">
-                                            <input type="time" name="breaks[__INDEX__][break_start_at]"
-                                            class="attendance-detail__time-input" placeholder="--:--">
+                                            <div class="attendance-detail__time-field">
+                                                <input type="time" name="breaks[__INDEX__][break_start_at]"
+                                                class="attendance-detail__time-input" placeholder="--:--">
+                                            </div>
                                             <span class="attendance-detail__separator">〜</span>
-                                            <input type="time" name="breaks[__INDEX__][break_end_at]"
-                                            class="attendance-detail__time-input" placeholder="--:--">
+                                            <div class="attendance-detail__time-field">
+                                                <input type="time" name="breaks[__INDEX__][break_end_at]"
+                                                class="attendance-detail__time-input" placeholder="--:--">
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
                             </tr>
                         </template>
                         @php
-                            $note = $pendingRequest?->requested_note ?? $attendance->note;
+                            $note = $pendingRequest?->requested_note ?? $attendance?->note;
                         @endphp
                         <tr class="attendance-detail__note-row">
                             <th>備考</th>
                             <td>
                                 <div class="attendance-detail__group">
                                     <div class="attendance-detail__row">
-                                        @if (!$disabled)
+                                        @if (!$isStatic)
                                             <textarea name="note" class="form_input attendance-detail__note" rows="3">{{ old('note', $note) }}</textarea>
                                         @else
-                                            <span class="attendance-detail__note-text">
-                                                @if ($pendingRequest && $pendingRequest->requested_note)
-                                                    {{ $pendingRequest->requested_note }}
-                                                @else
-                                                    {{ $attendance->note }}
-                                                @endif
-                                            </span>
+                                            <div class="attendance-detail__note attendance-detail__note-text">
+                                                {{ $note }}
+                                            </div>
                                         @endif
                                     </div>
                                     @error('note')
@@ -177,17 +222,25 @@
             </table>
         </div>
         <div class="attendance-detail__actions">
-            @if ($disabled)
-                <p class="attendance-detail__notice">
-                    ※承認待ちのため修正できません。
-                </p>
+            @if (!$isStatic)
+                <button type="submit" class="attendance-detail__edit-btn">
+                    修正
+                </button>
+                @if(session('error'))
+                    <p class="error">
+                        {{ session('error') }}
+                    </p>
+                @endif
             @else
-                <button type="submit" class="attendance-detail__edit-btn">修正</button>
+                <p class="attendance-detail__notice">
+                    {{ $notice }}
+                </p>
             @endif
         </div>
     </form>
 </div>
-@if (!$disabled)
+@endif
+@if($attendance && !$isStatic)
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
