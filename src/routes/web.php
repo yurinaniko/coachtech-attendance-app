@@ -13,18 +13,13 @@ use App\Http\Controllers\Admin\StaffAttendanceController;
 // 一般ユーザー 認証
 Route::get('/login', [AuthController::class, 'showLogin'])
     ->name('login');
-
 Route::post('/login', [AuthController::class, 'login']);
-
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');
-
 Route::get('/register', [AuthController::class, 'showRegister'])
     ->name('register.form');
-
 Route::post('/register', [AuthController::class, 'register'])
     ->name('register');
-
 Route::get('/email/verify', [AuthController::class, 'showVerifyEmail'])
     ->middleware('auth')
     ->name('verification.notice');
@@ -51,12 +46,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('attendance.index');
         Route::get('/list', [AttendanceController::class, 'list'])
             ->name('attendance.list');
-        Route::get('/{id}',
-        [AttendanceController::class, 'detail']
+        Route::get('/detail/{date}',[AttendanceController::class, 'detail']
             )->name('attendance.detail');
-        Route::get('/detail/date/{date}',
-        [AttendanceController::class, 'detailByDate']
-            )->name('attendance.detailByDate');
         Route::post('/clock-in', [AttendanceController::class, 'clockIn'])
             ->name('attendance.clockIn');
         Route::post('/clock-out', [AttendanceController::class, 'clockOut'])
@@ -67,14 +58,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('attendance.breakEnd');
     });
 
-    Route::prefix('stamp_correction_requests')->group(function () {
-        Route::get('/', [StampCorrectionRequestController::class, 'index'])
-            ->name('stamp_correction_requests.index');
-        Route::post('/',[StampCorrectionRequestController::class, 'store'])->name('stamp_correction_requests.store');
-        Route::get('/create/{attendance}', [StampCorrectionRequestController::class, 'create'])
-            ->name('stamp_correction_requests.create');
-        Route::get('/{stampCorrectionRequest}', [StampCorrectionRequestController::class, 'show'])
-            ->name('stamp_correction_requests.show');
+    Route::prefix('stamp_correction_request')->group(function () {
+        Route::post('/',[StampCorrectionRequestController::class, 'store'])
+            ->name('stamp_correction_request.store');
+        Route::get('/list', [StampCorrectionRequestController::class, 'index'])
+            ->name('stamp_correction_request.index');
     });
 });
 
@@ -112,7 +100,7 @@ Route::prefix('admin')->group(function () {
             Route::get('/list', [StaffController::class, 'list'])
                 ->name('staff.list');
 
-            // スタッフ別 月次勤怠一覧
+            // スタッフ別 勤怠一覧
             Route::get('/{user}/attendances',
                 [StaffAttendanceController::class, 'index']
             )->name('staff.attendance.index');
@@ -123,23 +111,18 @@ Route::prefix('admin')->group(function () {
             )->name('staff.attendance.csv');
         });
 
-        Route::prefix('stamp_correction_requests')->group(function () {
-
-            Route::post('/',
-                [AdminStampCorrectionRequestController::class, 'store']
-            )->name('stamp_correction_requests.store');
-
-            Route::get('/index',
+        Route::prefix('stamp_correction_request')->group(function () {
+            Route::get('/list',
                 [AdminStampCorrectionRequestController::class, 'index']
-            )->name('stamp_correction_requests.index');
+            )->name('stamp_correction_request.index');
 
-            Route::get('/{id}/edit',
+            Route::get('/approve/{id}',
                 [AdminStampCorrectionRequestController::class, 'edit']
-            )->name('stamp_correction_requests.edit');
+            )->name('stamp_correction_request.edit');
 
             Route::post('/approve/{id}',
                 [AdminStampCorrectionRequestController::class, 'approve']
-            )->name('stamp_correction_requests.approve');
+            )->name('stamp_correction_request.approve');
         });
     });
 });

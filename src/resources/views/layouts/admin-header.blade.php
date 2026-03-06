@@ -17,7 +17,7 @@
                             <a href="{{ route('admin.staff.list') }}">スタッフ一覧</a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.stamp_correction_requests.index') }}">申請一覧</a>
+                            <a href="{{ route('admin.stamp_correction_request.index') }}">申請一覧</a>
                         </li>
                         <li>
                             <form method="POST" action="{{ route('admin.logout') }}">

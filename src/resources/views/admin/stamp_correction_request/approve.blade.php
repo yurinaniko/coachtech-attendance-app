@@ -7,7 +7,6 @@
 @section('content')
 <div class="stamp-request-detail">
     <h1 class="stamp-request-detail__title">勤怠詳細</h1>
-
     <div class="stamp-request-detail__wrapper">
         <table class="stamp-request-detail__table">
             <tbody>
@@ -38,38 +37,25 @@
                         </div>
                     </td>
                 </tr>
+                @php
+                    $breaks = $request->stampCorrectionBreaks;
+                    $loopCount = $breaks->count() + 1;
+                @endphp
+                @for ($i = 0; $i < $loopCount; $i++)
                     @php
-                        $break1 = $request->attendance->breaks->get(0);
-                        $break2 = $request->attendance->breaks->get(1);
-                        $break1Start = optional($break1?->break_start_at)->format('H:i');
-                        $break1End   = optional($break1?->break_end_at)->format('H:i');
-                        $break2Start = optional($break2?->break_start_at)->format('H:i');
-                        $break2End   = optional($break2?->break_end_at)->format('H:i');
+                        $break = $breaks->get($i);
                     @endphp
-                <tr>
-                    <th>休憩</th>
-                    <td>
-                        @if ($break1?->break_start_at || $break1?->break_end_at)
+                    <tr>
+                        <th>休憩{{ $i === 0 ? '' : $i + 1 }}</th>
+                        <td>
                             <div class="stamp-request-detail__row-value stamp-request-detail__row-value--time">
-                                <span>{{ optional($break1?->break_start_at)->format('H:i')}}</span>
+                                <span>{{ $break?->break_start_at?->format('H:i') }}</span>
                                 <span>〜</span>
-                                <span>{{ optional($break1?->break_end_at)->format('H:i')}}</span>
+                                <span>{{ $break?->break_end_at?->format('H:i') }}</span>
                             </div>
-                        @endif
-                    </td>
-                </tr>
-                <tr>
-                    <th>休憩2</th>
-                    <td>
-                        @if ($break2?->break_start_at || $break2?->break_end_at)
-                            <div class="stamp-request-detail__row-value stamp-request-detail__row-value--time">
-                                <span>{{ optional($break2?->break_start_at)->format('H:i')}}</span>
-                                <span>〜</span>
-                                <span>{{ optional($break2?->break_end_at)->format('H:i')}}</span>
-                            </div>
-                        @endif
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                @endfor
                 <tr>
                     <th>備考</th>
                     <td>
@@ -83,7 +69,7 @@
     </div>
     <div class="stamp-request-detail__actions">
         @if ($request->status === 'pending')
-            <form method="POST" action="{{ route('admin.stamp_correction_requests.approve', $request->id) }}">
+            <form method="POST" action="{{ route('admin.stamp_correction_request.approve', $request->id) }}">
                 @csrf
                 <button type="submit" class="stamp-request-detail__approve-button">承認</button>
             </form>

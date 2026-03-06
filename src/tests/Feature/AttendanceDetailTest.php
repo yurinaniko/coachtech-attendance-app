@@ -25,7 +25,7 @@ class AttendanceDetailTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->get(route('attendance.detailByDate', [
+            ->get(route('attendance.detail', [
                 'date' => $attendance->work_date->format('Y-m-d')
             ]));
 
@@ -43,7 +43,7 @@ class AttendanceDetailTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->get(route('attendance.detailByDate', [
+            ->get(route('attendance.detail', [
                 'date' => '2026-02-01'
             ]));
 
@@ -64,7 +64,7 @@ class AttendanceDetailTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->get(route('attendance.detailByDate', [
+            ->get(route('attendance.detail', [
                 'date' => $attendance->work_date->format('Y-m-d')
             ]));
 
@@ -89,7 +89,7 @@ class AttendanceDetailTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->get(route('attendance.detailByDate', [
+            ->get(route('attendance.detail', [
                 'date' => $attendance->work_date->format('Y-m-d')
             ]));
 

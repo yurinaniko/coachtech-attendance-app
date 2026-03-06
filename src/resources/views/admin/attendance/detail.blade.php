@@ -6,106 +6,152 @@
 
 @section('content')
 @php
-    $disabled = $pendingRequest !== null;
+    $isStatic = $isFuture || $pendingRequest;
 @endphp
 <div class="attendance-detail">
     <h1 class="attendance-detail__title">勤怠詳細</h1>
+        @if ($pendingRequest)
+            <div id="toast-notice" class="attendance-toast">
+                <div class="attendance-toast__icon">
+                    ⚠
+                </div>
+                <div class="attendance-toast__content">
+                    <p class="attendance-toast__title">
+                        修正申請があります
+                    </p>
+                    <p class="attendance-toast__text">
+                        この勤怠にはスタッフから修正申請が提出されています。
+                        管理者が承認後、修正できるようになります。
+                    </p>
+                </div>
+            </div>
+        @endif
         @if (session('success'))
             <div class="success-message">
                 {{ session('success') }}
             </div>
         @endif
-    <form method="POST" action="{{ route('admin.attendance.update', $attendance->id) }}">
-        @csrf
-        @method('PUT')
-        <div class="attendance-detail__wrapper">
-            <table class="attendance-detail__table">
-                <tbody id="break-table">
-                    <tr>
-                        <th>名前</th>
-                        <td>
-                            <span class="attendance-detail__name">{{ $attendance->user->name }}</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>日付</th>
-                        <td>
-                            <div class="attendance-detail__date attendance-detail__date--edit">
-                                <span class="attendance-detail__year">
-                                    {{ $attendance->work_date->format('Y') }}年
-                                </span>
-                                <span class="attendance-detail__month-day">
-                                    {{ $attendance->work_date->format('n') }}月{{ $attendance->work_date->format('j') }}日
-                                </span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>出勤・退勤</th>
-                        <td>
-                            <div class ="attendance-detail__group">
-                                <div class="attendance-detail__row">
-                                    <div class="attendance-detail__time-field">
-                                        <input type="time" name="clock_in_at" class="attendance-detail__time-input"
-                                        value="{{ old('clock_in_at', optional($clockIn)->format('H:i')) }}" placeholder="--:--">
-                                        <div class="attendance-detail__error">
-                                            @error('clock_in_at')
-                                                <p class="error">{{ $message }}</p>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <span class="attendance-detail__separator">〜</span>
-                                    <div class="attendance-detail__time-field">
-                                        <input type="time" name="clock_out_at" class="attendance-detail__time-input"
-                                        value="{{ old('clock_out_at', optional($clockOut)->format('H:i')) }}"placeholder="--:--">
-                                        @error('clock_out_at')
-                                            <p class="error">{{ $message }}</p>
-                                        @enderror
+        <form method="POST" action="{{ route('admin.attendance.update', $attendance->id) }}">
+            @csrf
+            @method('PUT')
+            <div class="table-wrapper">
+                <table class="attendance-detail__table table">
+                    <tbody id="break-table">
+                        <tr>
+                            <th>名前</th>
+                            <td>
+                                <span class="attendance-detail__name">{{ $attendance->user->name }}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>日付</th>
+                            <td>
+                                <div class="attendance-detail__date attendance-detail__date--edit">
+                                    <span class="attendance-detail__year">
+                                        {{ $attendance->work_date->format('Y') }}年
+                                    </span>
+                                    <span class="attendance-detail__month-day">
+                                        {{ $attendance->work_date->format('n') }}月{{ $attendance->work_date->format('j') }}日
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>出勤・退勤</th>
+                            <td>
+                                <div class ="attendance-detail__group">
+                                    <div class="attendance-detail__row">
+                                        @if (!$isStatic)
+                                            <div class="attendance-detail__time-field">
+                                                <input type="time" name="clock_in_at" class="attendance-detail__time-input"
+                                                value="{{ old('clock_in_at', optional($clockIn)->format('H:i')) }}" placeholder="--:--">
+                                                @error('clock_in_at')
+                                                    <p class="error">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+                                            <span class="attendance-detail__separator">〜</span>
+                                            <div class="attendance-detail__time-field">
+                                                <input type="time" name="clock_out_at" class="attendance-detail__time-input"
+                                                value="{{ old('clock_out_at', optional($clockOut)->format('H:i')) }}"placeholder="--:--">
+                                                @error('clock_out_at')
+                                                    <p class="error">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+                                        @else
+                                            {{-- 表示モード --}}
+                                            <div class="attendance-detail__time-field">
+                                                <span class="attendance-detail__time">
+                                                    {{ optional($clockIn)->format('H:i') }}
+                                                </span>
+                                            </div>
+                                            <span class="attendance-detail__separator">〜</span>
+                                            <div class="attendance-detail__time-field">
+                                                <span class="attendance-detail__time">
+                                                    {{ optional($clockOut)->format('H:i') }}
+                                                </span>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                        @for ($i = 0; $i < $displayCount; $i++)
+                            </td>
+                        </tr>
+                        @php
+                            if (!$isStatic) {
+                               // 編集モード
+                                $loopCount = $displayCount;
+                            } elseif ($isFuture) {
+                                // 未来日は最低1行表示
+                                $loopCount = max(1, $breaks->count());
+                            } else {
+                               // 承認待ちなどは実際の休憩数だけ
+                                $loopCount = $breaks->count();
+                            }
+                        @endphp
+                        @for ($i = 0; $i < $loopCount; $i++)
                             @php
                                 $break = $breaks->get($i);
-                                $start = old(
-                                    "breaks.$i.break_start_at",
-                                    $break?->break_start_at?->format('H:i')
-                                );
-                                $end = old(
-                                    "breaks.$i.break_end_at",
-                                    $break?->break_end_at?->format('H:i')
-                                );
+                                $start = old("breaks.$i.break_start_at",$break?->break_start_at?->format('H:i'));
+                                $end = old("breaks.$i.break_end_at",$break?->break_end_at?->format('H:i'));
                             @endphp
                             <tr class="attendance-detail__break-row">
                                 <th>休憩{{ $i === 0 ? '' : $i + 1 }}</th>
                                 <td>
                                     <div class ="attendance-detail__group">
                                         <div class="attendance-detail__row">
-                                            @if ($break)
-                                                <input type="hidden" name="breaks[{{ $i }}][attendance_break_id]"
-                                                value="{{ $break->id }}" placeholder="--:--">
-                                            @endif
-                                            <div class="attendance-detail__time-field">
-                                                <input type="time" name="breaks[{{ $i }}][break_start_at]"
-                                                class="attendance-detail__time-input" value="{{ $start ?: '' }}" placeholder="--:--">
-                                                <div class="attendance-detail__error">
+                                            @if (!$isStatic)
+                                                @if ($break)
+                                                    <input type="hidden" name="breaks[{{ $i }}][attendance_break_id]"
+                                                    value="{{ $break->id }}" placeholder="--:--">
+                                                @endif
+                                                <div class="attendance-detail__time-field">
+                                                    <input type="time" name="breaks[{{ $i }}][break_start_at]"
+                                                    class="attendance-detail__time-input" value="{{ $start ?: '' }}" placeholder="--:--">
                                                     @error("breaks.$i.break_start_at")
                                                         <p class="error">{{ $message }}</p>
                                                     @enderror
                                                 </div>
-                                            </div>
-                                            <span class="attendance-detail__separator">〜</span>
-                                            <div class="attendance-detail__time-field">
-                                                <input type="time" name="breaks[{{ $i }}][break_end_at]"
-                                                class="attendance-detail__time-input" value="{{ $end ?: '' }}" placeholder="--:--">
-                                                <div class="attendance-detail__error">
+                                                <span class="attendance-detail__separator">〜</span>
+                                                <div class="attendance-detail__time-field">
+                                                    <input type="time" name="breaks[{{ $i }}][break_end_at]"
+                                                    class="attendance-detail__time-input" value="{{ $end ?: '' }}" placeholder="--:--">
                                                     @error("breaks.$i.break_end_at")
                                                         <p class="error">{{ $message }}</p>
                                                     @enderror
                                                 </div>
-                                            </div>
+                                            @else
+                                                {{-- 表示モード（span表示） --}}
+                                                <div class="attendance-detail__time-field">
+                                                    <span class="attendance-detail__time">
+                                                        {{ $break?->break_start_at?->format('H:i') }}
+                                                    </span>
+                                                </div>
+                                                <span class="attendance-detail__separator">〜</span>
+                                                <div class="attendance-detail__time-field">
+                                                    <span class="attendance-detail__time">
+                                                        {{ $break?->break_end_at?->format('H:i') }}
+                                                    </span>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </td>
@@ -134,28 +180,43 @@
                         <tr class="attendance-detail__note-row">
                             <th>備考</th>
                             <td>
-                                <textarea name="note" class="form_input attendance-detail__note" rows="3">{{ old('note', $attendance->note) }}</textarea>
-                                @error('note')
-                                    <p class="error">{{ $message }}</p>
-                                @enderror
+                                <div class="attendance-detail__group">
+                                    <div class="attendance-detail__row">
+                                        @if (!$isStatic)
+                                            <textarea name="note" class="form_input attendance-detail__note" rows="3">{{ old('note', $attendance->note) }}</textarea>
+                                        @else
+                                            <div class="attendance-detail__note attendance-detail__note-text">
+                                                {{ $attendance->note ?? '' }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                    @error('note')
+                                        <p class="error">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </td>
                         </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="attendance-detail__actions">
-            @if ($disabled)
-                <p class="attendance-detail__notice">
-                    ※承認待ちのため修正できません。
-                </p>
-            @else
-                <button type="submit" class="attendance-detail__edit-btn">
-                    修正
-                </button>
-            @endif
-        </div>
-    </form>
+                    </tbody>
+                </table>
+            </div>
+            <div class="attendance-detail__actions">
+                @if (!$isStatic)
+                    <button type="submit" class="attendance-detail__edit-btn">
+                        修正
+                    </button>
+                @elseif ($isFuture)
+                    <p class="attendance-detail__notice">
+                        ※未来日のため修正できません。
+                    </p>
+                @elseif ($pendingRequest)
+                    <p class="attendance-detail__notice">
+                        ※承認待ちのため修正できません。
+                    </p>
+                @endif
+            </div>
+        </form>
 </div>
+@if(!$isStatic)
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -227,5 +288,22 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 @endpush
+@endif
+@if ($pendingRequest)
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const toast = document.getElementById('toast-notice');
+    if (!toast) return;
 
+    setTimeout(() => {
+        toast.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-20px)';
+        setTimeout(() => toast.remove(), 400);
+    }, 5000);
+});
+</script>
+@endpush
+@endif
 @endsection

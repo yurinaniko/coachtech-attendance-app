@@ -6,8 +6,6 @@ use App\Models\StampCorrectionRequest;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
 use App\Http\Requests\StoreStampCorrectionRequest;
-use Illuminate\Support\Facades\DB;
-use App\Models\AttendanceBreak;
 use App\Models\StampCorrectionBreak;
 
 class StampCorrectionRequestController extends Controller
@@ -22,16 +20,7 @@ class StampCorrectionRequestController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        return view('stamp_correction_requests.index', compact('requests'));
-    }
-
-    public function show($id)
-    {
-        $request = StampCorrectionRequest::with('user', 'attendance')
-            ->where('user_id', auth()->id())
-            ->findOrFail($id);
-
-        return view('stamp_correction_requests.show', compact('request'));
+        return view('stamp_correction_request.list', compact('requests'));
     }
 
     public function store(StoreStampCorrectionRequest $request)
@@ -103,61 +92,7 @@ class StampCorrectionRequestController extends Controller
         }
 
         return redirect()
-            ->route('attendance.detailByDate', [
-            'date' => $attendance->work_date->format('Y-m-d')
-        ]);
-    }
-
-    public function update(StoreStampCorrectionRequest $request, $id)
-    {
-        $correctionRequest = StampCorrectionRequest::where('user_id', auth()->id())
-            ->findOrFail($id);
-        $attendance = $correctionRequest->attendance;
-
-        DB::transaction(function () use ($request, $attendance) {
-
-            $data = $request->validated();
-
-            $clockIn = $data['clock_in_at']
-                ? $attendance->work_date->copy()->setTimeFromTimeString($data['clock_in_at'])
-                : null;
-
-            $clockOut = $data['clock_out_at']
-                ? $attendance->work_date->copy()->setTimeFromTimeString($data['clock_out_at'])
-                : null;
-
-            $correctionRequest->update([
-                'requested_clock_in_at'  => $clockIn,
-                'requested_clock_out_at' => $clockOut,
-                'requested_note'         => $data['note'],
-            ]);
-
-            foreach ($data['breaks'] ?? [] as $breakData) {
-                $attendanceBreak = AttendanceBreak::find($breakData['attendance_break_id']);
-                if ($attendanceBreak) {
-                    $breakStart = $breakData['break_start_at']
-                        ? $attendance->work_date->copy()->setTimeFromTimeString($breakData['break_start_at'])
-                        : null;
-                    $breakEnd = $breakData['break_end_at']
-                        ? $attendance->work_date->copy()->setTimeFromTimeString($breakData['break_end_at'])
-                        : null;
-
-                    StampCorrectionBreak::updateOrCreate(
-                        [
-                            'stamp_correction_request_id' => $correctionRequest->id,
-                            'attendance_break_id'         => $attendanceBreak->id,
-                        ],
-                        [
-                            'break_start_at' => $breakStart,
-                            'break_end_at'   => $breakEnd,
-                        ]
-                    );
-                }
-            }
-    });
-
-    return redirect()
-        ->route('attendance.detailByDate', [
+            ->route('attendance.detail', [
             'date' => $attendance->work_date->format('Y-m-d')
         ]);
     }

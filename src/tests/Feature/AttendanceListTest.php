@@ -109,7 +109,7 @@ class AttendanceListTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->get(route('attendance.detailByDate', [
+            ->get(route('attendance.detail', [
                 'date' => $attendance->work_date->format('Y-m-d')
             ]));
 

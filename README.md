@@ -169,12 +169,12 @@ https://docs.google.com/spreadsheets/d/1AY8TRv97TYBJxCM7kKxkW6QKjJcpF8YWIsPi0b7t
 
 画面ごとのルーティング、コントローラー、アクション対応、ビュー、バリデーションは
 以下のドキュメントにまとめています。
-- 公開用ルート・コントローラー・ビュー・バリデーション一覧
+- 公開用ルート・コントローラー・バリデーション一覧・ビュー
 https://docs.google.com/spreadsheets/d/1FC0Pf3dNr8WjfnQI_Lchf6kHCBhUjMCTPb79vkDoZIA/edit?usp=sharing
 
 ### キー設計について
 本アプリケーションでは、データ整合性を担保するために
-Unique Key（UK） および Foreign Key（FK / FRキー） を適切に設定しています。
+Unique Key（UK） および Foreign Key（FK） を適切に設定しています。
 ■ Unique Key（UK）
 Unique Key は、
 同一値の重複登録を防ぐための制約
@@ -188,6 +188,7 @@ Unique Key は、
 
 ✔ 同一メールアドレスでの複数登録を防止
 ✔ 認証基盤としての一意性を保証
+✔ ログイン認証時のユーザー識別キーとして使用
 
 を実現しています。
 
@@ -282,6 +283,9 @@ status は、
 を表す属性です。
 (ステータス定義)
 本アプリケーションでは以下の状態を採用しています。
+- stamp_correction_requests.status
+  修正申請の状態を管理するカラム
+
 値	意味
 ```php
 pending	  承認待ち状態
@@ -296,6 +300,20 @@ approved	承認済み状態
 を明確に区別する必要があります。
 この業務仕様を DB レベルで表現するため
 status カラムを導入しています。
+- attendances.status
+  勤務状態を管理するカラム
+  また attendances テーブルにも status カラムを設け、
+  勤務状態の管理を行う設計としています。
+
+  現在の実装では clock_in_at・clock_out_at・休憩情報から
+  勤務状態を算出するロジックを使用していますが、
+  将来的に
+  ・状態による検索
+  ・勤務状態の集計
+  ・管理画面の絞り込み
+
+  などを行う可能性を考え、
+  状態をDBとして保持できる設計としています。
 ## 使用技術
 
 - 種類 バージョン

@@ -5,23 +5,9 @@
 @endsection
 
 @section('content')
-@if(!$attendance && !$isFuture)
-    <div class="attendance-detail__empty">
-        勤怠データがまだ作成されていません。
-    </div>
-@else
 <div class="attendance-detail">
     <h1 class="attendance-detail__title">勤怠詳細</h1>
-    @if ($errors->any())
-        <div class="error">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-    <form method="POST" action="{{ route('stamp_correction_requests.store') }}">
+    <form method="POST" action="{{ route('stamp_correction_request.store') }}">
         @csrf
             @if($attendance)
                 <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
@@ -30,8 +16,8 @@
                 $isPending = isset($pendingRequest) && $pendingRequest?->status === 'pending';
                 $isStatic = $isFuture || $isPending;
             @endphp
-            <div class="attendance-detail__wrapper">
-                <table class="attendance-detail__table {{ $isStatic ? 'is-static' : '' }}">
+            <div class="table-wrapper">
+                <table class="attendance-detail__table table {{ $isStatic ? 'is-static' : '' }}">
                 <tbody>
                     <tr>
                         <th>名前</th>
@@ -70,21 +56,17 @@
                                         <div class="attendance-detail__time-field">
                                             <input type="time" name="clock_in_at" class="attendance-detail__time-input"
                                             value="{{ old('clock_in_at', $clockIn?->format('H:i')) }}" placeholder="--:--">
-                                            <div class="attendance-detail__error">
-                                                @error('clock_in_at')
-                                                    <p class="error">{{ $message }}</p>
-                                                @enderror
-                                            </div>
+                                            @error('clock_in_at')
+                                                <p class="error">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                         <span class="attendance-detail__separator">〜</span>
                                         <div class="attendance-detail__time-field">
                                             <input type="time" name="clock_out_at" class="attendance-detail__time-input"
                                             value="{{ old('clock_out_at', $clockOut?->format('H:i')) }}" placeholder="--:--">
-                                            <div class="attendance-detail__error">
-                                                @error('clock_out_at')
-                                                    <p class="error">{{ $message }}</p>
-                                                @enderror
-                                            </div>
+                                            @error('clock_out_at')
+                                                <p class="error">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                     @else
                                         <div class="attendance-detail__time-field">
@@ -104,11 +86,11 @@
                         </td>
                     </tr>
                     @php
-                        $displayCount = $displayCount ?? 2;
                         $oldBreaks = old('breaks', []);
-                        $targetBreaks = $pendingRequest
-                        ? ($pendingRequest->stampCorrectionBreaks ?? collect()): ($breaks ?? collect());
-                        $loopCount = max($displayCount, count($oldBreaks), $targetBreaks->count());
+                        $targetBreaks = $pendingRequest ? ($pendingRequest->stampCorrectionBreaks ?? collect())
+                        : ($breaks ?? collect());
+                        $displayCount = $isStatic ? $targetBreaks->count() : $targetBreaks->count() + 1;
+                        $loopCount = max(1, $displayCount, count($oldBreaks), $targetBreaks->count());
                     @endphp
                         @for ($i = 0; $i < $loopCount; $i++)
                             @php
@@ -129,20 +111,16 @@
                                                         <input type="hidden" name="breaks[{{ $i }}][attendance_break_id]" value="{{ $break->id }}">
                                                     @endif
                                                     <input type="time" name="breaks[{{ $i }}][break_start_at]" class="attendance-detail__time-input" value="{{ $start ?? '' }}" placeholder="--:--">
-                                                    <div class="attendance-detail__error">
-                                                        @error("breaks.$i.break_start_at")
-                                                            <p class="error">{{ $message }}</p>
-                                                        @enderror
-                                                    </div>
+                                                    @error("breaks.$i.break_start_at")
+                                                        <p class="error">{{ $message }}</p>
+                                                    @enderror
                                                 </div>
                                                 <span class="attendance-detail__separator">〜</span>
                                                 <div class="attendance-detail__time-field">
                                                     <input type="time" name="breaks[{{ $i }}][break_end_at]" class="attendance-detail__time-input" value="{{ $end ?? '' }}" placeholder="--:--">
-                                                    <div class="attendance-detail__error">
-                                                        @error("breaks.$i.break_end_at")
-                                                            <p class="error">{{ $message }}</p>
-                                                        @enderror
-                                                    </div>
+                                                    @error("breaks.$i.break_end_at")
+                                                        <p class="error">{{ $message }}</p>
+                                                    @enderror
                                                 </div>
                                             @else
                                                 @if ($break)
@@ -197,17 +175,22 @@
                             </tr>
                         </template>
                         @php
-                            $note = $pendingRequest?->requested_note ?? $attendance?->note;
+                            if ($pendingRequest) {
+                                $note = $pendingRequest->requested_note;
+                            } else {
+                                $note = $attendance?->note ?? '';
+                            }
                         @endphp
                         <tr class="attendance-detail__note-row">
                             <th>備考</th>
                             <td>
                                 <div class="attendance-detail__group">
                                     <div class="attendance-detail__row">
+                                        <!-- 未来日または承認待ちの時-->
                                         @if (!$isStatic)
                                             <textarea name="note" class="form_input attendance-detail__note" rows="3">{{ old('note', $note) }}</textarea>
                                         @else
-                                            <div class="attendance-detail__note attendance-detail__note-text">
+                                            <div class="attendance-detail__note-text">
                                                 {{ $note }}
                                             </div>
                                         @endif
@@ -239,7 +222,6 @@
         </div>
     </form>
 </div>
-@endif
 @if($attendance && !$isStatic)
 @push('scripts')
 <script>

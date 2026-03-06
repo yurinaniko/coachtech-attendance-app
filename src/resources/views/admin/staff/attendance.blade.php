@@ -7,8 +7,6 @@
 @section('content')
 <div class="attendance-list">
     <h1 class="attendance-list__title">{{ $user->name }}さんの勤怠一覧</h1>
-
-    {{-- 月切り替え --}}
     <div class="attendance-list__date">
         <a href="{{ route('admin.staff.attendance.index', ['user' => $user->id,'month' => $month->copy()->subMonth()->format('Y-m')]) }}">← 前月</a>
         <span class="attendance-list__date-text">
@@ -17,11 +15,11 @@
         <a href="{{ route('admin.staff.attendance.index', ['user' => $user->id,'month' => $month->copy()->addMonth()->format('Y-m')]) }}">翌月 →</a>
     </div>
     {{-- テーブル --}}
-    <div class="attendance-list__table-wrapper">
-        <table class="attendance-list__table">
+    <div class="attendance-list__table-wrapper table-wrapper">
+        <table class="attendance-list__table table">
             <thead>
                 <tr>
-                    <th class="attendance-list__col-primary">日付</th>
+                    <td class="attendance-list__col attendance-list__col--date">日付</th>
                     <th>出勤</th>
                     <th>退勤</th>
                     <th>休憩</th>
@@ -37,13 +35,8 @@
                     $attendance = $attendances->get($dateKey);
                 @endphp
                 <tr>
-                    <td class="attendance-list__col-primary">
-                        <span class="attendance-list__date-main">
-                            {{ $date->format('m/d') }}
-                        </span>
-                        <span class="attendance-list__date-week">
-                            （{{ $date->isoFormat('dd') }}）
-                        </span>
+                    <td class="attendance-list__col attendance-list__col--date">
+                        {{ $date->format('m/d') }}（{{ $date->isoFormat('dd') }}）
                     </td>
                     <td>
                         {{ optional($attendance?->clock_in_at)->format('H:i') ?? '' }}
@@ -63,7 +56,7 @@
                     </td>
                     <td>
                         @if ($attendance)
-                            <a href="{{ route('admin.attendance.detail', $attendance->id) }}" class="attendance-list__detail-link">詳細</a>
+                            <a href="{{ route('admin.attendance.detail', $attendance->id) }}" class="attendance-list__detail">詳細</a>
                         @else
                             <span class="attendance-list__detail--disabled">詳細</span>
                         @endif

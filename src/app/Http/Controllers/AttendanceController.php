@@ -14,8 +14,8 @@ class AttendanceController extends Controller
         $user = auth()->user();
         $today = now()->toDateString();
         $attendance = Attendance::where('user_id', $user->id)
-        ->whereDate('work_date', $today)
-        ->first();
+            ->whereDate('work_date', $today)
+            ->first();
 
         if (!$attendance) {
             return view('attendance.index', [
@@ -26,7 +26,7 @@ class AttendanceController extends Controller
         }
         $latestBreak = $attendance
         ? $attendance->breaks()
-        ->whereNull('break_end_at')
+            ->whereNull('break_end_at')
             ->orderByDesc('break_start_at')
             ->first()
         : null;
@@ -53,25 +53,22 @@ class AttendanceController extends Controller
         $user = auth()->user();
         $today = now()->toDateString();
 
-        $attendance = Attendance::where('user_id', $user->id)
-            ->whereDate('work_date', $today)
-            ->first();
+        $attendance = Attendance::firstOrCreate(
+            [
+                'user_id' => $user->id,
+                'work_date' => $today
+            ]
+        );
 
-        if ($attendance && $attendance->clock_in_at) {
+        if ($attendance->clock_in_at) {
             return back()->withErrors([
                 'clock_in' => '既に出勤しています'
             ]);
         }
 
-        $attendance = Attendance::firstOrCreate(
-            [
-                'user_id'   => auth()->id(),
-                'work_date' => today(),
-            ],
-            [
-                'clock_in_at' => now(),
-            ]
-        );
+        $attendance->update([
+            'clock_in_at' => now()
+        ]);
 
         return redirect()->route('attendance.index');
     }
@@ -121,10 +118,10 @@ class AttendanceController extends Controller
         $today = now()->toDateString();
 
         $attendance = Attendance::where('user_id', auth()->id())
-        ->whereDate('work_date', today())
-        ->whereNotNull('clock_in_at')
-        ->whereNull('clock_out_at')
-        ->first();
+            ->whereDate('work_date', today())
+            ->whereNotNull('clock_in_at')
+            ->whereNull('clock_out_at')
+            ->first();
 
         if (!$attendance) {
             return back()->withErrors([
@@ -133,8 +130,8 @@ class AttendanceController extends Controller
         }
 
         $activeBreak = $attendance->breaks()
-        ->whereNull('break_end_at')
-        ->exists();
+            ->whereNull('break_end_at')
+            ->exists();
 
         if ($activeBreak) {
             return back();
@@ -157,9 +154,9 @@ class AttendanceController extends Controller
             ->whereNull('clock_out_at')
             ->firstOrFail();
         $latestBreak = $attendance->breaks()
-        ->whereNull('break_end_at')
-        ->orderBy('break_start_at')
-        ->firstOrFail();
+            ->whereNull('break_end_at')
+            ->orderBy('break_start_at')
+            ->firstOrFail();
         $latestBreak->update([
             'break_end_at' => now(),
         ]);
@@ -185,53 +182,15 @@ class AttendanceController extends Controller
         return view('attendance.list', compact('attendances', 'month'));
     }
 
-    public function detail(Attendance $attendance,Request $request)
-    {
-        $latestRequest = $attendance->latestStampRequest();
-
-        $disabled = false;
-        $notice = null;
-
-        if ($latestRequest && $latestRequest->status === StampCorrectionRequest::STATUS_PENDING) {
-        $disabled = true;
-        $notice = '※承認待ちのため修正できません。';
-        }
-
-        $breaks = $attendance->breaks()
-        ->orderBy('break_start_at')
-        ->get();
-
-        $pendingRequest = StampCorrectionRequest::with('stampCorrectionBreaks')
-            ->where('attendance_id', $attendance->id)
-            ->where('status', StampCorrectionRequest::STATUS_PENDING)
-            ->latest()
-            ->first();
-
-        if ($pendingRequest) {
-            $disabled = true;
-            $notice = '※承認待ちのため修正できません。';
-        }
-
-        $displayCount = min($breaks->count() + 1, 5);
-
-        return view('attendance.detail', [
-            'attendance'     => $attendance,
-            'breaks'         => $breaks,
-            'displayCount'   => $displayCount,
-            'disabled'       => $disabled,
-            'notice'         => $notice,
-            'pendingRequest' => $pendingRequest,
-        ]);
-    }
-
-    public function detailByDate($date)
+    public function detail($date)
     {
         $user = auth()->user();
-        $isFuture = \Carbon\Carbon::parse($date)->isFuture();
+        $isFuture = Carbon::parse($date)->isFuture();
+
 
         $attendance = Attendance::where('user_id', $user->id)
-        ->where('work_date', $date)
-        ->first();
+            ->where('work_date', $date)
+            ->first();
 
         if (!$attendance && !$isFuture) {
             $attendance = Attendance::create([
@@ -240,46 +199,43 @@ class AttendanceController extends Controller
             ]);
         }
 
-        $targetDate = $attendance?->work_date ?? Carbon::parse($date);
-
         $breaks = collect();
         $pendingRequest = null;
+        $notice = null;
+        $disabled = false;
 
         if ($attendance) {
+
+            // 休憩取得
             $breaks = $attendance->breaks()
                 ->orderBy('break_start_at')
                 ->get();
 
-            $pendingRequest = StampCorrectionRequest::with('stampCorrectionBreaks')
-                ->where('attendance_id', $attendance->id)
-                ->where('status', StampCorrectionRequest::STATUS_PENDING)
-                ->latest()
-                ->first();
-        }
+            // 最新申請
+            $pendingRequest = $attendance->latestStampRequest();
 
-        $disabled = false;
-        $notice   = null;
+            if ($pendingRequest && $pendingRequest->status === StampCorrectionRequest::STATUS_PENDING) {
+                $disabled = true;
+                $notice = '※承認待ちのため修正できません。';
+            }
+        }
 
         if ($isFuture) {
             $disabled = true;
             $notice = '※未来日のため修正できません。';
         }
-        elseif ($pendingRequest) {
-            $disabled = true;
-            $notice = '※承認待ちのため修正できません。';
-        }
 
         $displayCount = min($breaks->count() + 1, 5);
 
         return view('attendance.detail', [
-            'attendance'     => $attendance,
-            'breaks'         => $breaks,
-            'displayCount'   => $displayCount,
+            'attendance' => $attendance,
+            'breaks' => $breaks,
+            'displayCount' => $displayCount,
             'pendingRequest' => $pendingRequest,
-            'disabled'       => $disabled,
-            'notice'         => $notice,
-            'isFuture'       => $isFuture,
-            'targetDate'     =>$targetDate
+            'disabled' => $disabled,
+            'notice' => $notice,
+            'isFuture' => $isFuture,
+            'targetDate' => $attendance?->work_date ?? Carbon::parse($date)
         ]);
     }
 }

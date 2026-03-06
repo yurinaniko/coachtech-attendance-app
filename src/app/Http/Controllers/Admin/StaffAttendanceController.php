@@ -20,28 +20,36 @@ class StaffAttendanceController extends Controller
         $start = $month->copy()->startOfMonth();
         $end   = $month->copy()->endOfMonth();
 
-        $attendances = Attendance::where('user_id', $user->id)
-            ->whereBetween('work_date', [$start, $end])
-            ->orderBy('work_date')
-            ->get()
-            ->keyBy(fn ($a) => $a->work_date->format('Y-m-d'));
+        $dates = [];
+        $current = $start->copy();
 
-        return view('admin.staff.attendance', compact(
-            'user', 'attendances', 'month'
-        ));
+        while ($current <= $end) {
+
+            $attendance = Attendance::firstOrCreate([
+                'user_id'   => $user->id,
+                'work_date' => $current->toDateString(),
+            ]);
+
+            $dates[] = $attendance;
+            $current->addDay();
+        }
+
+        $attendances = collect($dates)
+            ->keyBy(fn ($a) => $a->work_date->format('Y-m-d'));
+            return view('admin.staff.attendance', compact(
+                'user', 'attendances', 'month'
+            ));
     }
 
     public function csv(User $user, Request $request): StreamedResponse
     {
         $month = Carbon::parse($request->month)->startOfMonth();
+        $start = $month->copy()->startOfMonth();
+        $end   = $month->copy()->endOfMonth();
 
         $attendances = Attendance::where('user_id', $user->id)
-            ->whereBetween('work_date', [
-                $month->copy()->startOfMonth(),
-                $month->copy()->endOfMonth(),
-            ])
+            ->whereBetween('work_date', [$start, $end])
             ->whereNotNull('clock_in_at')
-            ->whereNotNull('clock_out_at')
             ->orderBy('work_date')
             ->get();
 

@@ -7,8 +7,6 @@
 @section('content')
 <div class="attendance-list">
     <h1 class="attendance-list__title">勤怠一覧</h1>
-
-    {{-- 月切り替え --}}
     <div class="attendance-list__date">
         <a href="{{ route('attendance.list', ['month' => $month->copy()->subMonth()->format('Y-m')]) }}">← 前月</a>
         <span class="attendance-list__date-text">
@@ -16,13 +14,11 @@
         </span>
         <a href="{{ route('attendance.list', ['month' => $month->copy()->addMonth()->format('Y-m')]) }}">翌月 →</a>
     </div>
-
-    {{-- テーブル --}}
-    <div class="attendance-list__table-wrapper">
-        <table class="attendance-list__table">
+    <div class="attendance-list__table-wrapper table-wrapper">
+        <table class="attendance-list__table table">
             <thead>
                 <tr>
-                    <th class="attendance-list__col-primary">日付</th>
+                    <th class="attendance-list__col attendance-list__col--date">日付</th>
                     <th>出勤</th>
                     <th>退勤</th>
                     <th>休憩</th>
@@ -31,42 +27,37 @@
                 </tr>
             </thead>
             <tbody>
-            @for ($day = 1; $day <= $month->daysInMonth; $day++)
-                @php
-                    $date = $month->copy()->day($day);
-                    $dateKey = $date->format('Y-m-d');
-                    $attendance = $attendances->get($dateKey);
-                @endphp
-                <tr>
-                    <td class="attendance-list__col-primary">
-                        <span class="attendance-list__date-main">
-                            {{ $date->format('m/d') }}
-                        </span>
-                        <span class="attendance-list__date-week">
-                            （{{ $date->isoFormat('dd') }}）
-                        </span>
-                    </td>
-                    <td class="attendance-list__time">
-                        {{ optional($attendance)->clock_in_time }}
-                    </td>
-                    <td class="attendance-list__time">
-                        {{ optional($attendance)->clock_out_time }}
-                    </td>
-                    <td class="attendance-list__time">
-                        @if ($attendance && $attendance->breaks->isNotEmpty())
-                            {{ $attendance->break_time_hhmm }}
-                        @endif
-                    </td>
-                    <td class="attendance-list__time">
-                        {{ $attendance?->work_time_hhmm ?? '' }}
-                    </td>
-                    <td>
-                            <a href="{{ route('attendance.detailByDate', ['date' => $dateKey]) }}" class="attendance-list__detail">
+                @for ($day = 1; $day <= $month->daysInMonth; $day++)
+                    @php
+                        $date = $month->copy()->day($day);
+                        $dateKey = $date->format('Y-m-d');
+                        $attendance = $attendances->get($dateKey);
+                    @endphp
+                    <tr>
+                        <td class="attendance-list__col attendance-list__col--date">
+                            {{ $date->format('m/d') }}（{{ $date->isoFormat('dd') }}）
+                        </td>
+                        <td>
+                            {{ optional($attendance)->clock_in_time }}
+                        </td>
+                        <td>
+                            {{ optional($attendance)->clock_out_time }}
+                        </td>
+                        <td>
+                            @if ($attendance && $attendance->breaks->isNotEmpty())
+                                {{ $attendance->break_time_hhmm }}
+                            @endif
+                        </td>
+                        <td>
+                            {{ $attendance?->work_time_hhmm ?? '' }}
+                        </td>
+                        <td>
+                            <a href="{{ route('attendance.detail', ['date' => $dateKey]) }}" class="attendance-list__detail">
                                 詳細
                             </a>
-                    </td>
-                </tr>
-            @endfor
+                        </td>
+                    </tr>
+                @endfor
             </tbody>
         </table>
     </div>

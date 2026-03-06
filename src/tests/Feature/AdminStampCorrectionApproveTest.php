@@ -43,7 +43,7 @@ class AdminStampCorrectionApproveTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->get(route('admin.stamp_correction_requests.index', [
+            ->get(route('admin.stamp_correction_request.index', [
                 'status' => 'pending',
             ]));
 
@@ -88,7 +88,7 @@ class AdminStampCorrectionApproveTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->get(route('admin.stamp_correction_requests.index', [
+            ->get(route('admin.stamp_correction_request.index', [
                 'status' => 'approved',
             ]));
 
@@ -129,7 +129,7 @@ class AdminStampCorrectionApproveTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->get(route('admin.stamp_correction_requests.edit', $request->id));
+            ->get(route('admin.stamp_correction_request.edit', $request->id));
 
         $response->assertStatus(200);
 
@@ -168,11 +168,11 @@ class AdminStampCorrectionApproveTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->post(route('admin.stamp_correction_requests.approve', $request->id));
+            ->post(route('admin.stamp_correction_request.approve', $request->id));
 
         $response->assertStatus(302); // リダイレクト確認
 
-        $this->assertDatabaseHas('stamp_correction_requests', [
+        $this->assertDatabaseHas('stamp_correction_request', [
             'id' => $request->id,
             'status' => 'approved',
         ]);
