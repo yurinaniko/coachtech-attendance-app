@@ -39,6 +39,6 @@ class StaffController extends Controller
 
         $request->update(['status' => 'approved']);
         return redirect()
-            ->route('admin.stamp_correction_requests.index');
+            ->route('admin.stamp_correction_request.index');
     }
 }

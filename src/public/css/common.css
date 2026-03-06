@@ -92,14 +92,12 @@ main {
 }
 
 .error {
+    width: 100%;
     color: #ff4d4f;
-    font-size: 12px;
-    margin: 4px 0;
-    text-align: left;
-    font-weight: 500;
-    height: 16px;
     line-height: 16px;
     white-space: nowrap;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 .success-message {
@@ -111,4 +109,24 @@ main {
     border-radius: 4px;
     text-align: center;
     font-size: 12px;
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #fff;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.table th,
+.table td {
+    border-bottom: 2px solid #e0e0e0;
+    font-size: 16px;
+    font-weight: 600;
 }

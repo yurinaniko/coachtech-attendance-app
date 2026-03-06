@@ -1,12 +1,12 @@
 .staff-list {
     max-width: 900px;
-    margin: 40px auto;
+    margin: 80px auto 0;
 }
 
 .staff-list__title {
     position: relative;
     padding-left: 14px;
-    margin-bottom: 20px;
+    margin-bottom: 60px;
     font-size: 20px;
     font-weight: bold;
 }
@@ -22,6 +22,13 @@
     background: #000;
 }
 
+.staff-list__table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #E0E0E0;
+    background-color: #fff;
+}
+
 .staff-list__table {
     width: 100%;
     border-collapse: collapse;
@@ -33,21 +40,7 @@
     text-align: center;
     border-bottom: 1px solid #ccc;
     color: #737373;
-}
-
-.staff-list__table-wrapper {
-    overflow-x: auto;
-    border-radius: 10px;
-    border: 1px solid #fff;
-    background-color: #fff;
-}
-
-.staff-list__table th.staff-list__col-date,
-.staff-list__table td.staff-list__date {
-    text-align: left;
-    padding-left: 40px;
-    max-width: 80px;
-    white-space: nowrap;
+    font-weight: bold;
 }
 
 .staff-list__link {

@@ -26,7 +26,7 @@ class AttendanceUpdateTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->post(
-            route('stamp_correction_requests.store'),
+            route('stamp_correction_request.store'),
             [
                 'clock_in_at'  => '18:00',
                 'clock_out_at' => '09:00',
@@ -54,7 +54,7 @@ class AttendanceUpdateTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->post(
-            route('stamp_correction_requests.store'),
+            route('stamp_correction_request.store'),
             [
                 'clock_in_at'  => '09:00',
                 'clock_out_at' => '18:00',
@@ -90,7 +90,7 @@ class AttendanceUpdateTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->post(
-            route('stamp_correction_requests.store'),
+            route('stamp_correction_request.store'),
             [
                 'clock_in_at'  => '09:00',
                 'clock_out_at' => '18:00',
@@ -128,7 +128,7 @@ class AttendanceUpdateTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->post(
-            route('stamp_correction_requests.store'),
+            route('stamp_correction_request.store'),
             [
                 'clock_in_at'  => '09:00',
                 'clock_out_at' => '18:00',
@@ -161,7 +161,7 @@ class AttendanceUpdateTest extends TestCase
         ]);
 
         $this->actingAs($user)->post(
-            route('stamp_correction_requests.store'),
+            route('stamp_correction_request.store'),
             [
                 'attendance_id' => $attendance->id,
                 'clock_in_at'   => '10:00',
@@ -176,7 +176,7 @@ class AttendanceUpdateTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->get(route('admin.stamp_correction_requests.index'));
+            ->get(route('admin.stamp_correction_request.index'));
 
         $response->assertSee('修正申請テスト');
 
@@ -217,11 +217,11 @@ class AttendanceUpdateTest extends TestCase
         ]);
 
         $this->actingAs($admin)->post(
-            route('admin.stamp_correction_requests.approve', $request->id)
+            route('admin.stamp_correction_request.approve', $request->id)
         );
 
         $response = $this->actingAs($admin)->get(
-            route('admin.stamp_correction_requests.index', [
+            route('admin.stamp_correction_request.index', [
             'status' => 'approved'
             ])
         );
@@ -252,7 +252,7 @@ class AttendanceUpdateTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)->get(
-            route('admin.stamp_correction_requests.index', [
+            route('admin.stamp_correction_request.index', [
                 'status' => 'approved'
             ])
         );

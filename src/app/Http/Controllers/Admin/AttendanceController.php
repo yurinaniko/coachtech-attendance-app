@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use App\Models\User;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\DB;
 use App\Models\AttendanceBreak;
@@ -28,57 +27,77 @@ class AttendanceController extends Controller
         return view('admin.attendance.list', compact('date', 'attendances'));
     }
 
-    public function monthly(Request $request, User $user)
+    public function monthly(Request $request, User $user, $month)
     {
-        $month = $request->query('month', now()->format('Y-m'));
+        $period = Carbon::parse($month);
+        $month = $request->query('month');
+        $start = $period->copy()->startOfMonth();
+        $end   = $period->copy()->endOfMonth();
 
-        $start = Carbon::parse($month)->startOfMonth();
-        $end   = Carbon::parse($month)->endOfMonth();
+        $dates = [];
+        $current = $start->copy();
 
-        $attendances = Attendance::where('user_id', $user->id)
-        ->whereBetween('work_date', [$start, $end])
-        ->orderBy('work_date')
-        ->get();
+        while ($current <= $end) {
+            $attendance = Attendance::firstOrCreate([
+                'user_id'   => $user->id,
+                'work_date' => $current->toDateString(),
+            ]);
 
-        return view(
-        'admin.staff.attendance.index',
-        compact('user', 'attendances', 'month')
-        );
+            $dates[] = $attendance;
+            $current->addDay();
+        }
+
+        $attendances = collect($dates);
+        return view('admin.attendance.monthly', compact(
+            'user',
+            'attendances',
+            'period'
+        ));
     }
 
     public function detail($id)
     {
-        $attendance = Attendance::with(['user', 'breaks'])
-            ->findOrFail($id);
+        $attendance = Attendance::with([
+            'user',
+            'breaks' => function ($query) {
+                $query->orderBy('break_start_at');
+            }
+        ])->findOrFail($id);
+
+        $breaks = $attendance->breaks;
+        $isFuture = $attendance->work_date->isFuture();
 
         $clockIn  = $attendance->clock_in_at;
         $clockOut = $attendance->clock_out_at;
 
-        $breaks = $attendance->breaks()
-            ->orderBy('break_start_at')
-            ->get();
-
         $oldBreaks = old('breaks');
 
-        $displayCount = min($breaks->count() + 1, 5);
+        $displayCount = max(1, min($breaks->count() + 1, 5));
 
         $pendingRequest = StampCorrectionRequest::where('attendance_id', $id)
         ->where('status', 'pending')
         ->first();
 
+        $isStatic = $isFuture || $pendingRequest;
         return view('admin.attendance.detail', compact(
             'attendance',
             'clockIn',
             'clockOut',
             'breaks',
             'displayCount',
-            'pendingRequest'
+            'pendingRequest',
+            'isFuture',
+            'isStatic'
         ));
     }
 
     public function update(AttendanceUpdateRequest $request, $id)
     {
         $attendance = Attendance::with('breaks')->findOrFail($id);
+
+        if ($attendance->work_date->isFuture()) {
+            abort(403, '未来日は編集できません');
+        }
 
         DB::transaction(function () use ($request, $attendance) {
 
@@ -130,7 +149,7 @@ class AttendanceController extends Controller
                 }
             }
 
-            StampCorrectionRequest::updateOrCreate(
+            $requestRecord = StampCorrectionRequest::updateOrCreate(
                 [
                     'attendance_id' => $attendance->id,
                     'type'          => StampCorrectionRequest::TYPE_ADMIN,
@@ -143,6 +162,27 @@ class AttendanceController extends Controller
                     'status'                 => StampCorrectionRequest::STATUS_APPROVED,
                 ]
             );
+
+            $requestRecord->stampCorrectionBreaks()->delete();
+
+            foreach ($data['breaks'] ?? [] as $breakData) {
+
+                if (empty($breakData['break_start_at']) && empty($breakData['break_end_at'])) {
+                    continue;
+                }
+
+                $breakStart = $attendance->work_date->copy()
+                    ->setTimeFromTimeString($breakData['break_start_at']);
+
+                $breakEnd = $attendance->work_date->copy()
+                    ->setTimeFromTimeString($breakData['break_end_at']);
+
+                $requestRecord->stampCorrectionBreaks()->create([
+                    'attendance_break_id' => $breakData['attendance_break_id'] ?? null,
+                    'break_start_at' => $breakStart,
+                    'break_end_at'   => $breakEnd,
+                ]);
+            }
         });
 
         return redirect()
