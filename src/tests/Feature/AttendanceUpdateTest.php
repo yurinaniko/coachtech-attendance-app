@@ -275,7 +275,7 @@ class AttendanceUpdateTest extends TestCase
         $response->assertSee('詳細');
 
         $detailResponse = $this->actingAs($user)->get(
-            route('attendance.detail', $attendance->id)
+            route('attendance.detail', $attendance->work_date)
         );
 
         $detailResponse->assertStatus(200);

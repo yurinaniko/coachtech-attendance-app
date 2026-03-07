@@ -172,7 +172,7 @@ class AdminStampCorrectionApproveTest extends TestCase
 
         $response->assertStatus(302); // リダイレクト確認
 
-        $this->assertDatabaseHas('stamp_correction_request', [
+        $this->assertDatabaseHas('stamp_correction_requests', [
             'id' => $request->id,
             'status' => 'approved',
         ]);

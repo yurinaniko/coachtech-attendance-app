@@ -1,9 +1,3 @@
-.form__error {
-    color: red;
-    font-size: 14px;
-    margin-top: 4px;
-}
-
 .form__group {
     display: flex;
     flex-direction: column;
@@ -35,4 +29,10 @@
 .form__error--global {
     margin-bottom: 16px;
     text-align: center;
+}
+
+.form__error {
+    color: red;
+    font-size: 14px;
+    margin-top: 4px;
 }

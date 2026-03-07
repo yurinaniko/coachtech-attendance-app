@@ -69,21 +69,13 @@ class StampCorrectionRequestController extends Controller
 
             $correctionRequest = StampCorrectionRequest::with([
                 'attendance',
-                'stampCorrectionBreaks',
+                'stampCorrectionBreaks.attendanceBreak'
             ])->findOrFail($id);
 
             if ($correctionRequest->status !== 'pending') {
                 abort(403, 'この申請はすでに処理されています');
             }
 
-            if (
-                is_null($correctionRequest->requested_clock_in_at) &&
-                is_null($correctionRequest->requested_clock_out_at) &&
-                is_null($correctionRequest->requested_note) &&
-                $correctionRequest->stampCorrectionBreaks->isEmpty()
-            ) {
-                abort(400, '修正内容が存在しません');
-            }
             $attendance = $correctionRequest->attendance;
 
             $attendance->update([
@@ -92,19 +84,19 @@ class StampCorrectionRequestController extends Controller
                 'note'         => $correctionRequest->requested_note,
             ]);
 
-            // 既存休憩削除
-            AttendanceBreak::where('attendance_id', $attendance->id)->delete();
+                // 既存休憩削除
+                AttendanceBreak::where('attendance_id', $attendance->id)->delete();
 
-           // 休憩再作成
-            foreach ($correctionRequest->stampCorrectionBreaks as $correctionBreak) {
+                // 休憩再作成
+                foreach ($correctionRequest->stampCorrectionBreaks as $correctionBreak) {
 
-                AttendanceBreak::create([
-                    'attendance_id'  => $attendance->id,
-                    'break_start_at' => $correctionBreak->break_start_at,
-                    'break_end_at'   => $correctionBreak->break_end_at,
-                ]);
+                    AttendanceBreak::create([
+                        'attendance_id'  => $attendance->id,
+                        'break_start_at' => $correctionBreak->break_start_at,
+                        'break_end_at'   => $correctionBreak->break_end_at,
+                    ]);
 
-            }
+                }
 
             $correctionRequest->update(['status' => StampCorrectionRequest::STATUS_APPROVED,]);
         });

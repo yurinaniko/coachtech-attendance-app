@@ -71,6 +71,7 @@
 }
 
 .attendance-detail__approve-button,
+.attendance-detail__approved-button,
 .attendance-detail__edit-btn {
     display: inline-block;
     padding: 8px 24px;
@@ -84,6 +85,7 @@
 
 .attendance-detail__approved-button:disabled {
     cursor: not-allowed;
+    opacity: 0.6;
 }
 
 .attendance-detail__edit-btn:hover {

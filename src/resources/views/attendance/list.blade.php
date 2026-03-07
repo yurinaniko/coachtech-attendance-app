@@ -38,14 +38,14 @@
                             {{ $date->format('m/d') }}（{{ $date->isoFormat('dd') }}）
                         </td>
                         <td>
-                            {{ optional($attendance)->clock_in_time }}
+                            {{ $attendance?->clock_in_time }}
                         </td>
                         <td>
-                            {{ optional($attendance)->clock_out_time }}
+                            {{ $attendance?->clock_out_time }}
                         </td>
                         <td>
                             @if ($attendance && $attendance->breaks->isNotEmpty())
-                                {{ $attendance->break_time_hhmm }}
+                                {{ $attendance?->break_time_hhmm ?? '' }}
                             @endif
                         </td>
                         <td>

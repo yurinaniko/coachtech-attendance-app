@@ -95,16 +95,16 @@ class Attendance extends Model
 
     public function getBreakTimeHhmmAttribute(): ?string
     {
-        if (!$this->clock_in_at || !$this->clock_out_at) {
-            return null;
-        }
-
         $totalMinutes = $this->breaks->reduce(function ($carry, $break) {
             if ($break->break_start_at && $break->break_end_at) {
                 return $carry + $break->break_end_at->diffInMinutes($break->break_start_at);
             }
-                return $carry;
+            return $carry;
         }, 0);
+
+        if ($totalMinutes === 0) {
+            return null;
+        }
 
         return sprintf('%02d:%02d', intdiv($totalMinutes, 60), $totalMinutes % 60);
     }
