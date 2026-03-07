@@ -174,7 +174,7 @@ class AttendanceController extends Controller
         $attendances = Attendance::where('user_id', auth()->id())
             ->whereBetween('work_date', [$startOfMonth, $endOfMonth])
             ->with('breaks')
-            ->orderByDesc('clock_in_at')
+            ->orderBy('work_date')
             ->get()
             ->groupBy(fn ($a) => $a->work_date->format('Y-m-d'))
             ->map(fn ($items) => $items->first());
@@ -202,7 +202,6 @@ class AttendanceController extends Controller
         $breaks = collect();
         $pendingRequest = null;
         $notice = null;
-        $disabled = false;
 
         if ($attendance) {
 
@@ -215,13 +214,11 @@ class AttendanceController extends Controller
             $pendingRequest = $attendance->latestStampRequest();
 
             if ($pendingRequest && $pendingRequest->status === StampCorrectionRequest::STATUS_PENDING) {
-                $disabled = true;
                 $notice = '※承認待ちのため修正できません。';
             }
         }
 
         if ($isFuture) {
-            $disabled = true;
             $notice = '※未来日のため修正できません。';
         }
 
@@ -232,7 +229,6 @@ class AttendanceController extends Controller
             'breaks' => $breaks,
             'displayCount' => $displayCount,
             'pendingRequest' => $pendingRequest,
-            'disabled' => $disabled,
             'notice' => $notice,
             'isFuture' => $isFuture,
             'targetDate' => $attendance?->work_date ?? Carbon::parse($date)
