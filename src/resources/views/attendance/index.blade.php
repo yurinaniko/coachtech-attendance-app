@@ -1,11 +1,13 @@
 @extends('layouts.app')
+
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/attendance.css') }}">
 @endsection
+
 @section('content')
 <div class="attendance-wrapper">
     <div class="attendance attendance__{{ $status }}">
-    {{-- ステータス表示 --}}
+        {{-- ステータス表示 --}}
         <p class="attendance__status">
             @if ($status === 'before_work')
                 勤務外

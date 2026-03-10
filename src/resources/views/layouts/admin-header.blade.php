@@ -11,18 +11,18 @@
                 <nav class="header__nav">
                     <ul class="header__nav-list">
                         <li>
-                            <a href="{{ route('admin.attendance.list') }}">勤怠一覧</a>
+                            <a href="{{ route('admin.attendance.list') }}" class="header__nav-link">勤怠一覧</a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.staff.list') }}">スタッフ一覧</a>
+                            <a href="{{ route('admin.staff.list') }}" class="header__nav-link">スタッフ一覧</a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.stamp_correction_request.index') }}">申請一覧</a>
+                            <a href="{{ route('admin.stamp_correction_request.index') }}" class="header__nav-link">申請一覧</a>
                         </li>
                         <li>
                             <form method="POST" action="{{ route('admin.logout') }}">
                                 @csrf
-                                <button class="header__logout-button">ログアウト</button>
+                                <button class="header__nav-button">ログアウト</button>
                             </form>
                         </li>
                     </ul>

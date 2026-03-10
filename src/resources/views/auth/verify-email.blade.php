@@ -6,22 +6,17 @@
 @endsection
 
 @section('content')
-<div class="auth__wrapper auth__wrapper--verify">
+<div class="auth__wrapper">
     <div class="auth auth--verify">
         @if (session('message'))
-            <div class="auth__flash" id="flash-message">
+            <div class="auth__flash js-flash-message">
                 {{ session('message') }}
             </div>
-            <script>
-            setTimeout(() => {
-                document.getElementById('flash-message')?.remove();
-            }, 3000);
-            </script>
         @endif
         <p class="auth__text">ご登録していただいたメールアドレスに認証メールを送付しました。</p>
         <p class="auth__text">メール認証を完了してください。</p>
         <div class="auth__verify-actions">
-            <form method="POST" action="{{ route('verification.send') }}">
+            <form class="auth__form" method="POST" action="{{ route('verification.send') }}">
                 @csrf
                 <button type="submit" onclick="this.disabled=true; this.form.submit();" class="auth__link">
                     認証メールを再送する
@@ -33,4 +28,16 @@
         </div>
     </div>
 </div>
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const flash = document.querySelector('.js-flash-message');
+    if (flash) {
+        setTimeout(() => {
+            flash.remove();
+        }, 3000);
+    }
+});
+</script>
+@endpush
 @endsection

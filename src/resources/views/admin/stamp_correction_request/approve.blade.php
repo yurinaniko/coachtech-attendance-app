@@ -5,8 +5,8 @@
 @endsection
 
 @section('content')
-<div class="attendance-detail">
-    <h1 class="attendance-detail__title">勤怠詳細</h1>
+<div class="container">
+    <h1 class="section-title">勤怠詳細</h1>
     <div class="table-wrapper">
         <table class="attendance-detail__table table">
             <tbody>

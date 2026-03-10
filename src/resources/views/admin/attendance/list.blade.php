@@ -5,17 +5,17 @@
 @endsection
 
 @section('content')
-<div class="attendance-list">
-    <h1 class="attendance-list__title">{{ $date->format('Y年n月j日') }} の勤怠一覧</h1>
+<div class="container">
+    <h1 class="section-title">{{ $date->format('Y年n月j日') }} の勤怠一覧</h1>
     <div class="attendance-list__date">
-        <a href="{{ route('admin.attendance.list', ['date' => $date->copy()->subDay()->toDateString()]) }}">
+        <a href="{{ route('admin.attendance.list', ['date' => $date->copy()->subDay()->toDateString()]) }}" class="attendance-list__date-link">
             ← 前日
         </a>
         <span class="attendance-list__date-text">
             <img src="{{ asset('images/calendar.png') }}" alt="" class="attendance-list__calendar">
                 {{ $date->format('Y年n月j日') }}
         </span>
-        <a href="{{ route('admin.attendance.list', ['date' => $date->copy()->addDay()->toDateString()]) }}">
+        <a href="{{ route('admin.attendance.list', ['date' => $date->copy()->addDay()->toDateString()]) }}" class="attendance-list__date-link">
             翌日 →
         </a>
     </div>
