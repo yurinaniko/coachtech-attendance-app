@@ -8,6 +8,7 @@ use App\Models\StampCorrectionRequest;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\DB;
 use App\Models\AttendanceBreak;
+use App\Http\Requests\Admin\AttendanceUpdateRequest;
 
 class StampCorrectionRequestController extends Controller
 {
@@ -38,64 +39,28 @@ class StampCorrectionRequestController extends Controller
         return view('admin.stamp_correction_request.approve', compact('request'));
     }
 
-    public function store(Request $request)
-    {
-        $attendance = Attendance::findOrFail($request->attendance_id);
-
-        $clockIn = $request->clock_in_at
-            ? $attendance->work_date->copy()->setTimeFromTimeString($request->clock_in_at)
-            : null;
-
-        $clockOut = $request->clock_out_at
-            ? $attendance->work_date->copy()->setTimeFromTimeString($request->clock_out_at)
-            : null;
-        StampCorrectionRequest::create([
-            'attendance_id'          => $request->attendance_id,
-            'user_id'                => $attendance->user_id,
-            'requested_clock_in_at'  => $clockIn,
-            'requested_clock_out_at' => $clockOut,
-            'requested_note'         => $request->note,
-            'status'                 => StampCorrectionRequest::STATUS_APPROVED,
-            'type'                   => StampCorrectionRequest::TYPE_ADMIN,
-        ]);
-
-        return redirect()
-            ->back();
-    }
-
-    public function approve(Request $request, $id)
+    public function approve(AttendanceUpdateRequest $request, $id)
     {
         DB::transaction(function () use ($id) {
-
             $correctionRequest = StampCorrectionRequest::with([
                 'attendance',
                 'stampCorrectionBreaks.attendanceBreak'
             ])->findOrFail($id);
-
-            if ($correctionRequest->status !== 'pending') {
-                abort(403, 'この申請はすでに処理されています');
-            }
-
             $attendance = $correctionRequest->attendance;
-
             $attendance->update([
                 'clock_in_at'  => $correctionRequest->requested_clock_in_at,
                 'clock_out_at' => $correctionRequest->requested_clock_out_at,
                 'note'         => $correctionRequest->requested_note,
             ]);
-
                 // 既存休憩削除
                 AttendanceBreak::where('attendance_id', $attendance->id)->delete();
-
                 // 休憩再作成
                 foreach ($correctionRequest->stampCorrectionBreaks as $correctionBreak) {
-
                     AttendanceBreak::create([
                         'attendance_id'  => $attendance->id,
                         'break_start_at' => $correctionBreak->break_start_at,
                         'break_end_at'   => $correctionBreak->break_end_at,
                     ]);
-
                 }
 
             $correctionRequest->update(['status' => StampCorrectionRequest::STATUS_APPROVED,]);
@@ -104,43 +69,47 @@ class StampCorrectionRequestController extends Controller
         return redirect()->route('admin.stamp_correction_request.edit', $id);
     }
 
-    public function update(Request $request, $id)
+    public function update(AttendanceUpdateRequest $request, $id)
     {
-        DB::transaction(function () use ($request, $id) {
+        $data = $request->validated();
+        DB::transaction(function () use ($data, $id) {
 
             $correctionRequest = StampCorrectionRequest::findOrFail($id);
 
             $attendance = $correctionRequest->attendance;
 
-            $clockIn = $request->clock_in_at
-                ? $attendance->work_date->copy()->setTimeFromTimeString($request->clock_in_at)
+            $clockIn = $data['clock_in_at']
+                ? $attendance->work_date->copy()->setTimeFromTimeString($data['clock_in_at'])
                 : null;
 
-            $clockOut = $request->clock_out_at
-                ? $attendance->work_date->copy()->setTimeFromTimeString($request->clock_out_at)
+            $clockOut = $data['clock_out_at']
+                ? $attendance->work_date->copy()->setTimeFromTimeString($data['clock_out_at'])
                 : null;
 
             $correctionRequest->update([
                 'requested_clock_in_at'  => $clockIn,
                 'requested_clock_out_at' => $clockOut,
-                'requested_note'         => $request->note,
+                'requested_note'         => $data['note'],
                 'status' => 'approved',
             ]);
 
             $attendance->update([
                 'clock_in_at'  => $clockIn,
                 'clock_out_at' => $clockOut,
-                'note'         => $request->note,
+                'note'         => $data['note'],
             ]);
 
-            AttendanceBreak::where('attendance_id', $attendance->id)->delete();
+            $attendance->breaks()->delete();
 
-            foreach ($correctionRequest->stampCorrectionBreaks as $correctionBreak) {
+            foreach ($data['breaks'] ?? [] as $break) {
 
-                AttendanceBreak::create([
-                    'attendance_id'  => $attendance->id,
-                    'break_start_at' => $correctionBreak->break_start_at,
-                    'break_end_at'   => $correctionBreak->break_end_at,
+                if (empty($break['break_start_at']) && empty($break['break_end_at'])) {
+                    continue;
+                }
+
+                $attendance->breaks()->create([
+                    'break_start_at' => $break['break_start_at'],
+                    'break_end_at'   => $break['break_end_at'],
                 ]);
             }
         });

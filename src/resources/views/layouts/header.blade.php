@@ -14,18 +14,18 @@
                 <nav class="header__nav">
                     <ul class="header__nav-list">
                         <li>
-                            <a href="{{ route('attendance.index') }}">勤怠</a>
+                            <a href="{{ route('attendance.index') }}" class="header__nav-link">勤怠</a>
                         </li>
                         <li>
-                            <a href="{{ route('attendance.list') }}">勤怠一覧</a>
+                            <a href="{{ route('attendance.list') }}" class="header__nav-link">勤怠一覧</a>
                         </li>
                         <li>
-                            <a href="{{ route('stamp_correction_request.index') }}">申請</a>
+                            <a href="{{ route('stamp_correction_request.index') }}" class="header__nav-link">申請</a>
                         </li>
                         <li>
                             <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button class="header__logout-button">ログアウト</button>
+                                    <button class="header__nav-button">ログアウト</button>
                             </form>
                         </li>
                     </ul>

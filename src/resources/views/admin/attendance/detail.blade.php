@@ -8,8 +8,8 @@
 @php
     $isStatic = $isFuture || $pendingRequest;
 @endphp
-<div class="attendance-detail">
-    <h1 class="attendance-detail__title">勤怠詳細</h1>
+<div class="container">
+    <h1 class="section-title">勤怠詳細</h1>
         @if ($pendingRequest)
             <div id="toast-notice" class="attendance-toast">
                 <div class="attendance-toast__icon">
@@ -98,7 +98,10 @@
                         @php
                             if (!$isStatic) {
                                // 編集モード
-                                $loopCount = $displayCount;
+                                $oldBreaks = old('breaks');
+                                $loopCount = $oldBreaks
+                                ? count($oldBreaks)
+                                : $displayCount;
                             } elseif ($isFuture) {
                                 // 未来日は最低1行表示
                                 $loopCount = max(1, $breaks->count());
@@ -109,9 +112,12 @@
                         @endphp
                         @for ($i = 0; $i < $loopCount; $i++)
                             @php
+                                $oldBreaks = old('breaks', []);
                                 $break = $breaks->get($i);
-                                $start = old("breaks.$i.break_start_at",$break?->break_start_at?->format('H:i'));
-                                $end = old("breaks.$i.break_end_at",$break?->break_end_at?->format('H:i'));
+                                $start = $oldBreaks[$i]['break_start_at']
+                                ?? $breaks->get($i)?->break_start_at?->format('H:i');
+                                $end = $oldBreaks[$i]['break_end_at']
+                                ?? $breaks->get($i)?->break_end_at?->format('H:i');
                             @endphp
                             <tr class="attendance-detail__break-row">
                                 <th>休憩{{ $i === 0 ? '' : $i + 1 }}</th>

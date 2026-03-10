@@ -6,20 +6,68 @@
     text-align: center;
 }
 
-.auth--register .auth__submit {
-    margin-top: 30px;
-}
-
 .auth__wrapper {
-    width: 100%;
-    max-width: 680px;
-    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 80px);
 }
 
 .auth__title {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 700;
-    margin-bottom: 20px;
+}
+
+.auth--register .auth__title {
+    margin-bottom: 40px;
+}
+
+.auth--login .auth__title {
+    margin-bottom: 60px;
+}
+
+.auth__form {
+    width: 100%;
+}
+
+.auth__group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.auth--login .auth__group {
+    margin-bottom: 80px;
+}
+
+.auth--register .auth__group {
+    margin-bottom: 40px;
+}
+
+.auth__label {
+    font-size: 18px;
+    color: #444;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.auth__input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.auth__error--global {
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.auth__error {
+    color: #ff4d4f;
+    font-size: 14px;
+    margin-top: 4px;
 }
 
 .auth__link {
@@ -47,18 +95,6 @@
     margin: 20px 0;
 }
 
-.auth--login .auth__submit {
-    margin-top: 60px;
-    margin-bottom: 20px;
-}
-
-.auth__wrapper--verify {
-    min-height: calc(100vh - 80px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .auth--verify .auth__text {
     font-size: 16px;
     font-weight: 600;
@@ -84,12 +120,6 @@
     margin-bottom: 16px;
 }
 
-.auth--verify form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
 .auth__verify-actions {
     display: flex;
     flex-direction: column;
@@ -106,18 +136,15 @@
     order: 2;
 }
 
-.auth--login .form__group {
-    margin: 60px auto 40px;
-}
-
 .auth__flash {
     position: fixed;
     top: 120px;
     left: 50%;
     transform: translateX(-50%);
-    background: #000;
+    background: #000000;
     color: #fff;
     padding: 12px 20px;
     border-radius: 6px;
     z-index: 1000;
 }
+

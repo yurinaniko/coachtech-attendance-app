@@ -149,7 +149,7 @@ class AttendanceController extends Controller
                 }
             }
 
-            $requestRecord = StampCorrectionRequest::updateOrCreate(
+            $requestRecord = StampCorrectionRequest::Create(
                 [
                     'attendance_id' => $attendance->id,
                     'type'          => StampCorrectionRequest::TYPE_ADMIN,

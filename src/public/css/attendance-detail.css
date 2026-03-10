@@ -1,27 +1,3 @@
-.attendance-detail {
-    max-width: 800px;
-    margin: 40px auto;
-}
-
-.attendance-detail__title {
-    position: relative;
-    padding-left: 14px;
-    margin-bottom: 40px;
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.attendance-detail__title::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 20px;
-    background-color: #000;
-}
-
 .attendance-detail__table th,
 .attendance-detail__table td {
     vertical-align: middle;
@@ -30,12 +6,12 @@
 
 .attendance-detail__table th {
     width: 30%;
-    padding: 30px;
+    padding: 24px;
     color: #737373;
 }
 
 .attendance-detail__table td {
-    padding: 20px 10px 20px 0;
+    padding: 24px 10px 24px 0;
     width: 70%;
     color: #000;
 }
@@ -51,11 +27,11 @@
 }
 
 .attendance-detail__date--view .attendance-detail__year {
-    width: 240px;
+    width: 276px;
 }
 
 .attendance-detail__date--edit .attendance-detail__year {
-    width: 226px;
+    width: 270px;
 }
 
 .attendance-detail__date--view .attendance-detail__month-day,
@@ -182,7 +158,7 @@ textarea.attendance-detail__note {
 
 .attendance-detail__row {
     display: flex;
-    gap: 20px;
+    gap: 40px;
 }
 
 .attendance-detail__row.is-future {

@@ -5,8 +5,8 @@
 @endsection
 
 @section('content')
-<div class="attendance-detail">
-    <h1 class="attendance-detail__title">勤怠詳細</h1>
+<div class="container">
+    <h1 class="section-title">勤怠詳細</h1>
     <form method="POST" action="{{ route('stamp_correction_request.store') }}">
         @csrf
             @if($attendance)
@@ -95,10 +95,12 @@
                         @for ($i = 0; $i < $loopCount; $i++)
                             @php
                                 $break = $targetBreaks->get($i);
-                                $start = old("breaks.$i.break_start_at")
-                                        ?? $break?->break_start_at?->format('H:i');
-                                $end = old("breaks.$i.break_end_at")
-                                        ?? $break?->break_end_at?->format('H:i');
+                                $start = $oldBreaks[$i]['break_start_at']
+                                ?? $break?->break_start_at?->format('H:i')
+                                ?? null;
+                                $end = $oldBreaks[$i]['break_end_at']
+                                ?? $break?->break_end_at?->format('H:i')
+                                ?? null;
                             @endphp
                             <tr class="attendance-detail__break-row">
                                 <th>休憩{{ $i === 0 ? '' : $i + 1 }}</th>

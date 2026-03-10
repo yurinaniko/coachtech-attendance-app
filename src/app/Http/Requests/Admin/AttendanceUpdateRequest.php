@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Carbon\Carbon;
+use App\Models\Attendance;
 
 class AttendanceUpdateRequest extends FormRequest
 {
@@ -30,7 +31,13 @@ class AttendanceUpdateRequest extends FormRequest
         $validator->after(function ($validator) {
 
             // ① 未来日チェック
-            $attendance = \App\Models\Attendance::find($this->attendance_id);
+            $attendance = Attendance::find($this->route('id'));
+
+            if (!$attendance) {
+                return;
+            }
+
+            $breakRanges = [];
 
             if ($attendance && \Carbon\Carbon::parse($attendance->work_date)->isFuture()) {
                 $validator->errors()->add(
@@ -41,6 +48,34 @@ class AttendanceUpdateRequest extends FormRequest
             }
             $clockIn  = $this->input('clock_in_at');
             $clockOut = $this->input('clock_out_at');
+
+            $now = Carbon::now();
+            $workDate = Carbon::parse($attendance->work_date);
+
+            if ($workDate->isToday()) {
+
+                if ($clockIn) {
+                    $clockInDateTime = Carbon::parse($workDate->format('Y-m-d').' '.$clockIn);
+
+                        if ($clockInDateTime->gt($now)) {
+                            $validator->errors()->add(
+                                'clock_in_at',
+                                '未来の時間は入力できません'
+                            );
+                        }
+                }
+
+                if ($clockOut) {
+                    $clockOutDateTime = Carbon::parse($workDate->format('Y-m-d').' '.$clockOut);
+
+                        if ($clockOutDateTime->gt($now)) {
+                            $validator->errors()->add(
+                                'clock_out_at',
+                                '未来の時間は入力できません'
+                            );
+                        }
+                }
+            }
 
             $clockInTime  = $clockIn  ? Carbon::createFromFormat('H:i', $clockIn) : null;
             $clockOutTime = $clockOut ? Carbon::createFromFormat('H:i', $clockOut) : null;
@@ -60,6 +95,40 @@ class AttendanceUpdateRequest extends FormRequest
 
                 $breakStartTime = $breakStart ? Carbon::createFromFormat('H:i', $breakStart) : null;
                 $breakEndTime   = $breakEnd   ? Carbon::createFromFormat('H:i', $breakEnd) : null;
+                if ($breakStart) {
+
+                    $breakStartDateTime = Carbon::parse(
+                        $workDate->format('Y-m-d') . ' ' . $breakStart
+                    );
+
+                    if ($workDate->isToday() && $breakStartDateTime->gt($now)) {
+                        $validator->errors()->add(
+                            "breaks.$index.break_start_at",
+                            '未来の時間は入力できません'
+                        );
+                    }
+                }
+
+                if ($breakEnd) {
+
+                    $breakEndDateTime = Carbon::parse(
+                        $workDate->format('Y-m-d') . ' ' . $breakEnd
+                    );
+
+                    if ($workDate->isToday() && $breakEndDateTime->gt($now)) {
+                        $validator->errors()->add(
+                            "breaks.$index.break_end_at",
+                            '未来の時間は入力できません'
+                        );
+                    }
+                }
+
+                if ($workDate->isToday() && $breakEndTime && $breakEndTime->gt($now)) {
+                    $validator->errors()->add(
+                        "breaks.$index.break_end_at",
+                        '未来の時間は入力できません'
+                    );
+                }
 
                 $breakError = '休憩時間が不適切な値です';
                 $breakOutError = '休憩時間もしくは退勤時間が不適切な値です';
@@ -101,6 +170,45 @@ class AttendanceUpdateRequest extends FormRequest
                             "breaks.$index.break_end_at",
                             $breakOutError
                         );
+                    }
+                }
+            }
+
+            foreach ($this->input('breaks', []) as $index => $break) {
+
+                $start = $break['break_start_at'] ?? null;
+                $end   = $break['break_end_at'] ?? null;
+
+                if (!$start || !$end) {
+                    continue;
+                }
+
+                $breakRanges[] = [
+                    'index' => $index,
+                    'start' => Carbon::parse($workDate->format('Y-m-d').' '.$start),
+                    'end'   => Carbon::parse($workDate->format('Y-m-d').' '.$end),
+                ];
+            }
+
+            if ($validator->errors()->isNotEmpty()) {
+                return;
+            }
+
+            for ($i = 0; $i < count($breakRanges); $i++) {
+                for ($j = $i + 1; $j < count($breakRanges); $j++) {
+
+                    $break1 = $breakRanges[$i];
+                    $break2 = $breakRanges[$j];
+
+                    if (
+                        $break1['start'] < $break2['end'] &&
+                        $break1['end'] > $break2['start']
+                    ) {
+                        $validator->errors()->add(
+                        "breaks.".$break2['index'].".break_start_at",
+                        '他の休憩時間と重複しています'
+                        );
+                        return;
                     }
                 }
             }

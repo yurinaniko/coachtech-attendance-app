@@ -1,50 +1,36 @@
-.staff-list {
-    max-width: 900px;
-    margin: 80px auto 0;
-}
-
-.staff-list__title {
-    position: relative;
-    padding-left: 14px;
-    margin-bottom: 60px;
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.staff-list__title::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 20px;
-    background: #000;
-}
-
-.staff-list__table-wrapper {
-    overflow-x: auto;
-    border-radius: 10px;
-    border: 1px solid #E0E0E0;
-    background-color: #fff;
-}
-
 .staff-list__table {
-    width: 100%;
-    border-collapse: collapse;
+    table-layout: fixed;
 }
 
-.staff-list__table th,
-.staff-list__table td {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #ccc;
+.staff-list__col--name,
+.staff-list__col--email {
     color: #737373;
-    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.staff-list__col--name {
+    width: 250px;
+    padding: 10px 10px 10px 100px;
+}
+
+.staff-list__col--email {
+    width: 350px;
+    padding: 10px 24px;
+}
+
+.staff-list__col--action {
+    color: #737373;
+    width: 250px;
+    text-align: center;
+    padding: 10px 100px 10px 10px;
 }
 
 .staff-list__link {
     color: #000;
+    text-align: center;
     text-decoration: none;
     font-weight: bold;
 }

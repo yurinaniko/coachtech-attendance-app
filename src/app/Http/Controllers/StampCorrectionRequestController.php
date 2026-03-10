@@ -79,16 +79,26 @@ class StampCorrectionRequestController extends Controller
             ? $attendance->work_date->copy()->setTimeFromTimeString($breakEndAt)
             : null;
 
-            StampCorrectionBreak::updateOrCreate(
-                [
+            if ($attendanceBreakId) {
+
+                StampCorrectionBreak::updateOrCreate(
+                    [
+                        'stamp_correction_request_id' => $correctionRequest->id,
+                        'attendance_break_id'         => $attendanceBreakId,
+                    ],
+                    [
+                        'break_start_at' => $breakStart,
+                        'break_end_at'   => $breakEnd,
+                    ]
+                );
+            } else {
+                StampCorrectionBreak::create([
                     'stamp_correction_request_id' => $correctionRequest->id,
-                    'attendance_break_id'         => $attendanceBreakId,
-                ],
-                [
                     'break_start_at' => $breakStart,
                     'break_end_at'   => $breakEnd,
-                ]
-            );
+                ]);
+
+            }
         }
 
         return redirect()

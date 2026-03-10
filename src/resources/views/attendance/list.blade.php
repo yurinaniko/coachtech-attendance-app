@@ -5,16 +5,16 @@
 @endsection
 
 @section('content')
-<div class="attendance-list">
-    <h1 class="attendance-list__title">勤怠一覧</h1>
+<div class="container">
+    <h1 class="section-title">勤怠一覧</h1>
     <div class="attendance-list__date">
-        <a href="{{ route('attendance.list', ['month' => $month->copy()->subMonth()->format('Y-m')]) }}">← 前月</a>
+        <a href="{{ route('attendance.list', ['month' => $month->copy()->subMonth()->format('Y-m')]) }}" class="attendance-list__date-link">← 前月</a>
         <span class="attendance-list__date-text">
             <img src="{{ asset('images/calendar.png') }}" alt="" class="attendance-list__calendar"> {{ $month->format('Y/m') }}
         </span>
-        <a href="{{ route('attendance.list', ['month' => $month->copy()->addMonth()->format('Y-m')]) }}">翌月 →</a>
+        <a href="{{ route('attendance.list', ['month' => $month->copy()->addMonth()->format('Y-m')]) }}" class="attendance-list__date-link">翌月 →</a>
     </div>
-    <div class="attendance-list__table-wrapper table-wrapper">
+    <div class="table-wrapper">
         <table class="attendance-list__table table">
             <thead>
                 <tr>

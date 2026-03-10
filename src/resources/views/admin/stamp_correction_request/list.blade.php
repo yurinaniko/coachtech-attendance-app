@@ -5,8 +5,8 @@
 @endsection
 
 @section('content')
-<div class="stamp-request-index">
-    <h1 class="stamp-request-index__title">申請一覧</h1>
+<div class="container">
+    <h1 class="section-title">申請一覧</h1>
     <div class="stamp-request-index__tabs">
         <a href="{{ route('admin.stamp_correction_request.index', ['status' => 'pending']) }}"
         class="stamp-request-index__tab {{ request('status', 'pending') === 'pending' ? 'is-active' : '' }}">承認待ち</a>
