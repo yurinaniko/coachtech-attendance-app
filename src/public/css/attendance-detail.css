@@ -1,23 +1,19 @@
-.attendance-detail__table th,
-.attendance-detail__table td {
+.attendance-detail__table .table__col,
+.attendance-detail__table .table__cell {
     vertical-align: middle;
     text-align: left;
 }
 
-.attendance-detail__table th {
+.attendance-detail__table .table__col {
     width: 30%;
     padding: 24px;
     color: #737373;
 }
 
-.attendance-detail__table td {
-    padding: 24px 10px 24px 0;
+.attendance-detail__table .table__cell {
     width: 70%;
+    padding: 24px 10px 24px 0;
     color: #000;
-}
-
-.attendance-detail__date span {
-    display: inline-block;
 }
 
 .attendance-detail__date--view,
@@ -95,14 +91,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     color: #333;
 }
 
-.attendance-detail__time-input[readonly],
-.attendance-detail__note[readonly] {
-    cursor: not-allowed;
-    background-color: #f5f5f5;
-    color: #555;
-}
-
-textarea.attendance-detail__note {
+.attendance-detail__note {
     width: 58%;
     resize: none;
     border-radius: 4px;
@@ -110,7 +99,7 @@ textarea.attendance-detail__note {
     background-color: #fff;
 }
 
-.attendance-detail__note-text {
+.attendance-detail__note--text {
     margin-left: 12px;
     border: none;
 }
@@ -120,7 +109,7 @@ textarea.attendance-detail__note {
     border-bottom: none;
 }
 
-.attendance-detail__date span:first-child,
+.attendance-detail__year,
 .attendance-detail__name {
     margin-left: 12px;
     letter-spacing: 0.3em;
@@ -136,17 +125,7 @@ textarea.attendance-detail__note {
     color: #000;
 }
 
-/* disabledは常に透明 */
-.attendance-detail__time-input:disabled {
-    color: #000;
-    background-color: #fff;
-}
-
-/* 入力できるものだけ色を付ける */
-.attendance-detail__time-input:not(:disabled):not(.is-empty) {
-    color: #000;
-}
-
+/* 空のときは文字を隠す */
 .attendance-detail__time-input.is-empty {
     color: transparent;
 }
@@ -159,10 +138,6 @@ textarea.attendance-detail__note {
 .attendance-detail__row {
     display: flex;
     gap: 40px;
-}
-
-.attendance-detail__row.is-future {
-    justify-content: center;
 }
 
 .attendance-detail__separator{

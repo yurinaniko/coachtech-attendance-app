@@ -1,5 +1,5 @@
-.stamp-request-index__table th,
-.stamp-request-index__table td {
+.stamp-request-index__table .table__col,
+.stamp-request-index__table .table__cell {
     padding: 10px;
     text-align: center;
     color: #737373;

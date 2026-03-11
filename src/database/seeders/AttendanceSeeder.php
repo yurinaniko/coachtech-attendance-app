@@ -20,7 +20,7 @@ class AttendanceSeeder extends Seeder
 
                 Attendance::create([
                     'user_id'      => $user->id,
-                    'work_date'    => Carbon::now()->subDays($i),
+                    'work_date' => Carbon::now()->subDays($i)->toDateString(),
                     'clock_in_at'  => Carbon::createFromTime(rand(8,10), rand(0,59)),
                     'clock_out_at' => Carbon::createFromTime(rand(17,19), rand(0,59)),
                     'note' => collect([
@@ -34,7 +34,7 @@ class AttendanceSeeder extends Seeder
 
                 Attendance::create([
                     'user_id'      => $user->id,
-                    'work_date'    => Carbon::now()->subMonth()->subDays($i),
+                    'work_date' => Carbon::now()->subDays($i)->toDateString(),
                     'clock_in_at'  => Carbon::createFromTime(rand(8,10), rand(0,59)),
                     'clock_out_at' => Carbon::createFromTime(rand(17,19), rand(0,59)),
                     'note' => collect([

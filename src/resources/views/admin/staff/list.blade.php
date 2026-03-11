@@ -11,17 +11,17 @@
         <table class="staff-list__table table">
             <thead>
                 <tr>
-                    <th class="staff-list__col--name">名前</th>
-                    <th class="staff-list__col--email">メールアドレス</th>
-                    <th class="staff-list__col--action">月次勤怠</th>
+                    <th class="table__col staff-list__col--name">名前</th>
+                    <th class="table__col staff-list__col--email">メールアドレス</th>
+                    <th class="table__col staff-list__col--action">月次勤怠</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($users as $user)
                     <tr>
-                        <td class="staff-list__col--name">{{ $user->name }}</td>
-                        <td class="staff-list__col--email">{{ $user->email }}</td>
-                        <td class="staff-list__col--action">
+                        <td class="table__cell staff-list__col--name">{{ $user->name }}</td>
+                        <td class="table__cell staff-list__col--email">{{ $user->email }}</td>
+                        <td class="table__cell staff-list__col--action">
                             <a href="{{ route('admin.staff.attendance.index', [
                             'user'  => $user->id,'month' => now()->format('Y-m')]) }}" class="staff-list__link">詳細</a>
                         </td>

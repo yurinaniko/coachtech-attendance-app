@@ -1,9 +1,19 @@
-# coachtech-attendance-app
+# coachtech勤怠管理アプリ
+## 概要
+COACHTECHの模擬案件として制作した勤怠アプリです。
 
-COACHTECHの模擬案件として制作した
-勤怠アプリです。
-本アプリケーションは、スタッフの勤怠打刻および勤怠修正申請を行うための勤怠管理システムです。
-管理者側の画面と一般ユーザー側の画面に別れています。
+本アプリケーションは、
+スタッフの勤怠打刻・勤怠修正申請・管理者承認を行う
+勤怠管理システムです。
+
+一般ユーザーと管理者の権限を分離し、
+
+- 勤怠打刻
+- 修正申請
+- 管理者承認
+- 勤怠管理
+
+を行うことができます。
 ※ 本READMEは、環境構築手順・動作確認方法・設計資料の参照を目的として記載しています。
 
 ## 環境構築手順
@@ -155,6 +165,234 @@ MailHog： http://localhost:8025
 メール認証・通知メールは MailHog 上で確認できます。
 メール認証誘導画面の「認証はこちらから」ボタンを押すと、
 MailHog の画面へ遷移します。
+
+## テストについて
+本アプリケーションでは PHPUnit を用いた機能テスト（Feature Test）を実装しています。
+
+主に以下の観点でテストを行っています。
+
+- 認証機能
+（会員登録 / ログイン / ログアウト / メール認証）
+
+- 勤怠機能
+（出勤 / 休憩 / 退勤 / ステータス管理）
+
+- 勤怠一覧・詳細表示
+
+- 修正申請機能
+
+各機能について、
+正常系と異常系（バリデーション / 権限制御 / 未ログイン時の挙動）を中心にテストを実装しています。
+
+※ テスト実行時は phpunit.xml にて、
+キャッシュ / セッション / メール等をテスト用設定へ切り替えています。
+
+## テスト実行手順
+※ 本アプリケーションでは、本番データへの影響を防ぐため
+テスト専用データベースを使用しています。
+本アプリケーションでは PHPUnit を使用しています。
+テスト実行時は `.env.testing` の設定が使用されます。
+
+1. テスト用データベースを作成
+上記で指定した DB_DATABASE（例：laravel_test）を、
+MySQL 上に作成してください。
+```bash
+docker compose exec mysql bash
+mysql -u root -p
+```
+```sql
+CREATE DATABASE laravel_test;
+SHOW DATABASES;
+```
+SHOW DATABASES;入力後、laravel_testが作成されていれば成功です。
+
+2. configファイルの変更
+configディレクトリの中のdatabase.phpに以下の編集を行う。
+```env
+'mysql' => [
+// 中略
+],
++  'mysql_test' => [
++      'driver' => 'mysql',
++      'host' => env('DB_HOST', 'mysql'),
++      'port' => env('DB_PORT', '3306'),
++      'database' => 'laravel_test',
++      'username' => 'root',
++      'password' => 'root',
++      'charset' => 'utf8mb4',
++      'collation' => 'utf8mb4_unicode_ci',
++      'prefix' => '',
++      'strict' => true,
++      ],
+```
+3. `.env.testing` を作成
+```bash
+cp .env .env.testing
+```
+4. .env.testing をテスト用に編集
+### ① アプリケーション設定
+```env
+APP_ENV=test
+APP_KEY=
+```
+
+### ② データベース設定（Docker）
+
+```env
+DB_CONNECTION=mysql_test
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel_test
+DB_USERNAME=root
+DB_PASSWORD=root
+
+※ DBユーザー名・パスワードは、ご自身の環境に合わせて設定してください。
+```
+APP_KEY は空に設定してください。
+編集後、以下のコマンドでテスト用キーを生成します。
+
+```bash
+php artisan key:generate --env=testing
+php artisan config:clear
+```
+
+5. PHPUnit 設定
+テスト実行時は .env.testing の設定に加えて、
+phpunit.xml にてテスト環境用の設定を定義しています。
+```xml
+<server name="APP_ENV" value="testing"/>
+<server name="DB_CONNECTION" value="mysql_test"/>
+<server name="DB_DATABASE" value="laravel_test"/>
+```
+これにより
+・テスト実行時のみテスト用DBを使用
+・本番 / 開発DBへ影響しない安全な設計
+となっています。
+
+6. マイグレーション & テスト実行
+```bash
+php artisan migrate:fresh --env=testing
+php artisan test
+```
+Docker 環境上でテストを実行し、
+すべてのテストが PASS することを確認しています。
+
+## 使用技術
+
+- 種類 バージョン
+- PHP 8.x
+- Laravel 8.x
+- Laravel Fortify（認証機能）
+- MySQL 8.0
+- Nginx 1.25
+- Docker / Docker Compose 最新
+- MailHog 開発用
+- phpMyAdmin 使用
+
+## 機能一覧
+※ 本アプリケーションでは、管理者・一般ユーザー間で
+利用可能機能を権限により制御しています。
+
+### 一般ユーザーが使用できる機能
+- 会員登録
+- ログイン機能
+- 勤怠打刻機能
+- 休憩打刻機能
+- 勤怠一覧表示
+- 勤怠詳細表示
+- 勤怠修正申請機能
+
+---
+
+### 管理者が使用できる機能
+- ログイン機能
+- 勤怠一覧表示
+- 勤怠詳細表示
+- スタッフ一覧表示
+- スタッフ別勤怠一覧表示
+- 勤怠データCSV出力
+- 申請一覧表示
+- 修正申請承認機能
+
+## 実装した応用機能
+
+- メール認証機能（mailhog）
+- 認証メール再送機能
+- CSV出力機能
+  管理者画面から、スタッフの勤怠データをCSV形式でダウンロード可能
+
+  ## 画面状態遷移仕様
+
+### ■ 修正申請フロー
+
+1. 一般ユーザーが修正申請を行うと
+   `stamp_correction_requests.status = pending`（承認待ち）となる。
+
+2. 管理者が以下のいずれかを実行した場合
+
+- 修正申請承認画面で「承認」ボタンを押下
+- 勤怠詳細画面で直接修正を実施
+
+→ `attendances` テーブルを更新し
+→ `stamp_correction_requests.status = approved`（承認済み）とする。
+
+3. 承認済みの申請は申請一覧画面の「承認済み」タブに表示される。
+
+4. 承認後は一般ユーザー・管理者いずれも再度修正を行うことができる。
+その場合、新規の `stamp_correction_requests` レコードを作成し、修正履歴として保存する。
+
+
+### ■ 承認前の表示仕様
+
+修正申請が **pending（承認待ち）状態の間は、**
+
+- 一般ユーザーの勤怠一覧
+- 一般ユーザーの勤怠詳細
+- 管理者の勤怠一覧
+- 管理者の勤怠詳細
+
+には **修正前の勤怠データを表示**します。
+
+管理者が承認した時点で `attendances` テーブルが更新され、
+その後の勤怠一覧・勤怠詳細には **修正後の勤怠データが表示されます。**
+
+
+### ■ 修正申請の履歴について
+
+本アプリでは以下のようにデータを管理しています。
+
+- 勤怠の最終確定値
+  → `attendances` テーブル
+
+- 修正申請の履歴
+  → `stamp_correction_requests` テーブル
+
+同一日付に対して一般ユーザーが複数回修正申請を行った場合でも、
+各申請は **個別レコードとして保存し履歴として保持**します。
+
+`attendances` テーブルには
+**承認後の最終確定データのみが反映される設計**としています。
+
+
+### ■ 未来日の挙動
+
+未来日の勤怠データは存在しないため、
+
+- 詳細画面では入力フィールドを表示しない
+- 修正ボタンは非表示
+
+とし、編集不可の静的表示としています。
+
+### 仕様詳細
+
+## バリデーションについて
+本アプリケーションでは Laravel FormRequest を使用しています。
+未入力時や入力規則違反時には、
+各項目ごとにエラーメッセージを表示する仕様です。
+
+- 出勤時間が退勤時間より後の場合エラー
+- 休憩開始・終了の不整合時エラー
+- 備考未入力時エラー
 
 ## ER 図
 
@@ -314,229 +552,4 @@ status カラムを導入しています。
 
   などを行う可能性を考え、
   状態をDBとして保持できる設計としています。
-## 使用技術
 
-- 種類 バージョン
-- PHP 8.x
-- Laravel 8.x
-- Laravel Fortify（認証機能）
-- MySQL 8.0
-- Nginx 1.25
-- Docker / Docker Compose 最新
-- MailHog 開発用
-- phpMyAdmin 使用
-
-## 機能一覧
-※ 本アプリケーションでは、管理者・一般ユーザー間で
-利用可能機能を権限により制御しています。
-
-### 一般ユーザーが使用できる機能
-- 会員登録
-- ログイン機能
-- 勤怠打刻機能
-- 休憩打刻機能
-- 勤怠一覧表示
-- 勤怠詳細表示
-- 勤怠修正申請機能
-
----
-
-### 管理者が使用できる機能
-- ログイン機能
-- 勤怠一覧表示
-- 勤怠詳細表示
-- スタッフ一覧表示
-- スタッフ別勤怠一覧表示
-- 勤怠データCSV出力
-- 申請一覧表示
-- 修正申請承認機能
-
-## 実装した応用機能
-
-- メール認証機能（mailhog）
-- 認証メール再送機能
-- CSV出力機能
-
-## 画面状態遷移仕様
-
-### ■ 修正申請フロー
-
-1. 一般ユーザーが修正申請を行うと
-   `stamp_correction_requests.status = pending`（承認待ち）となる。
-
-2. 管理者が以下のいずれかを実行した場合
-
-- 修正申請承認画面で「承認」ボタンを押下
-- 勤怠詳細画面で直接修正を実施
-
-→ `attendances` テーブルを更新し
-→ `stamp_correction_requests.status = approved`（承認済み）とする。
-
-3. 承認済みの申請は申請一覧画面の「承認済み」タブに表示される。
-
-4. 承認後は一般ユーザー・管理者いずれも再度修正を行うことができる。
-その場合、新規の `stamp_correction_requests` レコードを作成し、修正履歴として保存する。
-
-
-### ■ 承認前の表示仕様
-
-修正申請が **pending（承認待ち）状態の間は、**
-
-- 一般ユーザーの勤怠一覧
-- 一般ユーザーの勤怠詳細
-- 管理者の勤怠一覧
-- 管理者の勤怠詳細
-
-には **修正前の勤怠データを表示**します。
-
-管理者が承認した時点で `attendances` テーブルが更新され、
-その後の勤怠一覧・勤怠詳細には **修正後の勤怠データが表示されます。**
-
-
-### ■ 修正申請の履歴について
-
-本アプリでは以下のようにデータを管理しています。
-
-- 勤怠の最終確定値
-  → `attendances` テーブル
-
-- 修正申請の履歴
-  → `stamp_correction_requests` テーブル
-
-同一日付に対して一般ユーザーが複数回修正申請を行った場合でも、
-各申請は **個別レコードとして保存し履歴として保持**します。
-
-`attendances` テーブルには
-**承認後の最終確定データのみが反映される設計**としています。
-
-
-### ■ 未来日の挙動
-
-未来日の勤怠データは存在しないため、
-
-- 詳細画面では入力フィールドを表示しない
-- 修正ボタンは非表示
-
-とし、編集不可の静的表示としています。
-
-### 仕様詳細
-
-## バリデーションについて
-本アプリケーションでは Laravel FormRequest を使用しています。
-未入力時や入力規則違反時には、
-各項目ごとにエラーメッセージを表示する仕様です。
-
-- 出勤時間が退勤時間より後の場合エラー
-- 休憩開始・終了の不整合時エラー
-- 備考未入力時エラー
-
-## テストについて
-本アプリケーションでは PHPUnit を用いた機能テスト（Feature Test）を実装しています。
-
-主に以下の観点でテストを行っています。
-
-- 認証機能
-（会員登録 / ログイン / ログアウト / メール認証）
-
-- 勤怠機能
-（出勤 / 休憩 / 退勤 / ステータス管理）
-
-- 勤怠一覧・詳細表示
-
-- 修正申請機能
-
-各機能について、
-正常系と異常系（バリデーション / 権限制御 / 未ログイン時の挙動）を中心にテストを実装しています。
-
-※ テスト実行時は phpunit.xml にて、
-キャッシュ / セッション / メール等をテスト用設定へ切り替えています。
-
-## テスト実行手順
-※ 本アプリケーションでは、本番データへの影響を防ぐため
-テスト専用データベースを使用しています。
-本アプリケーションでは PHPUnit を使用しています。
-テスト実行時は `.env.testing` の設定が使用されます。
-
-1. テスト用データベースを作成
-上記で指定した DB_DATABASE（例：laravel_test）を、
-MySQL 上に作成してください。
-```bash
-docker compose exec mysql bash
-mysql -u root -p
-```
-```sql
-CREATE DATABASE laravel_test;
-SHOW DATABASES;
-```
-SHOW DATABASES;入力後、laravel_testが作成されていれば成功です。
-
-2. configファイルの変更
-configディレクトリの中のdatabase.phpに以下の編集を行う。
-```env
-'mysql' => [
-// 中略
-],
-+  'mysql_test' => [
-+      'driver' => 'mysql',
-+      'host' => env('DB_HOST', 'mysql'),
-+      'port' => env('DB_PORT', '3306'),
-+      'database' => 'laravel_test',
-+      'username' => 'root',
-+      'password' => 'root',
-+      'charset' => 'utf8mb4',
-+      'collation' => 'utf8mb4_unicode_ci',
-+      'prefix' => '',
-+      'strict' => true,
-+      ],
-```
-3. `.env.testing` を作成
-```bash
-cp .env .env.testing
-```
-4. .env.testing をテスト用に編集
-### ① アプリケーション設定
-```env
-APP_ENV=test
-APP_KEY=
-```
-
-### ② データベース設定（Docker）
-
-```env
-DB_CONNECTION=mysql_test
-DB_HOST=mysql
-DB_PORT=3306
-DB_DATABASE=laravel_test
-DB_USERNAME=root
-DB_PASSWORD=root
-
-※ DBユーザー名・パスワードは、ご自身の環境に合わせて設定してください。
-```
-APP_KEY は空に設定してください。
-編集後、以下のコマンドでテスト用キーを生成します。
-
-```bash
-php artisan key:generate --env=testing
-php artisan config:clear
-```
-
-5. PHPUnit 設定
-テスト実行時は .env.testing の設定に加えて、
-phpunit.xml にてテスト環境用の設定を定義しています。
-```xml
-<server name="APP_ENV" value="testing"/>
-<server name="DB_CONNECTION" value="mysql_test"/>
-<server name="DB_DATABASE" value="laravel_test"/>
-```
-これにより
-・テスト実行時のみテスト用DBを使用
-・本番 / 開発DBへ影響しない安全な設計
-となっています。
-
-6. マイグレーション & テスト実行
-```bash
-php artisan migrate:fresh --env=testing
-php artisan test
-```
-Docker 環境上でテストを実行し、
-すべてのテストが PASS することを確認しています。

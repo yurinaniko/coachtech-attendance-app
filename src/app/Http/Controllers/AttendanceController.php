@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Attendance;
-use Carbon\Carbon;
 use App\Models\StampCorrectionRequest;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
 {

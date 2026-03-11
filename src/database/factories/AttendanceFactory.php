@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Attendance;
+use App\Models\User;
 
 class AttendanceFactory extends Factory
 {
@@ -11,7 +12,7 @@ class AttendanceFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => \App\Models\User::factory(),
+            'user_id' => User::factory(),
             'work_date' => now()->toDateString(),
             'clock_in_at' => now(),
             'clock_out_at' => null,

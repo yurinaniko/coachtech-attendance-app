@@ -16,25 +16,25 @@
         <table class="stamp-request-index__table table">
             <thead>
                 <tr>
-                    <th>状態</th>
-                    <th>名前</th>
-                    <th>対象日時</th>
-                    <th>申請理由</th>
-                    <th>申請日時</th>
-                    <th>詳細</th>
+                    <th class="table__col">状態</th>
+                    <th class="table__col">名前</th>
+                    <th class="table__col">対象日時</th>
+                    <th class="table__col">申請理由</th>
+                    <th class="table__col">申請日時</th>
+                    <th class="table__col">詳細</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($requests as $request)
                     <tr>
-                        <td>
-                            <span class="stamp-request-index__status stamp-request-index__status--{{ $request->status }}">{{ $request->status_label }}</span>
+                        <td class="table__cell">
+                            <span class="stamp-request-index__status">{{ $request->status_label }}</span>
                         </td>
-                        <td>{{ $request->user->name }}</td>
-                        <td>{{ optional($request->attendance)->work_date?->format('Y/m/d') ?? '-' }}</td>
-                        <td class="stamp-request-index__reason">{{ $request->requested_note ?? '-' }}</td>
-                        <td>{{ optional($request->created_at)->format('Y/m/d') }}</td>
-                        <td>
+                        <td class="table__cell">{{ $request->user->name }}</td>
+                        <td class="table__cell">{{ optional($request->attendance)->work_date?->format('Y/m/d') ?? '-' }}</td>
+                        <td class="table__cell stamp-request-index__reason">{{ $request->requested_note ?? '-' }}</td>
+                        <td class="table__cell">{{ optional($request->created_at)->format('Y/m/d') }}</td>
+                        <td class="table__cell">
                             <a href="{{ route('attendance.detail', $request->attendance->work_date->format('Y-m-d')) }}"  class="stamp-request-index__detail">
                                 詳細
                             </a>
@@ -42,7 +42,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="stamp-request-index__empty">申請はありません</td>
+                        <td colspan="6" class="table__cell stamp-request-index__empty">申請はありません</td>
                     </tr>
                 @endforelse
             </tbody>

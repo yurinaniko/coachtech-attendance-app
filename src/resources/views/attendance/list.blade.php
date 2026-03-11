@@ -8,22 +8,22 @@
 <div class="container">
     <h1 class="section-title">勤怠一覧</h1>
     <div class="attendance-list__date">
-        <a href="{{ route('attendance.list', ['month' => $month->copy()->subMonth()->format('Y-m')]) }}" class="attendance-list__date-link">← 前月</a>
-        <span class="attendance-list__date-text">
+        <a href="{{ route('attendance.list', ['month' => $month->copy()->subMonth()->format('Y-m')]) }}" class="attendance-list__link">← 前月</a>
+        <span class="attendance-list__text">
             <img src="{{ asset('images/calendar.png') }}" alt="" class="attendance-list__calendar"> {{ $month->format('Y/m') }}
         </span>
-        <a href="{{ route('attendance.list', ['month' => $month->copy()->addMonth()->format('Y-m')]) }}" class="attendance-list__date-link">翌月 →</a>
+        <a href="{{ route('attendance.list', ['month' => $month->copy()->addMonth()->format('Y-m')]) }}" class="attendance-list__link">翌月 →</a>
     </div>
     <div class="table-wrapper">
         <table class="attendance-list__table table">
             <thead>
                 <tr>
-                    <th class="attendance-list__col attendance-list__col--date">日付</th>
-                    <th>出勤</th>
-                    <th>退勤</th>
-                    <th>休憩</th>
-                    <th>合計</th>
-                    <th>詳細</th>
+                    <th class="table__col attendance-list__col--date">日付</th>
+                    <th class="table__col">出勤</th>
+                    <th class="table__col">退勤</th>
+                    <th class="table__col">休憩</th>
+                    <th class="table__col">合計</th>
+                    <th class="table__col">詳細</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,24 +34,24 @@
                         $attendance = $attendances->get($dateKey);
                     @endphp
                     <tr>
-                        <td class="attendance-list__col attendance-list__col--date">
+                        <td class="table__cell attendance-list__col--date">
                             {{ $date->format('m/d') }}（{{ $date->isoFormat('dd') }}）
                         </td>
-                        <td>
+                        <td class="table__cell">
                             {{ $attendance?->clock_in_time }}
                         </td>
-                        <td>
+                        <td class="table__cell">
                             {{ $attendance?->clock_out_time }}
                         </td>
-                        <td>
+                        <td class="table__cell">
                             @if ($attendance && $attendance->breaks->isNotEmpty())
                                 {{ $attendance?->break_time_hhmm ?? '' }}
                             @endif
                         </td>
-                        <td>
+                        <td class="table__cell">
                             {{ $attendance?->work_time_hhmm ?? '' }}
                         </td>
-                        <td>
+                        <td class="table__cell">
                             <a href="{{ route('attendance.detail', ['date' => $dateKey]) }}" class="attendance-list__detail">
                                 詳細
                             </a>

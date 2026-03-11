@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\StampCorrectionRequest;
-use App\Models\Attendance;
-use Illuminate\Support\Facades\DB;
 use App\Models\AttendanceBreak;
-use App\Http\Requests\Admin\AttendanceUpdateRequest;
+use App\Models\StampCorrectionRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StampCorrectionRequestController extends Controller
 {
@@ -39,7 +37,7 @@ class StampCorrectionRequestController extends Controller
         return view('admin.stamp_correction_request.approve', compact('request'));
     }
 
-    public function approve(AttendanceUpdateRequest $request, $id)
+    public function approve($id)
     {
         DB::transaction(function () use ($id) {
             $correctionRequest = StampCorrectionRequest::with([
@@ -67,52 +65,5 @@ class StampCorrectionRequestController extends Controller
         });
 
         return redirect()->route('admin.stamp_correction_request.edit', $id);
-    }
-
-    public function update(AttendanceUpdateRequest $request, $id)
-    {
-        $data = $request->validated();
-        DB::transaction(function () use ($data, $id) {
-
-            $correctionRequest = StampCorrectionRequest::findOrFail($id);
-
-            $attendance = $correctionRequest->attendance;
-
-            $clockIn = $data['clock_in_at']
-                ? $attendance->work_date->copy()->setTimeFromTimeString($data['clock_in_at'])
-                : null;
-
-            $clockOut = $data['clock_out_at']
-                ? $attendance->work_date->copy()->setTimeFromTimeString($data['clock_out_at'])
-                : null;
-
-            $correctionRequest->update([
-                'requested_clock_in_at'  => $clockIn,
-                'requested_clock_out_at' => $clockOut,
-                'requested_note'         => $data['note'],
-                'status' => 'approved',
-            ]);
-
-            $attendance->update([
-                'clock_in_at'  => $clockIn,
-                'clock_out_at' => $clockOut,
-                'note'         => $data['note'],
-            ]);
-
-            $attendance->breaks()->delete();
-
-            foreach ($data['breaks'] ?? [] as $break) {
-
-                if (empty($break['break_start_at']) && empty($break['break_end_at'])) {
-                    continue;
-                }
-
-                $attendance->breaks()->create([
-                    'break_start_at' => $break['break_start_at'],
-                    'break_end_at'   => $break['break_end_at'],
-                ]);
-            }
-        });
-        return redirect()->route('admin.stamp_correction_request.index');
     }
 }
