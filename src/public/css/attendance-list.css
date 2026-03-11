@@ -9,14 +9,14 @@
     margin-bottom: 40px;
 }
 
-.attendance-list__date-link {
+.attendance-list__link {
     text-decoration: none;
     color:#737373;
     font-size: 16px;
     font-weight: bold;
 }
 
-.attendance-list__date-text {
+.attendance-list__text {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -28,21 +28,21 @@
     height: 16px;
 }
 
-.attendance-list__table th,
-.attendance-list__table td {
+.attendance-list__table .table__col,
+.attendance-list__table .table__cell {
     text-align: center;
     padding: 10px;
     color: #737373;
 }
 
-.attendance-list__col {
+.attendance-list__col--name {
     max-width: 80px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.attendance-list__table .attendance-list__col--date {
+.attendance-list__col--date {
     text-align: left;
     padding-left: 40px;
 }

@@ -6,7 +6,7 @@
 
 @section('content')
 <div class="attendance-wrapper">
-    <div class="attendance attendance__{{ $status }}">
+    <div class="attendance attendance--{{ $status }}">
         {{-- ステータス表示 --}}
         <p class="attendance__status">
             @if ($status === 'before_work')
@@ -29,7 +29,7 @@
         @if ($status === 'before_work')
             <form method="POST" action="{{ route('attendance.clockIn') }}">
                 @csrf
-                <button type="submit" class="attendance__button attendance__button--primary">
+                <button type="submit" class="attendance__button">
                     出勤
                 </button>
             </form>
@@ -38,7 +38,7 @@
             <div class="attendance__buttons">
                 <form method="POST" action="{{ route('attendance.clockOut') }}">
                     @csrf
-                    <button class="attendance__button attendance__button--primary">
+                    <button class="attendance__button">
                         退勤
                     </button>
                 </form>
@@ -53,7 +53,7 @@
         @elseif ($status === 'on_break')
             <form method="POST" action="{{ route('attendance.breakEnd') }}">
                 @csrf
-                <button class="attendance__button attendance__button--primary">
+                <button class="attendance__button">
                     休憩戻
                 </button>
             </form>

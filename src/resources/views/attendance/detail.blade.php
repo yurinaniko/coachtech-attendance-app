@@ -9,25 +9,25 @@
     <h1 class="section-title">勤怠詳細</h1>
     <form method="POST" action="{{ route('stamp_correction_request.store') }}">
         @csrf
-            @if($attendance)
-                <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
-            @endif
-            @php
-                $isPending = isset($pendingRequest) && $pendingRequest?->status === 'pending';
-                $isStatic = $isFuture || $isPending;
-            @endphp
-            <div class="table-wrapper">
-                <table class="attendance-detail__table table {{ $isStatic ? 'is-static' : '' }}">
+        @if($attendance)
+            <input type="hidden" name="attendance_id" value="{{ $attendance->id }}">
+        @endif
+        @php
+            $isPending = isset($pendingRequest) && $pendingRequest?->status === 'pending';
+            $isStatic = $isFuture || $isPending;
+        @endphp
+        <div class="table-wrapper">
+            <table class="attendance-detail__table table {{ $isStatic ? 'is-static' : '' }}">
                 <tbody>
                     <tr>
-                        <th>名前</th>
-                        <td>
+                        <th class="table__col">名前</th>
+                        <td class="table__cell">
                             <span class="attendance-detail__name">{{ $attendance?->user?->name ?? auth()->user()->name }}</span>
                         </td>
                     </tr>
                     <tr class="{{ $isStatic ? 'attendance-detail__row--date-static' : '' }}">
-                        <th>日付</th>
-                        <td>
+                        <th class="table__col">日付</th>
+                        <td class="table__cell">
                             <div class="attendance-detail__date {{ $isStatic ? 'attendance-detail__date--view' : 'attendance-detail__date--edit' }}">
                                 <span class="attendance-detail__year">
                                     {{ $targetDate->format('Y') }}年
@@ -42,14 +42,13 @@
                         $clockIn = $pendingRequest && $pendingRequest->requested_clock_in_at !== null
                         ? $pendingRequest->requested_clock_in_at
                         : $attendance?->clock_in_at;
-
                         $clockOut = $pendingRequest && $pendingRequest->requested_clock_out_at !== null
                         ? $pendingRequest->requested_clock_out_at
                         : $attendance?->clock_out_at;
                     @endphp
                     <tr>
-                        <th>出勤・退勤</th>
-                        <td>
+                        <th class="table__col">出勤・退勤</th>
+                        <td class="table__cell">
                             <div class ="attendance-detail__group">
                                 <div class="attendance-detail__row">
                                     @if (!$isStatic)
@@ -103,8 +102,8 @@
                                 ?? null;
                             @endphp
                             <tr class="attendance-detail__break-row">
-                                <th>休憩{{ $i === 0 ? '' : $i + 1 }}</th>
-                                <td>
+                                <th class="table__col">休憩{{ $i === 0 ? '' : $i + 1 }}</th>
+                                <td class="table__cell">
                                     <div class="attendance-detail__group">
                                         <div class="attendance-detail__row">
                                             @if (!$isStatic)
@@ -158,8 +157,8 @@
                         @endfor
                         <template id="break-template">
                             <tr class="attendance-detail__break-row">
-                                <th>休憩__LABEL__</th>
-                                <td>
+                                <th class="table__col">休憩__LABEL__</th>
+                                <td class="table__cell">
                                     <div class="attendance-detail__group">
                                         <div class="attendance-detail__row">
                                             <div class="attendance-detail__time-field">
@@ -184,15 +183,15 @@
                             }
                         @endphp
                         <tr class="attendance-detail__note-row">
-                            <th>備考</th>
-                            <td>
+                            <th class="table__col">備考</th>
+                            <td class="table__cell">
                                 <div class="attendance-detail__group">
                                     <div class="attendance-detail__row">
                                         <!-- 未来日または承認待ちの時-->
                                         @if (!$isStatic)
                                             <textarea name="note" class="form_input attendance-detail__note" rows="3">{{ old('note', $note) }}</textarea>
                                         @else
-                                            <div class="attendance-detail__note-text">
+                                            <div class="attendance-detail__note--text">
                                                 {{ $note }}
                                             </div>
                                         @endif
@@ -282,7 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .forEach(input => attachListeners(input));
 
     checkAndAddRow();
-
 });
 </script>
 @endpush

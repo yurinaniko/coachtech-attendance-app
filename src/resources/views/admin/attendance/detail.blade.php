@@ -38,14 +38,14 @@
                 <table class="attendance-detail__table table">
                     <tbody id="break-table">
                         <tr>
-                            <th>名前</th>
-                            <td>
+                            <th class="table__col">名前</th>
+                            <td class="table__cell">
                                 <span class="attendance-detail__name">{{ $attendance->user->name }}</span>
                             </td>
                         </tr>
                         <tr>
-                            <th>日付</th>
-                            <td>
+                            <th class="table__col">日付</th>
+                            <td class="table__cell">
                                 <div class="attendance-detail__date attendance-detail__date--edit">
                                     <span class="attendance-detail__year">
                                         {{ $attendance->work_date->format('Y') }}年
@@ -57,8 +57,8 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>出勤・退勤</th>
-                            <td>
+                            <th class="table__col">出勤・退勤</th>
+                            <td class="table__cell">
                                 <div class ="attendance-detail__group">
                                     <div class="attendance-detail__row">
                                         @if (!$isStatic)
@@ -120,8 +120,8 @@
                                 ?? $breaks->get($i)?->break_end_at?->format('H:i');
                             @endphp
                             <tr class="attendance-detail__break-row">
-                                <th>休憩{{ $i === 0 ? '' : $i + 1 }}</th>
-                                <td>
+                                <th class="table__col">休憩{{ $i === 0 ? '' : $i + 1 }}</th>
+                                <td class="table__cell">
                                     <div class ="attendance-detail__group">
                                         <div class="attendance-detail__row">
                                             @if (!$isStatic)
@@ -165,8 +165,8 @@
                         @endfor
                         <template id="break-row-template">
                             <tr class="attendance-detail__break-row">
-                                <th>休憩__INDEX__</th>
-                                <td>
+                                <th class="table__col">休憩__INDEX__</th>
+                                <td class="table__cell">
                                     <div class="attendance-detail__group">
                                         <div class="attendance-detail__row">
                                             <div class="attendance-detail__time-field">
@@ -184,14 +184,14 @@
                             </tr>
                         </template>
                         <tr class="attendance-detail__note-row">
-                            <th>備考</th>
-                            <td>
+                            <th class="table__col">備考</th>
+                            <td class="table__cell">
                                 <div class="attendance-detail__group">
                                     <div class="attendance-detail__row">
                                         @if (!$isStatic)
-                                            <textarea name="note" class="form_input attendance-detail__note" rows="3">{{ old('note', $attendance->note) }}</textarea>
+                                            <textarea name="note" class="attendance-detail__note" rows="3">{{ old('note', $attendance->note) }}</textarea>
                                         @else
-                                            <div class="attendance-detail__note attendance-detail__note-text">
+                                            <div class="attendance-detail__note attendance-detail__note--text">
                                                 {{ $attendance->note ?? '' }}
                                             </div>
                                         @endif
@@ -307,6 +307,22 @@ document.addEventListener('DOMContentLoaded', function () {
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(-20px)';
         setTimeout(() => toast.remove(), 400);
+    }, 5000);
+});
+</script>
+@endpush
+@endif
+@if (session('success'))
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const success = document.querySelector('.success-message');
+    if (!success) return;
+
+    setTimeout(() => {
+        success.style.transition = 'opacity 0.4s ease';
+        success.style.opacity = '0';
+        setTimeout(() => success.remove(), 400);
     }, 5000);
 });
 </script>

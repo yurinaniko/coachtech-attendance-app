@@ -11,16 +11,16 @@
         <table class="attendance-detail__table table">
             <tbody>
                 <tr>
-                    <th>名前</th>
-                    <td>
+                    <th class="table__col">名前</th>
+                    <td class="table__cell">
                         <span class="attendance-detail__name">
                             {{ $request->attendance->user->name }}
                         </span>
                     </td>
                 </tr>
                 <tr>
-                    <th>日付</th>
-                    <td>
+                    <th class="table__col">日付</th>
+                    <td class="table__cell">
                         <div class="attendance-detail__date attendance-detail__date--view">
                             <span class="attendance-detail__year">{{ $request->attendance->work_date->format('Y') }}年</span>
                             <span class="attendance-detail__month-day">{{ $request->attendance->work_date->format('n') }}月{{ $request->attendance->work_date->format('j') }}日</span>
@@ -28,8 +28,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>出勤・退勤</th>
-                    <td>
+                    <th class="table__col">出勤・退勤</th>
+                    <td class="table__cell">
                         <div class="attendance-detail__group">
                             <div class="attendance-detail__row">
                                 <div class="attendance-detail__time-field">
@@ -54,8 +54,8 @@
                         $break = $breaks->get($i);
                     @endphp
                     <tr class="attendance-detail__break-row">
-                        <th>休憩{{ $i === 0 ? '' : $i + 1 }}</th>
-                        <td>
+                        <th class="table__col">休憩{{ $i === 0 ? '' : $i + 1 }}</th>
+                        <td class="table__cell">
                             <div class="attendance-detail__group">
                                 <div class="attendance-detail__row">
                                     <div class="attendance-detail__time-field">
@@ -71,11 +71,11 @@
                     </tr>
                 @endfor
                 <tr class="attendance-detail__note-row">
-                    <th>備考</th>
-                    <td>
+                    <th class="table__col">備考</th>
+                    <td class="table__cell">
                         <div class="attendance-detail__group">
                             <div class="attendance-detail__row">
-                                <div class="attendance-detail__note attendance-detail__note-text">
+                                <div class="attendance-detail__note attendance-detail__note--text">
                                     {{ $request->requested_note ?? '—' }}
                                 </div>
                             </div>

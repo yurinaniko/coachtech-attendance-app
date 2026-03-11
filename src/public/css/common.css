@@ -1,7 +1,6 @@
 html,
 body {
     overflow-x: hidden;
-    height: 100%;
     margin: 0;
     padding: 0;
 }
@@ -58,8 +57,7 @@ main {
     list-style: none;
 }
 
-.header__nav-link,
-.header__nav-item button {
+.header__nav-link {
     color: #F0EFF2;
     text-decoration: none;
     font-size: 16px;
@@ -75,10 +73,6 @@ main {
     cursor: pointer;
     text-decoration: none;
     }
-
-.header__logout:hover {
-    text-decoration: underline;
-}
 
 /* ===== background ===== */
 
@@ -127,13 +121,13 @@ main {
 
 .success-message {
     margin: 10px auto;
-    padding: 8px 10px;
-    max-width: 500px;
-    background: #e6f4ea;
+    padding: 8px;
+    max-width: 200px;
+    background: #d4edda;
     color: #2e7d32;
-    border-radius: 4px;
+    border-radius: 20px;
     text-align: center;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .table-wrapper {
@@ -149,8 +143,8 @@ main {
     background: #fff;
 }
 
-.table th,
-.table td {
+.table__col,
+.table__cell {
     border-bottom: 2px solid #e0e0e0;
     font-size: 16px;
     font-weight: 600;

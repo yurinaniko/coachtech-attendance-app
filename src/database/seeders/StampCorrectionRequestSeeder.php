@@ -18,7 +18,6 @@ class StampCorrectionRequestSeeder extends Seeder
             ->get();
 
         foreach ($attendances as $attendance) {
-
             $request = StampCorrectionRequest::create([
                 'user_id' => $attendance->user_id,
                 'attendance_id' => $attendance->id,
@@ -31,14 +30,12 @@ class StampCorrectionRequestSeeder extends Seeder
 
             // 休憩時間は5分ずらして申請用休憩を作る
             foreach ($attendance->breaks as $break) {
-
                 StampCorrectionBreak::create([
                     'stamp_correction_request_id' => $request->id,
                     'attendance_break_id' => $break->id,
                     'break_start_at' => $break->break_start_at->copy()->addMinutes(5),
                     'break_end_at' => $break->break_end_at->copy()->addMinutes(5),
                 ]);
-
             }
         }
     }

@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\AttendanceBreak;
+use App\Models\Attendance;
 
 class AttendanceBreakFactory extends Factory
 {
@@ -11,7 +12,7 @@ class AttendanceBreakFactory extends Factory
     public function definition()
     {
         return [
-            'attendance_id' => \App\Models\Attendance::factory(),
+            'attendance_id' => Attendance::factory(),
             'break_start_at' => now(),
             'break_end_at' => null,
         ];

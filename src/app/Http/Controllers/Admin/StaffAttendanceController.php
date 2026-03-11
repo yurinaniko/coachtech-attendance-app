@@ -36,9 +36,9 @@ class StaffAttendanceController extends Controller
 
         $attendances = collect($dates)
             ->keyBy(fn ($a) => $a->work_date->format('Y-m-d'));
-            return view('admin.staff.attendance', compact(
-                'user', 'attendances', 'month'
-            ));
+        return view('admin.staff.attendance', compact(
+            'user', 'attendances', 'month'
+        ));
     }
 
     public function csv(User $user, Request $request): StreamedResponse

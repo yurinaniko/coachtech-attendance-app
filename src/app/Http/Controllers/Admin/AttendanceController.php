@@ -27,34 +27,6 @@ class AttendanceController extends Controller
         return view('admin.attendance.list', compact('date', 'attendances'));
     }
 
-    public function monthly(Request $request, User $user, $month)
-    {
-        $period = Carbon::parse($month);
-        $month = $request->query('month');
-        $start = $period->copy()->startOfMonth();
-        $end   = $period->copy()->endOfMonth();
-
-        $dates = [];
-        $current = $start->copy();
-
-        while ($current <= $end) {
-            $attendance = Attendance::firstOrCreate([
-                'user_id'   => $user->id,
-                'work_date' => $current->toDateString(),
-            ]);
-
-            $dates[] = $attendance;
-            $current->addDay();
-        }
-
-        $attendances = collect($dates);
-        return view('admin.attendance.monthly', compact(
-            'user',
-            'attendances',
-            'period'
-        ));
-    }
-
     public function detail($id)
     {
         $attendance = Attendance::with([
@@ -149,21 +121,15 @@ class AttendanceController extends Controller
                 }
             }
 
-            $requestRecord = StampCorrectionRequest::Create(
-                [
-                    'attendance_id' => $attendance->id,
-                    'type'          => StampCorrectionRequest::TYPE_ADMIN,
-                ],
-                [
-                    'user_id'                => $attendance->user_id,
-                    'requested_clock_in_at'  => $clockIn,
-                    'requested_clock_out_at' => $clockOut,
-                    'requested_note'         => $data['note'] ?? null,
-                    'status'                 => StampCorrectionRequest::STATUS_APPROVED,
-                ]
-            );
-
-            $requestRecord->stampCorrectionBreaks()->delete();
+            $requestRecord = StampCorrectionRequest::create([
+                'attendance_id'          => $attendance->id,
+                'type'                   => StampCorrectionRequest::TYPE_ADMIN,
+                'user_id'                => $attendance->user_id,
+                'requested_clock_in_at'  => $clockIn,
+                'requested_clock_out_at' => $clockOut,
+                'requested_note'         => $data['note'] ?? null,
+                'status'                 => StampCorrectionRequest::STATUS_APPROVED,
+            ]);
 
             foreach ($data['breaks'] ?? [] as $breakData) {
 
@@ -186,6 +152,7 @@ class AttendanceController extends Controller
         });
 
         return redirect()
-            ->route('admin.attendance.detail', $attendance->id);
+            ->route('admin.attendance.detail', $attendance->id)
+            ->with('success', '勤怠を修正しました');
     }
 }
