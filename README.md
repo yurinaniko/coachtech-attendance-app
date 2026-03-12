@@ -97,8 +97,6 @@ exit
 
 ## 8 アプリケーション確認
 
-以下のURLからアクセスできます。
-
 ```
 以下のURLからアクセスできます。
 
@@ -210,22 +208,22 @@ MailHog の画面へ遷移します。
 本アプリケーションでは PHPUnit を使用しています。
 テスト実行時は `.env.testing` の設定が使用されます。
 
-1. テスト用データベースを作成
+## 1. テスト用データベースを作成
 上記で指定した DB_DATABASE（例：laravel_test）を、
 MySQL 上に作成してください。
 
-① MySQLコンテナに入り、MySQLへ接続します
+### ① MySQLコンテナに入り、MySQLへ接続します
 
 ```bash
 docker compose exec mysql bash
 mysql -u root -p
 ```
 
-② パスワード入力
+### ② パスワード入力
 
 ※ MySQLのrootパスワードは docker-compose.yml の MYSQL_ROOT_PASSWORD を参照してください。
 
-③ テスト用データベースを作成
+### ③ テスト用データベースを作成
 
 ```sql
 CREATE DATABASE laravel_test;
@@ -233,16 +231,16 @@ SHOW DATABASES;
 ```
 SHOW DATABASES;入力後、laravel_testが作成されていれば成功です。
 
-④ MYSQLを終了する
+### ④ MYSQLを終了する
 ```sql
 exit
 ```
-⑤ MySQLコンテナから出る
+### ⑤ MySQLコンテナから出る
 ```sql
 exit
 ```
 
-2. .env.testing をテスト用に編集
+## 2. .env.testing をテスト用に編集
   本リポジトリには `.env.testing` が含まれています。
   必要に応じてテスト用DB設定を確認してください。
 
@@ -266,20 +264,21 @@ DB_PASSWORD=root
 APP_KEY は空のまま保存してください。
 その後、以下のコマンドでテスト用キーを生成します。
 
-③ PHP コンテナに入る
+## 3. PHP コンテナに入る
 
 ```bash
 docker compose exec php bash
 ```
-④ テスト用キーを生成し、設定キャッシュをクリアする
+## 4. テスト用キーを生成し、設定キャッシュをクリアする
 ```bash
 php artisan key:generate --env=testing
 php artisan config:clear
 ```
 
-3. PHPUnit 設定
-テスト実行時は .env.testing の設定に加えて、
-phpunit.xml にてテスト環境用の設定を定義しています。
+### PHPUnit設定
+
+テスト実行時は `.env.testing` と `phpunit.xml` の設定により
+テスト専用データベースを使用します。
 ```xml
 <server name="APP_ENV" value="testing"/>
 <server name="DB_CONNECTION" value="mysql_test"/>
@@ -290,7 +289,7 @@ phpunit.xml にてテスト環境用の設定を定義しています。
 ・本番 / 開発DBへ影響しない安全な設計
 となっています。
 
-4. マイグレーション & テスト実行
+## 5. マイグレーション & テスト実行
 ```bash
 php artisan migrate:fresh --env=testing
 php artisan test
