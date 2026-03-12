@@ -188,7 +188,8 @@ class AttendanceController extends Controller
         $isFuture = Carbon::parse($date)->isFuture();
 
 
-        $attendance = Attendance::where('user_id', $user->id)
+        $attendance = Attendance::with('breaks')
+            ->where('user_id', $user->id)
             ->where('work_date', $date)
             ->first();
 

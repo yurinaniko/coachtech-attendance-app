@@ -11,15 +11,15 @@
 <div class="container">
     <h1 class="section-title">勤怠詳細</h1>
         @if ($pendingRequest)
-            <div id="toast-notice" class="attendance-toast">
-                <div class="attendance-toast__icon">
+            <div id="toast-notice" class="attendance-detail__toast">
+                <div class="attendance-detail__toast-icon">
                     ⚠
                 </div>
-                <div class="attendance-toast__content">
-                    <p class="attendance-toast__title">
+                <div class="attendance-detail__toast-content">
+                    <p class="attendance-detail__toast-title">
                         修正申請があります
                     </p>
-                    <p class="attendance-toast__text">
+                    <p class="attendance-detail__toast-text">
                         この勤怠にはスタッフから修正申請が提出されています。
                         管理者が承認後、修正できるようになります。
                     </p>
@@ -27,8 +27,18 @@
             </div>
         @endif
         @if (session('success'))
-            <div class="success-message">
-                {{ session('success') }}
+            <div id="toast-success" class="attendance-detail__toast attendance-detail__toast--success">
+                <div class="attendance-detail__toast-icon">
+                    ✓
+                </div>
+                <div class="attendance-detail__toast-content">
+                    <p class="attendance-detail__toast-title">
+                        更新しました
+                    </p>
+                    <p class="attendance-detail__toast-text">
+                        {{ session('success') }}
+                    </p>
+                </div>
             </div>
         @endif
         <form method="POST" action="{{ route('admin.attendance.update', $attendance->id) }}">
@@ -145,7 +155,7 @@
                                                     @enderror
                                                 </div>
                                             @else
-                                                {{-- 表示モード（span表示） --}}
+                                                {{-- 表示モード--}}
                                                 <div class="attendance-detail__time-field">
                                                     <span class="attendance-detail__time">
                                                         {{ $break?->break_start_at?->format('H:i') }}
@@ -316,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const success = document.querySelector('.success-message');
+    const success = document.getElementById('toast-success');
     if (!success) return;
 
     setTimeout(() => {

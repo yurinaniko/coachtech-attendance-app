@@ -24,24 +24,24 @@
         <table class="attendance-list__table table">
             <thead>
                 <tr>
-                    <th class="table__col attendance-list__col--name">名前</th>
+                    <th class="attendance-list__col--name">名前</th>
                     <th class="table__col">出勤</th>
                     <th class="table__col">退勤</th>
                     <th class="table__col">休憩</th>
                     <th class="table__col">合計</th>
-                    <th class="table__col">詳細</th>
+                    <th class="table__col attendance-list__col--detail">詳細</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($attendances as $attendance)
                     <tr>
-                        <td class="table__cell attendance-list__col--name">{{ $attendance->user->name }}</td>
+                        <td class="attendance-list__col--name">{{ $attendance->user->name }}</td>
                         <td class="table__cell">{{ optional($attendance->clock_in_at)->format('H:i') }}</td>
                         <td class="table__cell">{{ optional($attendance->clock_out_at)->format('H:i') }}</td>
                         <td class="table__cell">{{ $attendance->break_time_hhmm }}</td>
                         <td class="table__cell">{{ $attendance->work_time_hhmm }}</td>
-                        <td class="table__cell">
-                            <a href="{{ route('admin.attendance.detail', $attendance->id) }}" class="attendance-list__detail">
+                        <td class="table__cell attendance-list__col--detail">
+                            <a href="{{ route('admin.attendance.detail', $attendance->id) }}" class="attendance-list__link--detail">
                                 詳細
                             </a>
                         </td>

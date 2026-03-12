@@ -17,27 +17,23 @@
         <table class="stamp-request-index__table table">
             <thead>
                 <tr>
-                    <th class="table__col">状態</th>
+                    <th class="stamp-request-index__col--status">状態</th>
                     <th class="table__col">名前</th>
                     <th class="table__col">対象日時</th>
                     <th class="table__col">申請理由</th>
                     <th class="table__col">申請日時</th>
-                    <th class="table__col">詳細</th>
+                    <th class="stamp-request-index__col--detail">詳細</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($requests as $stampRequest)
                     <tr>
-                        <td class="table__cell">
-                            <span class="stamp-request-index__status">
-                                {{ $stampRequest->status_label }}
-                            </span>
-                        </td>
+                        <td class="stamp-request-index__col--status">{{ $stampRequest->status_label }}</td>
                         <td class="table__cell">{{ $stampRequest->user->name }}</td>
                         <td class="table__cell stamp-request-index__date">{{ optional($stampRequest->attendance?->work_date)->format('Y/m/d') ?? '-' }}</td>
                         <td class="table__cell stamp-request-index__reason">{{ $stampRequest->requested_note }}</td>
                         <td class="table__cell stamp-request-index__date">{{ $stampRequest->created_at->format('Y/m/d') }}</td>
-                        <td class="table__cell">
+                        <td class="stamp-request-index__col--detail">
                             <a href="{{ route('admin.stamp_correction_request.edit', $stampRequest->id) }}" class="stamp-request-index__detail">詳細</a>
                         </td>
                     </tr>

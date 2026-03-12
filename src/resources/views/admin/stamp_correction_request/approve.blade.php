@@ -58,13 +58,15 @@
                         <td class="table__cell">
                             <div class="attendance-detail__group">
                                 <div class="attendance-detail__row">
-                                    <div class="attendance-detail__time-field">
-                                        <span class="attendance-detail__time">{{ optional($break?->break_start_at)->format('H:i') }}</span>
-                                    </div>
-                                    <span class="attendance-detail__separator">〜</span>
-                                    <div class="attendance-detail__time-field">
-                                        <span class="attendance-detail__time">{{ optional($break?->break_end_at)->format('H:i') }}</span>
-                                    </div>
+                                    @if ($break)
+                                        <div class="attendance-detail__time-field">
+                                            <span class="attendance-detail__time">{{ optional($break?->break_start_at)->format('H:i') }}</span>
+                                        </div>
+                                        <span class="attendance-detail__separator">〜</span>
+                                        <div class="attendance-detail__time-field">
+                                            <span class="attendance-detail__time">{{ optional($break?->break_end_at)->format('H:i') }}</span>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </td>
