@@ -95,14 +95,14 @@ MAIL_FROM_NAME="coachtech勤怠管理アプリ"
 ```bash
 php artisan migrate:fresh --seed
 ```
-その後phpコンテナから出る
+その後PHPコンテナから出る
 ```bash
 exit
 ```
 
 ## 8 アプリケーション確認
 
-```
+
 以下のURLからアクセスできます。
 
 ### 一般ユーザー(動作確認用メールアドレス、パスワード下記にあり)
@@ -117,7 +117,7 @@ exit
 
 - ログイン
   http://localhost:8000/admin/login
-```
+
 
 ## 動作確認用アカウント
 
@@ -236,7 +236,7 @@ SHOW DATABASES;
 ```
 SHOW DATABASES;入力後、laravel_testが作成されていれば成功です。
 
-### ④ MYSQLを終了する
+### ④ MySQLを終了する
 ```sql
 exit
 ```
@@ -325,6 +325,7 @@ Docker 環境上でテストを実行し、
 - 休憩打刻機能
 - 勤怠一覧表示
 - 勤怠詳細表示
+- 申請一覧表示
 - 勤怠修正申請機能
 
 ---
