@@ -54,11 +54,13 @@ class StampCorrectionRequestController extends Controller
             if ($correctionRequest->stampCorrectionBreaks->isNotEmpty()) {
                 AttendanceBreak::where('attendance_id', $attendance->id)->delete();
                 foreach ($correctionRequest->stampCorrectionBreaks as $correctionBreak) {
-                    AttendanceBreak::create([
-                        'attendance_id'  => $attendance->id,
-                        'break_start_at' => $correctionBreak->break_start_at,
-                        'break_end_at'   => $correctionBreak->break_end_at,
-                    ]);
+                    if ($correctionBreak->break_start_at && $correctionBreak->break_end_at) {
+                        AttendanceBreak::create([
+                            'attendance_id'  => $attendance->id,
+                            'break_start_at' => $correctionBreak->break_start_at,
+                            'break_end_at'   => $correctionBreak->break_end_at,
+                        ]);
+                    }
                 }
             }
             $correctionRequest->update(['status' => StampCorrectionRequest::STATUS_APPROVED,]);
