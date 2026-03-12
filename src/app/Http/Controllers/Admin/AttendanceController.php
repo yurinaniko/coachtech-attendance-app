@@ -89,13 +89,16 @@ class AttendanceController extends Controller
                 'note'         => $data['note'] ?? null,
             ]);
 
+            AttendanceBreak::where('attendance_id', $attendance->id)->delete();
+
             foreach ($data['breaks'] ?? [] as $breakData) {
 
-                if (empty($breakData['break_start_at']) &&
-                empty($breakData['break_end_at'])) {
+                if (
+                    empty($breakData['break_start_at']) &&
+                    empty($breakData['break_end_at'])
+                ) {
                     continue;
                 }
-
                 $breakStart = $breakData['break_start_at']
                     ? $attendance->work_date->copy()->setTimeFromTimeString($breakData['break_start_at'])
                     : null;
@@ -104,21 +107,10 @@ class AttendanceController extends Controller
                     ? $attendance->work_date->copy()->setTimeFromTimeString($breakData['break_end_at'])
                     : null;
 
-                if (!empty($breakData['attendance_break_id'])) {
-
-                    AttendanceBreak::where('id', $breakData['attendance_break_id'])
-                    ->update([
-                        'break_start_at' => $breakStart,
-                        'break_end_at'   => $breakEnd,
-                    ]);
-
-                } else {
-
-                    $attendance->breaks()->create([
-                        'break_start_at' => $breakStart,
-                        'break_end_at'   => $breakEnd,
-                    ]);
-                }
+                $attendance->breaks()->create([
+                    'break_start_at' => $breakStart,
+                    'break_end_at'   => $breakEnd,
+                ]);
             }
 
             $requestRecord = StampCorrectionRequest::create([
@@ -144,7 +136,7 @@ class AttendanceController extends Controller
                     ->setTimeFromTimeString($breakData['break_end_at']);
 
                 $requestRecord->stampCorrectionBreaks()->create([
-                    'attendance_break_id' => $breakData['attendance_break_id'] ?? null,
+                    'attendance_break_id' => null,
                     'break_start_at' => $breakStart,
                     'break_end_at'   => $breakEnd,
                 ]);

@@ -5,22 +5,44 @@
     color: #737373;
 }
 
-.stamp-request-index__col--status {
-    padding: 10px 10px 10px 44px;
+.stamp-request-index__col--status,
+.stamp-request-index__cell--empty,
+.stamp-request-index__col--detail {
     text-align: left;
     color: #737373;
     border-bottom: 2px solid #e0e0e0;
     font-size: 16px;
     font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+.stamp-request-index__col--status {
+    padding: 10px 10px 10px 44px;
 }
 
 .stamp-request-index__col--detail {
     padding: 10px 40px 10px 10px;
-    text-align: left;
-    color: #737373;
-    border-bottom: 2px solid #e0e0e0;
-    font-size: 16px;
-    font-weight: 600;
+}
+
+.stamp-request-index__col--name {
+    width: 160px;
+}
+
+.stamp-request-index__name,
+.stamp-request-index__reason {
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.stamp-request-index__name {
+    max-width: 160px;
+}
+
+.stamp-request-index__reason {
+    max-width: 140px;
 }
 
 .stamp-request-index__detail {
@@ -28,8 +50,8 @@
     color: #000;
 }
 
-.stamp-request-index__empty {
-    padding: 20px;
+.stamp-request-index__cell--empty {
+    padding: 10px 40px ;
 }
 
 .stamp-request-index__tabs {
@@ -53,12 +75,6 @@
 }
 
 .stamp-request-index__date {
-    letter-spacing: -0.08em;
+    letter-spacing: -0.05em;
 }
 
-.stamp-request-index__reason {
-    max-width: 100px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}

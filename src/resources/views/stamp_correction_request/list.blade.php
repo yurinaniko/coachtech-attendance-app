@@ -17,7 +17,7 @@
             <thead>
                 <tr>
                     <th class="stamp-request-index__col--status">状態</th>
-                    <th class="table__col">名前</th>
+                    <th class="table__col stamp-request-index__col--name">名前</th>
                     <th class="table__col">対象日時</th>
                     <th class="table__col">申請理由</th>
                     <th class="table__col">申請日時</th>
@@ -28,10 +28,10 @@
                 @forelse ($requests as $request)
                     <tr>
                         <td class="stamp-request-index__col--status">{{ $request->status_label }}</td>
-                        <td class="table__cell">{{ $request->user->name }}</td>
-                        <td class="table__cell">{{ optional($request->attendance)->work_date?->format('Y/m/d') ?? '-' }}</td>
+                        <td class="table__cell stamp-request-index__name">{{ $request->user->name }}</td>
+                        <td class="table__cell stamp-request-index__date">{{ optional($request->attendance)->work_date?->format('Y/m/d') ?? '-' }}</td>
                         <td class="table__cell stamp-request-index__reason">{{ $request->requested_note ?? '-' }}</td>
-                        <td class="table__cell">{{ optional($request->created_at)->format('Y/m/d') }}</td>
+                        <td class="table__cell stamp-request-index__date">{{ optional($request->created_at)->format('Y/m/d') }}</td>
                         <td class="stamp-request-index__col--detail">
                             <a href="{{ route('attendance.detail', $request->attendance->work_date->format('Y-m-d')) }}"  class="stamp-request-index__detail">
                                 詳細
@@ -40,7 +40,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="table__cell stamp-request-index__empty">申請はありません</td>
+                        <td colspan="6" class="stamp-request-index__cell--empty">申請はありません</td>
                     </tr>
                 @endforelse
             </tbody>
