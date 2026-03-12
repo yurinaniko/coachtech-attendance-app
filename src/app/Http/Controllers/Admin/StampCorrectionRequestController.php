@@ -50,9 +50,9 @@ class StampCorrectionRequestController extends Controller
                 'clock_out_at' => $correctionRequest->requested_clock_out_at,
                 'note'         => $correctionRequest->requested_note,
             ]);
-                // 既存休憩削除
+
+            if ($correctionRequest->stampCorrectionBreaks->isNotEmpty()) {
                 AttendanceBreak::where('attendance_id', $attendance->id)->delete();
-                // 休憩再作成
                 foreach ($correctionRequest->stampCorrectionBreaks as $correctionBreak) {
                     AttendanceBreak::create([
                         'attendance_id'  => $attendance->id,
@@ -60,10 +60,9 @@ class StampCorrectionRequestController extends Controller
                         'break_end_at'   => $correctionBreak->break_end_at,
                     ]);
                 }
-
+            }
             $correctionRequest->update(['status' => StampCorrectionRequest::STATUS_APPROVED,]);
         });
-
         return redirect()->route('admin.stamp_correction_request.edit', $id);
     }
 }

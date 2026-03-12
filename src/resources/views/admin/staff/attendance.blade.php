@@ -18,12 +18,12 @@
         <table class="attendance-list__table table">
             <thead>
                 <tr>
-                    <th class="table__col attendance-list__col--date">日付</th>
+                    <th class="attendance-list__col--date">日付</th>
                     <th class="table__col">出勤</th>
                     <th class="table__col">退勤</th>
                     <th class="table__col">休憩</th>
                     <th class="table__col">合計</th>
-                    <th class="table__col">詳細</th>
+                    <th class="table__col attendance-list__col--detail">詳細</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,7 +34,7 @@
                         $attendance = $attendances->get($dateKey);
                     @endphp
                     <tr>
-                        <td class="table__cell attendance-list__col--date">
+                        <td class="attendance-list__col--date">
                             {{ $date->format('m/d') }}（{{ $date->isoFormat('dd') }}）
                         </td>
                         <td class="table__cell">
@@ -53,11 +53,11 @@
                                 {{ $attendance->work_time_hhmm }}
                             @endif
                         </td>
-                        <td class="table__cell">
+                        <td class="table__cell attendance-list__col--detail">
                             @if ($attendance)
-                                <a href="{{ route('admin.attendance.detail', $attendance->id) }}" class="attendance-list__detail">詳細</a>
+                                <a href="{{ route('admin.attendance.detail', $attendance->id) }}" class="attendance-list__link--detail">詳細</a>
                             @else
-                                <span class="attendance-list__detail--disabled">詳細</span>
+                                <span class="attendance-list__link--disabled">詳細</span>
                             @endif
                         </td>
                     </tr>

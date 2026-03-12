@@ -90,30 +90,31 @@ MAIL_FROM_NAME="coachtech勤怠管理アプリ"
 ```bash
 php artisan migrate:fresh --seed
 ```
+その後phpコンテナから出る
+```bash
+exit
+```
 
 ## 8 アプリケーション確認
 
-以下のURLにアクセスすると、アプリケーションが表示されます。
+以下のURLからアクセスできます。
 
 ```
-http://localhost:8000
+以下のURLからアクセスできます。
+
+### 一般ユーザー(動作確認用メールアドレス、パスワード下記にあり)
+
+- ログイン
+  http://localhost:8000/login
+
+- 会員登録
+  http://localhost:8000/register
+
+### 管理者(動作確認用メールアドレス、パスワード下記にあり)
+
+- ログイン
+  http://localhost:8000/admin/login
 ```
-
-## 備考
-
-※（M1 / M2 Mac）
-本プロジェクトでは、Apple Silicon（M1 / M2 Mac）環境でも
-問題なく動作するよう、docker-compose.yml にて
-ARM64 対応の Docker image を使用しています。
-
-```yaml
-mysql:
-  image: arm64v8/mysql:8.0
-  platform: linux/arm64/v8
-```
-
-そのため、M1 / M2 Mac 環境でも
-追加設定なしで Docker を起動できます。
 
 ## 動作確認用アカウント
 
@@ -131,6 +132,22 @@ Seeder により以下のテストユーザーを用意しています。
 
 ※ テストを円滑に行うため、Seeder 側で メール認証済み状態 にしています。
 ログイン画面からお試しください。
+
+## 備考
+
+※（M1 / M2 Mac）
+本プロジェクトでは、Apple Silicon（M1 / M2 Mac）環境でも
+問題なく動作するよう、docker-compose.yml にて
+ARM64 対応の Docker image を使用しています。
+
+```yaml
+mysql:
+  image: arm64v8/mysql:8.0
+  platform: linux/arm64/v8
+```
+
+そのため、M1 / M2 Mac 環境でも
+追加設定なしで Docker を起動できます。
 
 ## 認証設計について
 
@@ -196,40 +213,39 @@ MailHog の画面へ遷移します。
 1. テスト用データベースを作成
 上記で指定した DB_DATABASE（例：laravel_test）を、
 MySQL 上に作成してください。
+
+① MySQLコンテナに入り、MySQLへ接続します
+
 ```bash
 docker compose exec mysql bash
 mysql -u root -p
 ```
+
+② パスワード入力
+
+※ MySQLのrootパスワードは docker-compose.yml の MYSQL_ROOT_PASSWORD を参照してください。
+
+③ テスト用データベースを作成
+
 ```sql
 CREATE DATABASE laravel_test;
 SHOW DATABASES;
 ```
 SHOW DATABASES;入力後、laravel_testが作成されていれば成功です。
 
-2. configファイルの変更
-configディレクトリの中のdatabase.phpに以下の編集を行う。
-```env
-'mysql' => [
-// 中略
-],
-+  'mysql_test' => [
-+      'driver' => 'mysql',
-+      'host' => env('DB_HOST', 'mysql'),
-+      'port' => env('DB_PORT', '3306'),
-+      'database' => 'laravel_test',
-+      'username' => 'root',
-+      'password' => 'root',
-+      'charset' => 'utf8mb4',
-+      'collation' => 'utf8mb4_unicode_ci',
-+      'prefix' => '',
-+      'strict' => true,
-+      ],
+④ MYSQLを終了する
+```sql
+exit
 ```
-3. `.env.testing` を作成
-```bash
-cp .env .env.testing
+⑤ MySQLコンテナから出る
+```sql
+exit
 ```
-4. .env.testing をテスト用に編集
+
+2. .env.testing をテスト用に編集
+  本リポジトリには `.env.testing` が含まれています。
+  必要に応じてテスト用DB設定を確認してください。
+
 ### ① アプリケーション設定
 ```env
 APP_ENV=test
@@ -246,17 +262,22 @@ DB_DATABASE=laravel_test
 DB_USERNAME=root
 DB_PASSWORD=root
 
-※ DBユーザー名・パスワードは、ご自身の環境に合わせて設定してください。
 ```
-APP_KEY は空に設定してください。
-編集後、以下のコマンドでテスト用キーを生成します。
+APP_KEY は空のまま保存してください。
+その後、以下のコマンドでテスト用キーを生成します。
 
+③ PHP コンテナに入る
+
+```bash
+docker compose exec php bash
+```
+④ テスト用キーを生成し、設定キャッシュをクリアする
 ```bash
 php artisan key:generate --env=testing
 php artisan config:clear
 ```
 
-5. PHPUnit 設定
+3. PHPUnit 設定
 テスト実行時は .env.testing の設定に加えて、
 phpunit.xml にてテスト環境用の設定を定義しています。
 ```xml
@@ -269,7 +290,7 @@ phpunit.xml にてテスト環境用の設定を定義しています。
 ・本番 / 開発DBへ影響しない安全な設計
 となっています。
 
-6. マイグレーション & テスト実行
+4. マイグレーション & テスト実行
 ```bash
 php artisan migrate:fresh --env=testing
 php artisan test
@@ -279,7 +300,6 @@ Docker 環境上でテストを実行し、
 
 ## 使用技術
 
-- 種類 バージョン
 - PHP 8.x
 - Laravel 8.x
 - Laravel Fortify（認証機能）
@@ -395,6 +415,8 @@ Docker 環境上でテストを実行し、
 - 備考未入力時エラー
 
 ## ER 図
+
+本アプリケーションのデータベース構造は以下のER図の通りです。
 
 ![ER Diagram](docs/attendance-app.png)
 

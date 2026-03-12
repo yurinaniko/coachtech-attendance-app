@@ -86,7 +86,8 @@
                     </tr>
                     @php
                         $oldBreaks = old('breaks', []);
-                        $targetBreaks = $pendingRequest ? ($pendingRequest->stampCorrectionBreaks ?? collect())
+                        $targetBreaks = ($pendingRequest && $pendingRequest->stampCorrectionBreaks->isNotEmpty())
+                        ? $pendingRequest->stampCorrectionBreaks
                         : ($breaks ?? collect());
                         $displayCount = $isStatic ? $targetBreaks->count() : $targetBreaks->count() + 1;
                         $loopCount = max(1, $displayCount, count($oldBreaks), $targetBreaks->count());
