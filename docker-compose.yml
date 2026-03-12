@@ -19,7 +19,6 @@ services:
     volumes:
       - ./src:/var/www
     working_dir: /var/www
-    container_name: php
 
   mysql:
     image: arm64v8/mysql:8.0
