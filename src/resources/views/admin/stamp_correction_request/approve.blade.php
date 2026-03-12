@@ -43,11 +43,17 @@
                         </div>
                     </td>
                 </tr>
+                @if ($request->status === 'pending')
+                    @php
+                        $breaks = $request->stampCorrectionBreaks;
+                    @endphp
+                @else
+                    @php
+                        $breaks = $request->attendance->breaks;
+                    @endphp
+                @endif
                 @php
-                    $breaks = $request->stampCorrectionBreaks->isNotEmpty()
-                    ? $request->stampCorrectionBreaks
-                    : $request->attendance->breaks;
-                    $loopCount = $breaks->count() + 1;
+                    $loopCount = max(1, $breaks->count());
                 @endphp
                 @for ($i = 0; $i < $loopCount; $i++)
                     @php

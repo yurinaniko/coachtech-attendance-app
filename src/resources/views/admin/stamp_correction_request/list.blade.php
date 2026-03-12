@@ -18,7 +18,7 @@
             <thead>
                 <tr>
                     <th class="stamp-request-index__col--status">状態</th>
-                    <th class="table__col">名前</th>
+                    <th class="table__col stamp-request-index__col--name">名前</th>
                     <th class="table__col">対象日時</th>
                     <th class="table__col">申請理由</th>
                     <th class="table__col">申請日時</th>
@@ -29,7 +29,7 @@
                 @forelse ($requests as $stampRequest)
                     <tr>
                         <td class="stamp-request-index__col--status">{{ $stampRequest->status_label }}</td>
-                        <td class="table__cell">{{ $stampRequest->user->name }}</td>
+                        <td class="table__cell stamp-request-index__name">{{ $stampRequest->user->name }}</td>
                         <td class="table__cell stamp-request-index__date">{{ optional($stampRequest->attendance?->work_date)->format('Y/m/d') ?? '-' }}</td>
                         <td class="table__cell stamp-request-index__reason">{{ $stampRequest->requested_note }}</td>
                         <td class="table__cell stamp-request-index__date">{{ $stampRequest->created_at->format('Y/m/d') }}</td>
@@ -39,7 +39,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="table__cell stamp-request-index__empty">
+                        <td colspan="6" class="stamp-request-index__cell--empty">
                             申請はありません
                         </td>
                     </tr>
