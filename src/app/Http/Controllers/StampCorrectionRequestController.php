@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Attendance;
 use App\Http\Requests\StoreStampCorrectionRequest;
 use App\Models\StampCorrectionBreak;
+use App\Models\AttendanceBreak;
 
 class StampCorrectionRequestController extends Controller
 {
@@ -66,6 +67,10 @@ class StampCorrectionRequestController extends Controller
             $attendanceBreakId = $break['attendance_break_id'] ?? null;
             $breakStartAt      = $break['break_start_at'] ?? null;
             $breakEndAt        = $break['break_end_at'] ?? null;
+
+            if ($attendanceBreakId && !AttendanceBreak::where('id',$attendanceBreakId)->exists()) {
+                $attendanceBreakId = null;
+            }
 
             if (!$attendanceBreakId && !$breakStartAt && !$breakEndAt) {
                 continue;

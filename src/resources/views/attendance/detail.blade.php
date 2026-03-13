@@ -86,10 +86,20 @@
                     </tr>
                     @php
                         $oldBreaks = old('breaks', []);
-                        $targetBreaks = ($pendingRequest && $pendingRequest->stampCorrectionBreaks->isNotEmpty())
-                        ? $pendingRequest->stampCorrectionBreaks
-                        : ($breaks ?? collect());
-                        $displayCount = $isStatic ? $targetBreaks->count() : $targetBreaks->count() + 1;
+                        if ($pendingRequest) {
+                            $targetBreaks = $pendingRequest->stampCorrectionBreaks;
+                        } else {
+                            $targetBreaks = $pendingRequest
+                            ? $pendingRequest->stampCorrectionBreaks
+                            : $attendance->breaks;
+                        }
+                        if ($pendingRequest) {
+                            // 承認待ち → 休憩数だけ
+                            $displayCount = max(1, $targetBreaks->count());
+                        } else {
+                            // 通常編集 + 未来日
+                            $displayCount = $targetBreaks->count() + 1;
+                        }
                         $loopCount = max(1, $displayCount, count($oldBreaks), $targetBreaks->count());
                     @endphp
                         @for ($i = 0; $i < $loopCount; $i++)

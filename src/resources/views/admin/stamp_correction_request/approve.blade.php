@@ -53,7 +53,7 @@
                     @endphp
                 @endif
                 @php
-                    $loopCount = max(1, $breaks->count());
+                    $loopCount = max(1, $breaks->count() + 1);
                 @endphp
                 @for ($i = 0; $i < $loopCount; $i++)
                     @php
@@ -66,11 +66,11 @@
                                 <div class="attendance-detail__row">
                                     @if ($break)
                                         <div class="attendance-detail__time-field">
-                                            <span class="attendance-detail__time">{{ optional($break?->break_start_at)->format('H:i') }}</span>
+                                            <span class="attendance-detail__time">{{ $break?->break_start_at?->format('H:i')}}</span>
                                         </div>
                                         <span class="attendance-detail__separator">〜</span>
                                         <div class="attendance-detail__time-field">
-                                            <span class="attendance-detail__time">{{ optional($break?->break_end_at)->format('H:i') }}</span>
+                                            <span class="attendance-detail__time">{{ $break?->break_end_at?->format('H:i')}}</span>
                                         </div>
                                     @endif
                                 </div>
