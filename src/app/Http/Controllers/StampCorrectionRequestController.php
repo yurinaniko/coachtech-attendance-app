@@ -92,12 +92,13 @@ class StampCorrectionRequestController extends Controller
                     ]
                 );
             } else {
-                StampCorrectionBreak::create([
-                    'stamp_correction_request_id' => $correctionRequest->id,
-                    'break_start_at' => $breakStart,
-                    'break_end_at'   => $breakEnd,
-                ]);
-
+                if ($breakStart || $breakEnd) {
+                    StampCorrectionBreak::create([
+                        'stamp_correction_request_id' => $correctionRequest->id,
+                        'break_start_at' => $breakStart,
+                        'break_end_at'   => $breakEnd,
+                    ]);
+                }
             }
         }
 
