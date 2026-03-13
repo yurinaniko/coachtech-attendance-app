@@ -50,18 +50,18 @@ class StampCorrectionRequestController extends Controller
                 'clock_out_at' => $correctionRequest->requested_clock_out_at,
                 'note'         => $correctionRequest->requested_note,
             ]);
+            $validBreaks = $correctionRequest->stampCorrectionBreaks->filter(function ($break) {
+                return $break->break_start_at || $break->break_end_at;
+            });
 
-            if ($correctionRequest->stampCorrectionBreaks->isNotEmpty()) {
-                AttendanceBreak::where('attendance_id', $attendance->id)->delete();
-                foreach ($correctionRequest->stampCorrectionBreaks as $correctionBreak) {
-                    if ($correctionBreak->break_start_at && $correctionBreak->break_end_at) {
-                        AttendanceBreak::create([
-                            'attendance_id'  => $attendance->id,
-                            'break_start_at' => $correctionBreak->break_start_at,
-                            'break_end_at'   => $correctionBreak->break_end_at,
-                        ]);
-                    }
-                }
+            AttendanceBreak::where('attendance_id', $attendance->id)->delete();
+
+            foreach ($validBreaks as $correctionBreak) {
+                AttendanceBreak::create([
+                    'attendance_id'  => $attendance->id,
+                    'break_start_at' => $correctionBreak->break_start_at,
+                    'break_end_at'   => $correctionBreak->break_end_at,
+                ]);
             }
             $correctionRequest->update(['status' => StampCorrectionRequest::STATUS_APPROVED,]);
         });

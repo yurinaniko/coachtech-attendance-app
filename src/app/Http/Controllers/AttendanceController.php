@@ -211,8 +211,10 @@ class AttendanceController extends Controller
                 ->orderBy('break_start_at')
                 ->get();
 
-            // 最新申請
-            $pendingRequest = $attendance->latestStampRequest();
+            $pendingRequest = $attendance->stampCorrectionRequests()
+                ->where('status', StampCorrectionRequest::STATUS_PENDING)
+                ->latest()
+                ->first();
 
             if ($pendingRequest && $pendingRequest->status === StampCorrectionRequest::STATUS_PENDING) {
                 $notice = '※承認待ちのため修正できません。';
