@@ -14,14 +14,12 @@ class StampCorrectionRequestController extends Controller
     {
         $status = $request->query('status', 'pending');
 
-        $requests = StampCorrectionRequest::with([
-            'user',
-            'attendance',
-            'attendance.breaks'
-        ])
-        ->where('status', $status)
-        ->orderBy('created_at', 'desc')
-        ->get();
+        $query = StampCorrectionRequest::with(['user','attendance']);
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+        $requests = $query->orderByDesc('created_at')->get();
 
         return view('admin.stamp_correction_request.list', compact('requests'));
     }

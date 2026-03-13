@@ -26,9 +26,18 @@ class StampCorrectionRequestController extends Controller
 
     public function store(StoreStampCorrectionRequest $request)
     {
-        $attendance = Attendance::where('id', $request->attendance_id)
+        $attendanceId = $request->input('attendance_id');
+
+        if (!$attendanceId) {
+            return back();
+        }
+        $attendance = Attendance::where('id', $attendanceId)
             ->where('user_id', auth()->id())
-            ->firstOrFail();
+            ->first();
+
+        if (!$attendance) {
+            return back();
+        }
 
         if ($attendance->work_date->isFuture()) {
             return back()->with('error', '※未来日のため修正できません。');
@@ -56,11 +65,11 @@ class StampCorrectionRequestController extends Controller
         $correctionRequest = StampCorrectionRequest::create([
             'attendance_id' => $attendance->id,
             'user_id'       => auth()->id(),
-            'status'        => 'pending',
 
             'requested_clock_in_at'  => $requestedClockIn,
             'requested_clock_out_at' => $requestedClockOut,
             'requested_note'         => $data['note'],
+            'status' => 'pending',
         ]);
 
         foreach ($data['breaks'] ?? [] as $break) {
