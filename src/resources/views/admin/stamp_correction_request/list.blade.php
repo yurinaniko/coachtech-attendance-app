@@ -29,7 +29,7 @@
                 @forelse ($requests as $stampRequest)
                     <tr>
                         <td class="stamp-request-index__col--status">{{ $stampRequest->status_label }}</td>
-                        <td class="table__cell stamp-request-index__name">{{ $stampRequest->user->name }}</td>
+                        <td class="table__cell stamp-request-index__name">{{ optional($stampRequest->user)->name }}</td>
                         <td class="table__cell stamp-request-index__date">{{ optional($stampRequest->attendance?->work_date)->format('Y/m/d') ?? '-' }}</td>
                         <td class="table__cell stamp-request-index__reason">{{ $stampRequest->requested_note }}</td>
                         <td class="table__cell stamp-request-index__date">{{ $stampRequest->created_at->format('Y/m/d') }}</td>

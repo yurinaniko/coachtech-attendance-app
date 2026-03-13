@@ -28,6 +28,7 @@ class AttendanceUpdateTest extends TestCase
         $response = $this->actingAs($user)->post(
             route('stamp_correction_request.store'),
             [
+                'attendance_id' => $attendance->id,
                 'clock_in_at'  => '18:00',
                 'clock_out_at' => '09:00',
                 'note' => 'テスト'
@@ -56,6 +57,7 @@ class AttendanceUpdateTest extends TestCase
         $response = $this->actingAs($user)->post(
             route('stamp_correction_request.store'),
             [
+                'attendance_id' => $attendance->id,
                 'clock_in_at'  => '09:00',
                 'clock_out_at' => '18:00',
                 'breaks' => [
@@ -92,6 +94,7 @@ class AttendanceUpdateTest extends TestCase
         $response = $this->actingAs($user)->post(
             route('stamp_correction_request.store'),
             [
+                'attendance_id' => $attendance->id,
                 'clock_in_at'  => '09:00',
                 'clock_out_at' => '18:00',
 
@@ -130,6 +133,7 @@ class AttendanceUpdateTest extends TestCase
         $response = $this->actingAs($user)->post(
             route('stamp_correction_request.store'),
             [
+                'attendance_id' => $attendance->id,
                 'clock_in_at'  => '09:00',
                 'clock_out_at' => '18:00',
 
@@ -160,15 +164,21 @@ class AttendanceUpdateTest extends TestCase
             'clock_in_at' => now(),
         ]);
 
-        $this->actingAs($user)->post(
+        $response = $this->actingAs($user)->post(
             route('stamp_correction_request.store'),
             [
                 'attendance_id' => $attendance->id,
-                'clock_in_at'   => '10:00',
-                'clock_out_at'  => '19:00',
+                'clock_in_at'   => '05:00',
+                'clock_out_at'  => '08:00',
                 'note'          => '修正申請テスト'
             ]
         );
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('stamp_correction_requests', [
+            'attendance_id'  => $attendance->id,
+            'requested_note' => '修正申請テスト',
+            'status'         => 'pending',
+        ]);
 
         $admin = User::factory()->create([
             'is_admin' => true,

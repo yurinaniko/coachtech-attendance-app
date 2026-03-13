@@ -32,26 +32,21 @@ class AttendanceUpdateRequest extends FormRequest
 
             // ① 未来日チェック
             $attendance = Attendance::find($this->route('id'));
-
-            if (!$attendance) {
-                return;
-            }
-
             $breakRanges = [];
+            $clockIn  = $this->input('clock_in_at');
+            $clockOut = $this->input('clock_out_at');
+            $now = Carbon::now();
+            $workDate = $attendance
+            ? Carbon::parse($attendance->work_date)
+            : now();
 
-            if ($attendance && \Carbon\Carbon::parse($attendance->work_date)->isFuture()) {
+            if ($attendance && $workDate->isFuture()) {
                 $validator->errors()->add(
                     'attendance_id',
                     '未来日の勤怠は修正できません。'
                 );
-            return;
+                return;
             }
-            $clockIn  = $this->input('clock_in_at');
-            $clockOut = $this->input('clock_out_at');
-
-            $now = Carbon::now();
-            $workDate = Carbon::parse($attendance->work_date);
-
             if ($workDate->isToday()) {
 
                 if ($clockIn) {

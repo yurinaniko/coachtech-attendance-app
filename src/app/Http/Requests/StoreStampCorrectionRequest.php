@@ -29,17 +29,48 @@ class StoreStampCorrectionRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $attendance = \App\Models\Attendance::find($this->attendance_id);
-            if ($attendance && \Carbon\Carbon::parse($attendance->work_date)->isFuture()) {
+            $attendance = Attendance::find($this->attendance_id);
+            $clockIn  = $this->input('clock_in_at');
+            $clockOut = $this->input('clock_out_at');
+            $now = Carbon::now();
+            $workDate = $attendance
+            ? Carbon::parse($attendance->work_date)
+            : now();
+
+            // ① 未来日チェック
+            if ($attendance && $workDate->isFuture()) {
                 $validator->errors()->add(
                     'attendance_id',
                     '未来日の勤怠は修正申請できません。'
                 );
                 return;
             }
+            // ② 今日の未来時間チェック
+            if ($workDate->isToday()) {
 
-            $clockIn  = $this->input('clock_in_at');
-            $clockOut = $this->input('clock_out_at');
+                if ($clockIn) {
+                    $clockInDateTime = Carbon::parse($workDate->format('Y-m-d').' '.$clockIn);
+
+                    if ($clockInDateTime->gt($now)) {
+                        $validator->errors()->add(
+                            'clock_in_at',
+                            '未来の時間は入力できません'
+                        );
+                    }
+                }
+
+                if ($clockOut) {
+                    $clockOutDateTime = Carbon::parse($workDate->format('Y-m-d').' '.$clockOut);
+
+                    if ($clockOutDateTime->gt($now)) {
+                        $validator->errors()->add(
+                            'clock_out_at',
+                            '未来の時間は入力できません'
+                        );
+                    }
+                }
+            }
+
             $clockInTime  = $clockIn  ? Carbon::createFromFormat('H:i', $clockIn) : null;
             $clockOutTime = $clockOut ? Carbon::createFromFormat('H:i', $clockOut) : null;
 
