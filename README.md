@@ -1,5 +1,7 @@
 # coachtech勤怠管理アプリ
+
 ## 概要
+
 COACHTECHの模擬案件として制作した勤怠アプリです。
 
 本アプリケーションは、
@@ -95,13 +97,14 @@ MAIL_FROM_NAME="coachtech勤怠管理アプリ"
 ```bash
 php artisan migrate:fresh --seed
 ```
+
 その後PHPコンテナから出る
+
 ```bash
 exit
 ```
 
 ## 8 アプリケーション確認
-
 
 以下のURLからアクセスできます。
 
@@ -116,8 +119,7 @@ exit
 ### 管理者(動作確認用メールアドレス、パスワード下記にあり)
 
 - ログイン
-  http://localhost:8000/admin/login
-
+  http://localhost:8000
 
 ## 動作確認用アカウント
 
@@ -171,7 +173,6 @@ Laravelの標準 web ガードを使用しています。
 将来的には guard を分離する設計も可能ですが、
 本課題では要件に合わせてシンプルな構成としています。
 
-
 ### メール認証（MailHog）
 
 開発環境では MailHog を使用しています。
@@ -187,15 +188,16 @@ MailHog： http://localhost:8025
 MailHog の画面へ遷移します。
 
 ## テストについて
+
 本アプリケーションでは PHPUnit を用いた機能テスト（Feature Test）を実装しています。
 
 主に以下の観点でテストを行っています。
 
 - 認証機能
-（会員登録 / ログイン / ログアウト / メール認証）
+  （会員登録 / ログイン / ログアウト / メール認証）
 
 - 勤怠機能
-（出勤 / 休憩 / 退勤 / ステータス管理）
+  （出勤 / 休憩 / 退勤 / ステータス管理）
 
 - 勤怠一覧・詳細表示
 
@@ -208,12 +210,14 @@ MailHog の画面へ遷移します。
 キャッシュ / セッション / メール等をテスト用設定へ切り替えています。
 
 ## テスト実行手順
+
 ※ 本アプリケーションでは、本番データへの影響を防ぐため
 テスト専用データベースを使用しています。
 本アプリケーションでは PHPUnit を使用しています。
 テスト実行時は `.env.testing` の設定が使用されます。
 
 ## 1. テスト用データベースを作成
+
 上記で指定した DB_DATABASE（例：laravel_test）を、
 MySQL 上に作成してください。
 
@@ -234,22 +238,28 @@ mysql -u root -p
 CREATE DATABASE laravel_test;
 SHOW DATABASES;
 ```
+
 SHOW DATABASES;入力後、laravel_testが作成されていれば成功です。
 
 ### ④ MySQLを終了する
+
 ```sql
 exit
 ```
+
 ### ⑤ MySQLコンテナから出る
+
 ```sql
 exit
 ```
 
 ## 2. .env.testing をテスト用に編集
-  本リポジトリには `.env.testing` が含まれています。
-  必要に応じてテスト用DB設定を確認してください。
+
+本リポジトリには `.env.testing` が含まれています。
+必要に応じてテスト用DB設定を確認してください。
 
 ### ① アプリケーション設定
+
 ```env
 APP_ENV=test
 APP_KEY=
@@ -266,6 +276,7 @@ DB_USERNAME=root
 DB_PASSWORD=root
 
 ```
+
 APP_KEY は空のまま保存してください。
 その後、以下のコマンドでテスト用キーを生成します。
 
@@ -274,7 +285,9 @@ APP_KEY は空のまま保存してください。
 ```bash
 docker compose exec php bash
 ```
+
 ## 4. テスト用キーを生成し、設定キャッシュをクリアする
+
 ```bash
 php artisan key:generate --env=testing
 php artisan config:clear
@@ -284,21 +297,25 @@ php artisan config:clear
 
 テスト実行時は `.env.testing` と `phpunit.xml` の設定により
 テスト専用データベースを使用します。
+
 ```xml
 <server name="APP_ENV" value="testing"/>
 <server name="DB_CONNECTION" value="mysql_test"/>
 <server name="DB_DATABASE" value="laravel_test"/>
 ```
+
 これにより
 ・テスト実行時のみテスト用DBを使用
 ・本番 / 開発DBへ影響しない安全な設計
 となっています。
 
 ## 5. マイグレーション & テスト実行
+
 ```bash
 php artisan migrate:fresh --env=testing
 php artisan test
 ```
+
 Docker 環境上でテストを実行し、
 すべてのテストが PASS することを確認しています。
 
@@ -315,10 +332,12 @@ Docker 環境上でテストを実行し、
 - PHPUnit（Feature Test）
 
 ## 機能一覧
+
 ※ 本アプリケーションでは、管理者・一般ユーザー間で
 利用可能機能を権限により制御しています。
 
 ### 一般ユーザーが使用できる機能
+
 - 会員登録
 - ログイン機能
 - 勤怠打刻機能
@@ -331,6 +350,7 @@ Docker 環境上でテストを実行し、
 ---
 
 ### 管理者が使用できる機能
+
 - ログイン機能
 - 勤怠一覧表示
 - 勤怠詳細表示
@@ -365,8 +385,7 @@ Docker 環境上でテストを実行し、
 3. 承認済みの申請は申請一覧画面の「承認済み」タブに表示される。
 
 4. 承認後は一般ユーザー・管理者いずれも再度修正を行うことができる。
-その場合、新規の `stamp_correction_requests` レコードを作成し、修正履歴として保存する。
-
+   その場合、新規の `stamp_correction_requests` レコードを作成し、修正履歴として保存する。
 
 ### ■ 承認前の表示仕様
 
@@ -381,7 +400,6 @@ Docker 環境上でテストを実行し、
 
 管理者が承認した時点で `attendances` テーブルが更新され、
 その後の勤怠一覧・勤怠詳細には **修正後の勤怠データが表示されます。**
-
 
 ### ■ 修正申請の履歴について
 
@@ -399,7 +417,6 @@ Docker 環境上でテストを実行し、
 `attendances` テーブルには
 **承認後の最終確定データのみが反映される設計**としています。
 
-
 ### ■ 未来日の挙動
 
 未来日の勤怠データは存在しないため、
@@ -412,6 +429,7 @@ Docker 環境上でテストを実行し、
 ### 仕様詳細
 
 ## バリデーションについて
+
 本アプリケーションでは Laravel FormRequest を使用しています。
 未入力時や入力規則違反時には、
 各項目ごとにエラーメッセージを表示する仕様です。
@@ -429,16 +447,20 @@ Docker 環境上でテストを実行し、
 ## テーブル仕様
 
 本アプリのテーブル設計は以下のドキュメントにまとめています。
+
 - 公開用テーブル仕様書
-https://docs.google.com/spreadsheets/d/1AY8TRv97TYBJxCM7kKxkW6QKjJcpF8YWIsPi0b7tbLY/edit?usp=sharing
+  https://docs.google.com/spreadsheets/d/1AY8TRv97TYBJxCM7kKxkW6QKjJcpF8YWIsPi0b7tbLY/edit?usp=sharing
+
 ## ルート・コントローラー・ビュー構成
 
 画面ごとのルーティング、コントローラー、アクション対応、ビュー、バリデーションは
 以下のドキュメントにまとめています。
+
 - 公開用ルート・コントローラー・バリデーション一覧・ビュー
-https://docs.google.com/spreadsheets/d/1FC0Pf3dNr8WjfnQI_Lchf6kHCBhUjMCTPb79vkDoZIA/edit?usp=sharing
+  https://docs.google.com/spreadsheets/d/1FC0Pf3dNr8WjfnQI_Lchf6kHCBhUjMCTPb79vkDoZIA/edit?usp=sharing
 
 ### キー設計について
+
 本アプリケーションでは、データ整合性を担保するために
 Unique Key（UK） および Foreign Key（FK） を適切に設定しています。
 ■ Unique Key（UK）
@@ -446,6 +468,7 @@ Unique Key は、
 同一値の重複登録を防ぐための制約
 として使用しています。
 本アプリでは以下に適用しています。
+
 - users テーブル
 
   email
@@ -498,7 +521,8 @@ attendance_break_id → attendance_breaks.id
 複合ユニークキー（Composite Unique Key） を採用しています。
 
 - 対象テーブル
-attendances テーブル
+  attendances テーブル
+
 ```php
 $table->unique(['user_id', 'work_date']);
 ```
@@ -525,10 +549,12 @@ type カラムを追加しています。
 (カラム仕様)
 カラム名：type
 値：
+
 ```php
 TYPE_USER  = 'user';
 TYPE_ADMIN = 'admin';
 ```
+
 type は、
 「誰が修正データを作成したか」
 を識別するための属性です。
@@ -549,14 +575,17 @@ status は、
 を表す属性です。
 (ステータス定義)
 本アプリケーションでは以下の状態を採用しています。
+
 - stamp_correction_requests.status
   修正申請の状態を管理するカラム
 
-値	意味
+値 意味
+
 ```php
 pending	  承認待ち状態
 approved	承認済み状態
 ```
+
 (設計背景)
 勤怠システムでは、
 
@@ -566,6 +595,7 @@ approved	承認済み状態
 を明確に区別する必要があります。
 この業務仕様を DB レベルで表現するため
 status カラムを導入しています。
+
 - attendances.status
   勤務状態を管理するカラム
   また attendances テーブルにも status カラムを設け、
@@ -580,4 +610,3 @@ status カラムを導入しています。
 
   などを行う可能性を考え、
   状態をDBとして保持できる設計としています。
-

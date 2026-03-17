@@ -20,7 +20,7 @@
                             <a href="{{ route('admin.stamp_correction_request.index') }}" class="header__nav-link">申請一覧</a>
                         </li>
                         <li>
-                            <form method="POST" action="{{ route('admin.logout') }}">
+                            <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button class="header__nav-button">ログアウト</button>
                             </form>

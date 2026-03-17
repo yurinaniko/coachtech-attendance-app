@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('css')
-<link rel="stylesheet" href= "{{ asset('css/attendance-detail.css') }}">
+<link rel="stylesheet" href="{{ asset('css/attendance-detail.css') }}">
 @endsection
 
 @section('content')
@@ -94,10 +94,8 @@
                             : $attendance->breaks;
                         }
                         if ($pendingRequest) {
-                            // 承認待ち → 休憩数だけ
                             $displayCount = max(1, $targetBreaks->count());
                         } else {
-                            // 通常編集 + 未来日
                             $displayCount = $targetBreaks->count() + 1;
                         }
                         $loopCount = max(1, $displayCount, count($oldBreaks), $targetBreaks->count());
@@ -198,7 +196,6 @@
                             <td class="table__cell">
                                 <div class="attendance-detail__group">
                                     <div class="attendance-detail__row">
-                                        <!-- 未来日または承認待ちの時-->
                                         @if (!$isStatic)
                                             <textarea name="note" class="form_input attendance-detail__note" rows="3">{{ old('note', $note) }}</textarea>
                                         @else

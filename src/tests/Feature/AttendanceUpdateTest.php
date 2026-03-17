@@ -215,6 +215,7 @@ class AttendanceUpdateTest extends TestCase
         ]);
 
         $request = StampCorrectionRequest::factory()->create([
+            'user_id' => $user->id,
             'attendance_id' => $attendance->id,
             'requested_clock_in_at'  => '10:00',
             'requested_clock_out_at' => '19:00',
@@ -252,6 +253,7 @@ class AttendanceUpdateTest extends TestCase
         ]);
 
         StampCorrectionRequest::factory()->create([
+            'user_id' => $user->id,
             'attendance_id' => $attendance->id,
             'requested_note' => '承認テスト',
             'status' => 'approved',
@@ -289,5 +291,82 @@ class AttendanceUpdateTest extends TestCase
         );
 
         $detailResponse->assertStatus(200);
+    }
+
+    /** @test */
+    public function pending_requests_are_displayed_in_pending_tab()
+    {
+        $user = User::factory()->create();
+        $admin = User::factory()->create([
+            'is_admin' => true
+        ]);
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id
+        ]);
+
+        StampCorrectionRequest::factory()->create([
+            'user_id' => $user->id,
+            'attendance_id' => $attendance->id,
+            'requested_note' => 'テスト申請',
+            'status' => 'pending'
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->get('/admin/stamp_correction_request/list?status=pending');
+
+        $response->assertStatus(200);
+        $response->assertSee('テスト申請');
+    }
+
+    /** @test */
+    public function approved_requests_are_displayed_in_approved_tab()
+    {
+        $user = User::factory()->create();
+        $admin = User::factory()->create([
+            'is_admin' => true
+        ]);
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id
+        ]);
+
+        StampCorrectionRequest::factory()->create([
+            'user_id' => $user->id,
+            'attendance_id' => $attendance->id,
+            'requested_note' => '承認済み申請',
+            'status' => 'approved'
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->get('/admin/stamp_correction_request/list?status=approved');
+
+        $response->assertStatus(200);
+        $response->assertSee('承認済み申請');
+    }
+
+    /** @test */
+    public function user_can_access_request_detail_page()
+    {
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id
+        ]);
+
+        $request = StampCorrectionRequest::factory()->create([
+            'user_id' => $user->id,
+            'attendance_id' => $attendance->id,
+            'status' => 'pending'
+        ]);
+
+        $admin = User::factory()->create([
+            'is_admin' => true
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->get("/admin/stamp_correction_request/approve/{$request->id}");
+
+        $response->assertStatus(200);
     }
 }
