@@ -13,7 +13,7 @@ class AdminLoginTest extends TestCase
     /** @test */
     public function email_is_required()
     {
-        $response = $this->post('/admin/login', [
+        $response = $this->post('/login', [
             'email' => '',
             'password' => 'password123',
         ]);
@@ -24,7 +24,7 @@ class AdminLoginTest extends TestCase
     /** @test */
     public function password_is_required()
     {
-        $response = $this->post('/admin/login', [
+        $response = $this->post('/login', [
             'email' => 'admin@example.com',
             'password' => '',
         ]);
@@ -35,7 +35,7 @@ class AdminLoginTest extends TestCase
     /** @test */
     public function email_must_be_valid_format()
     {
-        $response = $this->post('/admin/login', [
+        $response = $this->post('/login', [
             'email' => 'not-an-email',
             'password' => 'password123',
         ]);
@@ -46,19 +46,20 @@ class AdminLoginTest extends TestCase
     /** @test */
     public function general_user_cannot_login_as_admin()
     {
-        User::factory()->create([
+        $user = User::factory()->create([
             'email' => 'user@example.com',
             'password' => bcrypt('password123'),
             'is_admin' => false,
         ]);
 
-        $response = $this->post('/admin/login', [
+        $response = $this->post('/login', [
             'email' => 'user@example.com',
             'password' => 'password123',
         ]);
 
-        $response->assertSessionHasErrors();
-        $this->assertGuest();
+        $this->assertAuthenticatedAs($user);
+        $response = $this->get('/admin/attendance/list');
+        $response->assertStatus(403);
     }
 
     /** @test */

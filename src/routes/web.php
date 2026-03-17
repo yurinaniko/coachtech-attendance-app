@@ -1,38 +1,23 @@
 <?php
 use Illuminate\Http\Request;
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\StampCorrectionRequestController;
-use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
 use App\Http\Controllers\Admin\StampCorrectionRequestController as AdminStampCorrectionRequestController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StaffAttendanceController;
+use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
-// 一般ユーザー 認証
-Route::get('/login', [AuthController::class, 'showLogin'])
-    ->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])
-    ->name('logout');
-Route::get('/register', [AuthController::class, 'showRegister'])
-    ->name('register.form');
-Route::post('/register', [AuthController::class, 'register'])
-    ->name('register');
-Route::get('/email/verify', [AuthController::class, 'showVerifyEmail'])
-    ->middleware('auth')
-    ->name('verification.notice');
-
-// メール内リンクを踏んだとき
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
     return redirect()
         ->route('attendance.index')
         ->with('verified', true);
 })->middleware(['auth', 'signed'])->name('verification.verify');
-
-// 認証メール再送
 Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
 
@@ -66,31 +51,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
+Route::get('/admin/login', function () {
+    return view('auth.login');
+})->name('admin.login');
+Route::post('/admin/login', [AuthenticatedSessionController::class, 'store'])
+    ->name('admin.login.post');
 
 Route::prefix('admin')->group(function () {
-
-    // 管理者ログイン
-    Route::get('/login', [AdminAuthController::class, 'showLogin'])
-        ->name('admin.login');
-    Route::post('/login', [AdminAuthController::class, 'login']);
-    Route::post('/logout', [AdminAuthController::class, 'logout'])
-        ->name('admin.logout');
-
-    // 管理者ログイン後
-    Route::middleware(['ensure.admin'])
+    Route::middleware(['auth','admin'])
         ->name('admin.')
         ->group(function () {
 
         Route::prefix('attendance')->group(function () {
-
             Route::get('/list',
                 [AdminAttendanceController::class, 'index']
             )->name('attendance.list');
-
             Route::get('/{id}',
                 [AdminAttendanceController::class, 'detail']
             )->name('attendance.detail');
-
             Route::put('/{id}/update',
                 [AdminAttendanceController::class, 'update']
             )->name('attendance.update');
@@ -99,13 +77,9 @@ Route::prefix('admin')->group(function () {
         Route::prefix('staff')->group(function () {
             Route::get('/list', [StaffController::class, 'list'])
                 ->name('staff.list');
-
-            // スタッフ別 勤怠一覧
             Route::get('/{user}/attendances',
                 [StaffAttendanceController::class, 'index']
             )->name('staff.attendance.index');
-
-            // CSV出力
             Route::get('/{user}/attendances/csv',
                 [StaffAttendanceController::class, 'csv']
             )->name('staff.attendance.csv');
@@ -115,11 +89,9 @@ Route::prefix('admin')->group(function () {
             Route::get('/list',
                 [AdminStampCorrectionRequestController::class, 'index']
             )->name('stamp_correction_request.index');
-
             Route::get('/approve/{id}',
                 [AdminStampCorrectionRequestController::class, 'edit']
             )->name('stamp_correction_request.edit');
-
             Route::post('/approve/{id}',
                 [AdminStampCorrectionRequestController::class, 'approve']
             )->name('stamp_correction_request.approve');

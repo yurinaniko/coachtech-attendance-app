@@ -69,7 +69,7 @@
                         <tr>
                             <th class="table__col">出勤・退勤</th>
                             <td class="table__cell">
-                                <div class ="attendance-detail__group">
+                                <div class="attendance-detail__group">
                                     <div class="attendance-detail__row">
                                         @if (!$isStatic)
                                             <div class="attendance-detail__time-field">
@@ -88,7 +88,6 @@
                                                 @enderror
                                             </div>
                                         @else
-                                            {{-- 表示モード --}}
                                             <div class="attendance-detail__time-field">
                                                 <span class="attendance-detail__time">
                                                     {{ optional($clockIn)->format('H:i') }}
@@ -107,16 +106,13 @@
                         </tr>
                         @php
                             if (!$isStatic) {
-                               // 編集モード
                                 $oldBreaks = old('breaks');
                                 $loopCount = $oldBreaks
                                 ? count($oldBreaks)
                                 : $displayCount;
                             } elseif ($isFuture) {
-                                // 未来日は最低1行表示
                                 $loopCount = max(1, $breaks->count());
                             } else {
-                               // 承認待ちなどは実際の休憩数だけ
                                 $loopCount = $breaks->count();
                             }
                         @endphp
@@ -155,7 +151,6 @@
                                                     @enderror
                                                 </div>
                                             @else
-                                                {{-- 表示モード--}}
                                                 <div class="attendance-detail__time-field">
                                                     <span class="attendance-detail__time">
                                                         {{ $break?->break_start_at?->format('H:i') }}

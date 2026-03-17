@@ -24,8 +24,8 @@
                         </li>
                         <li>
                             <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button class="header__nav-button">ログアウト</button>
+                                @csrf
+                                <button class="header__nav-button">ログアウト</button>
                             </form>
                         </li>
                     </ul>

@@ -19,7 +19,6 @@
             翌日 →
         </a>
     </div>
-    {{-- テーブル --}}
     <div class="table-wrapper">
         <table class="attendance-list__table table">
             <thead>

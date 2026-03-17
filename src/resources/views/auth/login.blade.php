@@ -8,12 +8,21 @@
 @section('content')
 <div class="auth__wrapper">
     <div class="auth auth--login">
-        <h1 class="auth__title">ログイン</h1>
-        <form class="auth__form" action="{{ route('login') }}" method="POST" novalidate>
+        <h1 class="auth__title">
+            @if(request()->routeIs('admin.login'))
+                管理者ログイン
+            @else
+                ログイン
+            @endif
+        </h1>
+        <form class="auth__form" action="{{ request()->routeIs('admin.login') ? route('admin.login.post') : route('login') }}" method="POST" novalidate>
             @csrf
-            @if ($errors->has('login'))
+            @php
+                $errorKey = request()->routeIs('admin.login') ? 'admin.login' : 'login';
+            @endphp
+            @if ($errors->has($errorKey))
                 <p class="auth__error auth__error--global">
-                    {{ $errors->first('login') }}
+                    {{ $errors->first($errorKey) }}
                 </p>
             @endif
             <div class="auth__group">
@@ -30,9 +39,19 @@
                     <p class="auth__error">{{ $message }}</p>
                 @enderror
             </div>
-            <button class="auth__submit">ログインする</button>
+            <button class="auth__submit">
+                @if(request()->routeIs('admin.login'))
+                    管理者ログインする
+                @else
+                    ログインする
+                @endif
+            </button>
         </form>
-        <a href="{{ route('register.form') }}" class="auth__link">会員登録はこちら</a>
+        @if(!request()->routeIs('admin.login'))
+            <a href="{{ route('register') }}" class="auth__link">
+                会員登録はこちら
+            </a>
+        @endif
     </div>
 </div>
 @endsection
