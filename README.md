@@ -174,7 +174,7 @@ Laravelの標準 web ガードを使用しています。
 将来的には guard を分離する設計も可能ですが、
 本課題では要件に合わせてシンプルな構成としています。
 
-### バリデーション設計
+## バリデーション設計
 
 Fortifyは内部でFormRequest（LoginRequest）を使用していますが、
 本課題の要件にあるエラーメッセージ仕様（メール形式エラー時も同一メッセージを表示）と一致しないため、
@@ -191,7 +191,7 @@ LoginUser内で独自にバリデーション制御を実装しています。
 
 これらの挙動についてはFeature Testにて検証済みです。
 
-### メール認証（MailHog）
+## メール認証（MailHog）
 
 開発環境では MailHog を使用しています。
 
@@ -381,14 +381,14 @@ Docker 環境上でテストを実行し、
 - 申請一覧表示
 - 修正申請承認機能
 
-## 実装した応用機能
+### 実装した応用機能
 
 - メール認証機能（mailhog）
 - 認証メール再送機能
 - CSV出力機能
   管理者画面から、スタッフの勤怠データをCSV形式でダウンロード可能
 
-  ## 画面状態遷移仕様
+## 画面状態遷移仕様
 
 ### ■ 修正申請フロー
 
@@ -417,7 +417,7 @@ Docker 環境上でテストを実行し、
 - 管理者の勤怠一覧
 - 管理者の勤怠詳細
 
-には **修正前の勤怠データを表示**します。
+ **修正前の勤怠データを表示**します。
 
 管理者が承認した時点で `attendances` テーブルが更新され、
 その後の勤怠一覧・勤怠詳細には **修正後の勤怠データが表示されます。**
@@ -468,11 +468,11 @@ Docker 環境上でテストを実行し、
 - 公開用ルート・コントローラー・バリデーション一覧・ビュー
   https://docs.google.com/spreadsheets/d/1FC0Pf3dNr8WjfnQI_Lchf6kHCBhUjMCTPb79vkDoZIA/edit?usp=sharing
 
-### キー設計について
+## キー設計について
 
 本アプリケーションでは、データ整合性を担保するために
 Unique Key（UK） および Foreign Key（FK） を適切に設定しています。
-■ Unique Key（UK）
+### ■ Unique Key（UK）
 Unique Key は、
 同一値の重複登録を防ぐための制約
 として使用しています。
@@ -490,7 +490,7 @@ Unique Key は、
 
 を実現しています。
 
-■ Foreign Key（FK / 外部キー）
+### ■ Foreign Key（FK / 外部キー）
 Foreign Key は、
 テーブル間の参照整合性を保証する制約
 として使用しています。
@@ -498,34 +498,28 @@ Foreign Key は、
 以下の関連付けを行っています。
 
 ✔ attendances テーブル
-
 user_id → users.id
 
 勤怠は必ず既存ユーザーに紐づく
 
 ✔ attendance_breaks テーブル
-
 attendance_id → attendances.id
 
 休憩は必ず既存勤怠に紐づく
 
 ✔ stamp_correction_requests テーブル
-
 attendance_id → attendances.id
-
 user_id → users.id
 
 修正申請は対象勤怠＋申請者に紐づく
 
 ✔ stamp_correction_breaks テーブル
-
 stamp_correction_request_id → stamp_correction_requests.id
-
 attendance_break_id → attendance_breaks.id
 
 修正申請内の休憩データを保証
 
-■ 複合ユニークキーについて
+### ■ 複合ユニークキーについて
 本アプリケーションでは、勤怠データの性質を考慮し
 複合ユニークキー（Composite Unique Key） を採用しています。
 
@@ -551,10 +545,11 @@ $table->unique(['user_id', 'work_date']);
 
 を実現しています。
 
-■ type カラムの設計意図
+### ■ type カラムの設計意図
 stamp_correction_requests テーブルでは、
 修正データの発生源を明確化するために
 type カラムを追加しています。
+
 (カラム仕様)
 カラム名：type
 値：
@@ -567,7 +562,7 @@ TYPE_ADMIN = 'admin';
 type は、
 「誰が修正データを作成したか」
 を識別するための属性です。
-(導入背景)
+(設計意図)
 本アプリでは修正データが以下2経路で発生します：
 
 ✔ 一般ユーザーによる修正申請
@@ -576,15 +571,15 @@ type は、
 この2つは業務的に意味が異なるため、
 DBレベルで区別可能にしています。
 
-■ status カラムの設計意図
+### ■ status カラムの設計意図
 本アプリケーションでは、勤怠データおよび修正申請データの状態管理のため
 status カラムを採用しています。
 status は、
 「レコードの業務上の状態」
 を表す属性です。
+
 (ステータス定義)
 本アプリケーションでは以下の状態を採用しています。
-
 - stamp_correction_requests.status
   修正申請の状態を管理するカラム
 
@@ -595,7 +590,7 @@ pending	  承認待ち状態
 approved	承認済み状態
 ```
 
-(設計背景)
+(設計意図)
 勤怠システムでは、
 
 ✔ 修正が未確定の状態
