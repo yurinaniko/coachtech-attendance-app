@@ -10,9 +10,10 @@ class LoginResponse implements LoginResponseContract
     {
         $user = auth()->user();
 
-        if ($user->is_admin) {
+        if ($request->is('admin/*') && $user->is_admin) {
             return redirect()->route('admin.attendance.list');
         }
+
 
         return redirect()->route('attendance.index');
     }
