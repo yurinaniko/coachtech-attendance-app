@@ -25,6 +25,7 @@ class CreateNewUser implements CreatesNewUsers
             'email.unique' => 'このメールアドレスは既に登録されています',
             'password.required' => 'パスワードを入力してください',
             'password.min' => 'パスワードは8文字以上で入力してください',
+            'password_confirmation.required' => '確認用パスワードを入力してください',
             'password_confirmation.same' => 'パスワードと一致しません',
         ])->validate();
 
