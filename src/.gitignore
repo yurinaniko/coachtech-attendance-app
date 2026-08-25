@@ -4,6 +4,9 @@
 /storage/*.key
 /vendor
 .env
+.env.*
+!.env.example
+!.env.testing.example
 .env.backup
 .phpunit.result.cache
 docker-compose.override.yml
@@ -17,4 +20,3 @@ yarn-error.log
 /docker/mysql/data/
 /docker/mysql/
 /docker/mysql/logs/
-.env.testing
