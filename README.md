@@ -115,15 +115,15 @@ exit
 ### 一般ユーザー側画面(動作確認用メールアドレス、パスワード下記にあり)
 
 - ログイン
-  http://localhost:8000/login
+  http://localhost:8001/login
 
 - 会員登録
-  http://localhost:8000/register
+  http://localhost:8001/register
 
 ### 管理者側画面(動作確認用メールアドレス、パスワード下記にあり)
 
 - ログイン
-  http://localhost:8000/admin/login
+  http://localhost:8001/admin/login
 
 ## 動作確認用アカウント
 
@@ -202,9 +202,9 @@ LoginUser内で独自にバリデーション制御を実装しています。
 開発環境では MailHog を使用しています。
 
 ```
-アプリ： http://localhost:8000
+アプリ： http://localhost:8001
 
-MailHog： http://localhost:8025
+MailHog： http://localhost:8026
 ```
 
 メール認証・通知メールは MailHog 上で確認できます。
