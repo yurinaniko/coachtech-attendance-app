@@ -19,3 +19,12 @@ updates:
     cooldown:
       default-days: 7
     open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: /src
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    open-pull-requests-limit: 5
