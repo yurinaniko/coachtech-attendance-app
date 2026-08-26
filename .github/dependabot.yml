@@ -1,0 +1,21 @@
+version: 2
+
+updates:
+  - package-ecosystem: composer
+    directory: /src
+    schedule:
+      interval: weekly
+    # 乗っ取りで混入した悪意ある版は公開後まもなく撤回されることが多いため、
+    # 通常の更新は寝かせてから受け取る。脆弱性修正はこの待機の対象外で即座に届く。
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
