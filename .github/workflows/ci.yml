@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# 乗っ取られたアクションに書き込み権限を渡さないため最小権限にする
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: テスト
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: laravel_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      # タグは付け替え可能なのでコミットSHAで固定する
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: '8.1'
+          extensions: pdo_mysql, gd, zip
+          tools: composer:v2
+
+      # マルウェア報告された版を依存解決から外す仕組みは Composer 2.10 で入った。
+      # 古いままだと保護が存在しないので、満たなければCIを失敗させる。
+      - name: Composer 2.10 以上か確認
+        run: |
+          composer --version
+          composer --version | grep -qE 'version (2\.(1[0-9]|[2-9][0-9])|[3-9])' \
+            || { echo "::error::Composer 2.10 未満のためマルウェアブロックが効きません"; exit 1; }
+
+      # マルウェア判定された版がlockに入っていれば、ここでCIが止まる
+      - name: 依存インストール
+        working-directory: src
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: テスト用の環境ファイルを用意
+        working-directory: src
+        run: |
+          cp .env.testing.example .env.testing
+          php artisan key:generate --env=testing
+
+      - name: テスト実行
+        working-directory: src
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+        run: php artisan test
+
+  audit:
+    name: 依存の脆弱性監査
+    runs-on: ubuntu-latest
+    # Laravel 8 が EOL で修正の来ない指摘が残るため、CIは止めずに一覧を出すだけにする。
+    # 「たまに赤」を常態化させないための意図的な設定（修正可能なものは個別に対応する）。
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+
+      - name: composer audit
+        working-directory: src
+        run: composer audit --no-interaction || true

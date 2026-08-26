@@ -48,10 +48,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
+// Fortify は limiters.login が設定されていると内部のロックアウトを自ら外し、
+// ルート側の throttle に委譲する。自作ルートにも同じ守りを必ず付ける。
 Route::get('/admin/login', function () {
     return view('auth.login');
-})->name('admin.login');
+})->middleware('guest')->name('admin.login');
 Route::post('/admin/login', [AuthenticatedSessionController::class, 'store'])
+    ->middleware(['guest', 'throttle:login'])
     ->name('admin.login.post');
 
 Route::prefix('admin')->group(function () {
