@@ -115,17 +115,21 @@ exit
 ### 一般ユーザー側画面(動作確認用メールアドレス、パスワード下記にあり)
 
 - ログイン
-  http://localhost:8000/login
+  http://localhost:8001/login
 
 - 会員登録
-  http://localhost:8000/register
+  http://localhost:8001/register
 
 ### 管理者側画面(動作確認用メールアドレス、パスワード下記にあり)
 
 - ログイン
-  http://localhost:8000/admin/login
+  http://localhost:8001/admin/login
 
 ## 動作確認用アカウント
+
+> ⚠ 本リポジトリは学習用です。以下は**ローカル環境で動作確認するためだけ**のアカウントで、
+> 誰でも見られる状態にあります。**このまま公開サーバーへデプロイしないでください。**
+> 公開する場合は必ずシーダーの値を変更し、READMEからも削除してください。
 
 Seeder により以下のテストユーザーを用意しています。
 
@@ -202,9 +206,9 @@ LoginUser内で独自にバリデーション制御を実装しています。
 開発環境では MailHog を使用しています。
 
 ```
-アプリ： http://localhost:8000
+アプリ： http://localhost:8001
 
-MailHog： http://localhost:8025
+MailHog： http://localhost:8026
 ```
 
 メール認証・通知メールは MailHog 上で確認できます。
@@ -279,10 +283,16 @@ exit
 exit
 ```
 
-## 2. .env.testing をテスト用に編集
+## 2. .env.testing を作成する
 
-本リポジトリには `.env.testing` が含まれています。
-必要に応じてテスト用DB設定を確認してください。
+`.env.testing` は各自の環境ごとにキーを生成するため、リポジトリには含めていません。
+雛形の `.env.testing.example` をコピーして作成してください。
+
+```bash
+cp src/.env.testing.example src/.env.testing
+```
+
+内容は次のとおりです。必要に応じてテスト用DB設定を確認してください。
 
 ### ① アプリケーション設定
 
@@ -305,6 +315,7 @@ DB_PASSWORD=root
 
 APP_KEY は空のまま保存してください。
 その後、以下のコマンドでテスト用キーを生成します。
+生成したキーは各自の環境専用のものなので、リポジトリには登録されません。
 
 ## 3. PHP コンテナに入る
 
