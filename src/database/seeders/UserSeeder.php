@@ -10,7 +10,7 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        User::create([
+        User::forceCreate([
             'name' => '管理者',
             'email' => 'admin@example.com',
             'email_verified_at' => now(),
@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
             'is_admin' => true,
         ]);
 
-        User::create([
+        User::forceCreate([
             'name' => 'テストユーザー',
             'email' => 'user@example.com',
             'password' => Hash::make('password456'),

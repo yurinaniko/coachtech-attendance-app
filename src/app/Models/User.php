@@ -13,11 +13,12 @@ use App\Models\StampCorrectionRequest;
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
+    // is_admin は fillable に含めない（$request->all() 等での権限昇格を構造的に防ぐ）。
+    // 管理者フラグの付与はシーダー等の信頼できるコードで forceFill/forceCreate から行う。
     protected $fillable = [
         'name',
         'email',
         'password',
-        'is_admin',
     ];
 
     protected $hidden = [
