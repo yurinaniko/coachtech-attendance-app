@@ -79,6 +79,9 @@ jobs:
           php-version: '8.1'
           tools: composer:v2
 
+      # --locked: インストール不要でlockファイルを直接監査する。
+      # 旧設定は install をしていないのに audit していたため常に失敗し、
+      # それを || true が握りつぶして「一覧を出す」意図すら果たせていなかった。
       - name: composer audit
         working-directory: src
-        run: composer audit --no-interaction || true
+        run: composer audit --locked --no-interaction || true
