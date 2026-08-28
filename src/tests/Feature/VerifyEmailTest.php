@@ -42,7 +42,7 @@ class VerifyEmailTest extends TestCase
 
         $response->assertSee('認証はこちらから');
 
-        $response->assertSee('href="http://localhost:8025"', false);
+        $response->assertSee('href="http://localhost:8026"', false);
     }
 
 
