@@ -67,9 +67,8 @@ jobs:
   audit:
     name: 依存の脆弱性監査
     runs-on: ubuntu-latest
-    # Laravel 8 が EOL で修正の来ない指摘が残るため、CIは止めずに一覧を出すだけにする。
-    # 「たまに赤」を常態化させないための意図的な設定（修正可能なものは個別に対応する）。
-    continue-on-error: true
+    # Laravel 12 化で既知の脆弱性が0件になったため、監査を厳格モードに戻した。
+    # 新しい脆弱性が出たらCIが赤くなる＝気づける状態を維持する。
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -84,4 +83,4 @@ jobs:
       # それを || true が握りつぶして「一覧を出す」意図すら果たせていなかった。
       - name: composer audit
         working-directory: src
-        run: composer audit --locked --no-interaction || true
+        run: composer audit --locked --no-interaction
