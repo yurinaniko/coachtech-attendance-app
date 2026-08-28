@@ -22,7 +22,7 @@
                     認証メールを再送する
                 </button>
             </form>
-            <a href="http://localhost:8025" target="_blank" class="auth__button">
+            <a href="http://localhost:8026" target="_blank" class="auth__button">
                 認証はこちらから
             </a>
         </div>
