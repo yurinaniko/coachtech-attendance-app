@@ -99,4 +99,22 @@ class RegisterTest extends TestCase
             'email' => 'test@example.com',
         ]);
     }
+
+    /** @test */
+    public function 登録時にis_adminを送っても管理者にはなれない()
+    {
+        $this->post('/register', [
+            'name' => '攻撃者',
+            'email' => 'attacker@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'is_admin' => 1,
+        ]);
+
+        // マスアサインメントでの権限昇格が起きていない
+        $this->assertDatabaseHas('users', [
+            'email' => 'attacker@example.com',
+            'is_admin' => false,
+        ]);
+    }
 }

@@ -43,5 +43,16 @@ class FortifyServiceProvider extends ServiceProvider
 
             return Limit::perMinute(10)->by($email . $request->ip());
         });
+
+        // config/fortify.php の limiters で 'two-factor' を参照しているが未定義だと
+        // 2FAチャレンジ経路で例外になり、総当たり防御も効かない。IP単位で制限する。
+        RateLimiter::for('two-factor', function (Request $request) {
+            return Limit::perMinute(5)->by($request->session()->get('login.id') . $request->ip());
+        });
+
+        // 登録・パスワードリセット等のFortifyルート全体の安全網（大量登録・メール爆撃の抑止）。
+        RateLimiter::for('fortify', function (Request $request) {
+            return Limit::perMinute(20)->by($request->ip());
+        });
     }
 }
