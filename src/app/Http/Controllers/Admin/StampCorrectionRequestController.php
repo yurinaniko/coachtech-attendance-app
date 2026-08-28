@@ -64,6 +64,6 @@ class StampCorrectionRequestController extends Controller
             $correctionRequest->update(['status' => StampCorrectionRequest::STATUS_APPROVED,]);
         });
         return redirect()->route('admin.stamp_correction_request.edit', $id)
-            ->with('message', '承認テスト');
+            ->with('message', '修正申請を承認しました');
     }
 }
