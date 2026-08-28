@@ -83,4 +83,6 @@ jobs:
       # それを || true が握りつぶして「一覧を出す」意図すら果たせていなかった。
       - name: composer audit
         working-directory: src
-        run: composer audit --locked --no-interaction
+        # --ignore-unreachable: Packagist API への一時的な接続断（curl 28）での
+        # 誤検知を防ぐ。脆弱性が検知されれば通常どおり失敗する。
+        run: composer audit --locked --no-interaction --ignore-unreachable
