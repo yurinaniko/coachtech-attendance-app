@@ -59,7 +59,9 @@ class Attendance extends Model
     {
         return $this->breaks->sum(function ($b) {
             if (!$b->break_start_at || !$b->break_end_at) return 0;
-            return Carbon::parse($b->break_end_at)->diffInSeconds(Carbon::parse($b->break_start_at));
+            // Carbon 3のdiffIn*は符号付きfloatを返すため「開始→終了」の順で呼び、
+            // (int)切り捨てでCarbon 2時代の整数値を維持する（以下の全diffInも同様）
+            return (int) Carbon::parse($b->break_start_at)->diffInSeconds(Carbon::parse($b->break_end_at));
         });
     }
 
@@ -67,7 +69,7 @@ class Attendance extends Model
     {
         if (!$this->clock_in_at || !$this->clock_out_at) return 0;
 
-        $work = Carbon::parse($this->clock_out_at)->diffInSeconds(Carbon::parse($this->clock_in_at));
+        $work = (int) Carbon::parse($this->clock_in_at)->diffInSeconds(Carbon::parse($this->clock_out_at));
         $work -= $this->break_seconds;
 
         return max(0, $work);
@@ -79,11 +81,11 @@ class Attendance extends Model
             return null;
         }
 
-        $workMinutes = $this->clock_out_at->diffInMinutes($this->clock_in_at);
+        $workMinutes = (int) $this->clock_in_at->diffInMinutes($this->clock_out_at);
 
         $breakMinutes = $this->breaks->reduce(function ($carry, $break) {
             if ($break->break_start_at && $break->break_end_at) {
-                return $carry + $break->break_end_at->diffInMinutes($break->break_start_at);
+                return $carry + (int) $break->break_start_at->diffInMinutes($break->break_end_at);
             }
                 return $carry;
         }, 0);
@@ -97,7 +99,7 @@ class Attendance extends Model
     {
         $totalMinutes = $this->breaks->reduce(function ($carry, $break) {
             if ($break->break_start_at && $break->break_end_at) {
-                return $carry + $break->break_end_at->diffInMinutes($break->break_start_at);
+                return $carry + (int) $break->break_start_at->diffInMinutes($break->break_end_at);
             }
             return $carry;
         }, 0);
