@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('css')
-<link rel="stylesheet" href="{{ asset('css/stamp-request.css') }}">
+<link rel="stylesheet" href="{{ versioned_asset('css/stamp-request.css') }}">
 @endsection
 
 @section('content')
