@@ -13,6 +13,10 @@ class AttendanceListTest extends TestCase
      /** @test */
     public function user_sees_only_their_attendances()
     {
+        // 月初（1〜3日）に subDays(1..3) が先月へはみ出して一覧に出なくなるため、
+        // 月の中日に時間を固定する（2026-09-01にCIで発覚した日付境界バグの再発防止）
+        $this->travelTo(now()->setDay(15));
+
         $user = User::factory()->create();
         $otherUser = User::factory()->create();
 
