@@ -1,9 +1,19 @@
 name: CI
 
 on:
+  # branches を指定しないと、作業ブランチへの push でも発火する。
+  # PR を出しているブランチでは pull_request と同時に成立し、
+  # まったく同じ内容のCIが2本走って無料枠を倍消費していた（〜2026-08-28）。
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
+
+# 連続pushしたとき、走っている古い実行を自動キャンセルする。
+# 直前のコミットの結果はもう見ないので、最後まで走らせるだけ無駄になる。
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 # 乗っ取られたアクションに書き込み権限を渡さないため最小権限にする
 permissions:
@@ -13,6 +23,9 @@ jobs:
   test:
     name: テスト
     runs-on: ubuntu-latest
+    # 既定は360分（6時間）。MySQLサービスの起動待ちでハングするとエラーにならないまま
+    # 回り続け、無料枠を静かに食い潰す。実測は1分未満なので15分で打ち切る。
+    timeout-minutes: 15
 
     services:
       mysql:
@@ -67,6 +80,7 @@ jobs:
   audit:
     name: 依存の脆弱性監査
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     # Laravel 12 化で既知の脆弱性が0件になったため、監査を厳格モードに戻した。
     # 新しい脆弱性が出たらCIが赤くなる＝気づける状態を維持する。
 
