@@ -1,4 +1,6 @@
-FROM php:8.3-fpm
+# 8.3系の最新を取りこぼさないようパッチ版まで固定する。
+# 8.3.36: CVE-2026-109618 / CVE-2026-109619（PHP-FPM 等の未認証RCE）の修正版（2026-10-21）
+FROM php:8.3.36-fpm
 
 COPY php.ini /usr/local/etc/php/
 
