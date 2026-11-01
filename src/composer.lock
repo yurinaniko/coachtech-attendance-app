@@ -1213,16 +1213,16 @@
         },
         {
             "name": "laravel/fortify",
-            "version": "v1.39.0",
+            "version": "v1.41.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/fortify.git",
-                "reference": "b1fc50707bbe007fd92165d8b7d460ab549b355a"
+                "reference": "c456642584c102f6a6aafee9932299542da637b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/fortify/zipball/b1fc50707bbe007fd92165d8b7d460ab549b355a",
-                "reference": "b1fc50707bbe007fd92165d8b7d460ab549b355a",
+                "url": "https://api.github.com/repos/laravel/fortify/zipball/c456642584c102f6a6aafee9932299542da637b5",
+                "reference": "c456642584c102f6a6aafee9932299542da637b5",
                 "shasum": ""
             },
             "require": {
@@ -1235,6 +1235,7 @@
                 "pragmarx/google2fa": "^9.0"
             },
             "require-dev": {
+                "jasonmccreary/double": "^1.0",
                 "orchestra/testbench": "^9.15|^10.8|^11.0",
                 "phpstan/phpstan": "^2.2.6"
             },
@@ -1273,7 +1274,8 @@
                 "issues": "https://github.com/laravel/fortify/issues",
                 "source": "https://github.com/laravel/fortify"
             },
-            "time": "2026-08-23T07:46:41+00:00"
+            "time": "2026-09-28T14:56:25+00:00",
+            "published-time": "2026-10-06T14:15:25+00:00"
         },
         {
             "name": "laravel/framework",
@@ -7683,16 +7685,16 @@
         },
         {
             "name": "laravel/sail",
-            "version": "v1.67.0",
+            "version": "v1.69.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/sail.git",
-                "reference": "639e03ac12cf23def171770bcab05758045b2642"
+                "reference": "3587ac9d68e8f2eaf36bd9fb003a4555861dca9d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/sail/zipball/639e03ac12cf23def171770bcab05758045b2642",
-                "reference": "639e03ac12cf23def171770bcab05758045b2642",
+                "url": "https://api.github.com/repos/laravel/sail/zipball/3587ac9d68e8f2eaf36bd9fb003a4555861dca9d",
+                "reference": "3587ac9d68e8f2eaf36bd9fb003a4555861dca9d",
                 "shasum": ""
             },
             "require": {
@@ -7742,7 +7744,8 @@
                 "issues": "https://github.com/laravel/sail/issues",
                 "source": "https://github.com/laravel/sail"
             },
-            "time": "2026-08-12T13:55:56+00:00"
+            "time": "2026-10-08T20:06:52+00:00",
+            "published-time": "2026-10-13T15:19:18+00:00"
         },
         {
             "name": "mockery/mockery",
@@ -9822,16 +9825,16 @@
         },
         {
             "name": "spatie/laravel-ignition",
-            "version": "2.12.0",
+            "version": "2.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-ignition.git",
-                "reference": "45b3b6e1e73fc161cba2149972698644b99594ee"
+                "reference": "0d49228686542bf718ad1a978ab3eb1d5a0dcd41"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-ignition/zipball/45b3b6e1e73fc161cba2149972698644b99594ee",
-                "reference": "45b3b6e1e73fc161cba2149972698644b99594ee",
+                "url": "https://api.github.com/repos/spatie/laravel-ignition/zipball/0d49228686542bf718ad1a978ab3eb1d5a0dcd41",
+                "reference": "0d49228686542bf718ad1a978ab3eb1d5a0dcd41",
                 "shasum": ""
             },
             "require": {
@@ -9910,7 +9913,8 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-03-17T12:20:04+00:00"
+            "time": "2026-10-19T16:31:25+00:00",
+            "published-time": "2026-10-19T16:31:42+00:00"
         },
         {
             "name": "staabm/side-effects-detector",
