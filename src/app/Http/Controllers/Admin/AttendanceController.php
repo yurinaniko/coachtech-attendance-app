@@ -15,8 +15,8 @@ class AttendanceController extends Controller
 {
     public function index(Request $request)
     {
-        $date = Carbon::parse(
-            $request->query('date', now()->toDateString())
+        $date = $this->parseDateOrFail(
+            $request->query('date', now()->toDateString()), 'Y-m-d'
         );
 
         $attendances = Attendance::with('user')

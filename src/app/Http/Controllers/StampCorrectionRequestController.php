@@ -77,7 +77,10 @@ class StampCorrectionRequestController extends Controller
             $breakStartAt      = $break['break_start_at'] ?? null;
             $breakEndAt        = $break['break_end_at'] ?? null;
 
-            if ($attendanceBreakId && !AttendanceBreak::where('id',$attendanceBreakId)->exists()) {
+            // 他人の勤怠の休憩IDを紐付けられないよう、この勤怠の休憩に限定して確かめる
+            if ($attendanceBreakId && !AttendanceBreak::where('id', $attendanceBreakId)
+                    ->where('attendance_id', $attendance->id)
+                    ->exists()) {
                 $attendanceBreakId = null;
             }
 
