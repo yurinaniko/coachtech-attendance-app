@@ -287,7 +287,8 @@ class AttendanceUpdateTest extends TestCase
         $response->assertSee('詳細');
 
         $detailResponse = $this->actingAs($user)->get(
-            route('attendance.detail', $attendance->work_date)
+            // 一覧画面のリンクと同じ Y-m-d 形式で開く（時刻付きの値は不正な日付として404になる）
+            route('attendance.detail', $attendance->work_date->format('Y-m-d'))
         );
 
         $detailResponse->assertStatus(200);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -13,8 +14,8 @@ class StaffAttendanceController extends Controller
 {
     public function index(Request $request, User $user)
     {
-        $month = Carbon::parse(
-            $request->query('month', now()->format('Y-m'))
+        $month = $this->parseDateOrFail(
+            $request->query('month', now()->format('Y-m')), 'Y-m'
         );
 
         $start = $month->copy()->startOfMonth();
@@ -43,7 +44,9 @@ class StaffAttendanceController extends Controller
 
     public function csv(User $user, Request $request): StreamedResponse
     {
-        $month = Carbon::parse($request->month)->startOfMonth();
+        $month = $this->parseDateOrFail(
+            $request->query('month', now()->format('Y-m')), 'Y-m'
+        )->startOfMonth();
         $start = $month->copy()->startOfMonth();
         $end   = $month->copy()->endOfMonth();
 
@@ -83,10 +86,16 @@ class StaffAttendanceController extends Controller
 
         $fileName = "{$user->name}_{$month->format('Y-m')}.csv";
 
+        // 氏名は利用者が登録時に自由入力する値。そのまま "..." に埋め込むと
+        // 引用符で区切りが壊れ、日本語名もヘッダとして不正になるため、RFC 6266 形式で出す。
         $response->headers->set('Content-Type', 'text/csv');
         $response->headers->set(
             'Content-Disposition',
-            "attachment; filename=\"{$fileName}\""
+            HeaderUtils::makeDisposition(
+                HeaderUtils::DISPOSITION_ATTACHMENT,
+                $fileName,
+                "attendance_{$month->format('Y-m')}.csv"
+            )
         );
 
         return $response;

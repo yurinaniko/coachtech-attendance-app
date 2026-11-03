@@ -166,7 +166,7 @@ class AttendanceController extends Controller
     public function list(Request $request)
     {
         $month = $request->input('month')
-            ? Carbon::createFromFormat('Y-m', $request->month): now();
+            ? $this->parseDateOrFail($request->month, 'Y-m') : now();
 
         $startOfMonth = $month->copy()->startOfMonth();
         $endOfMonth   = $month->copy()->endOfMonth();
@@ -185,7 +185,7 @@ class AttendanceController extends Controller
     public function detail($date)
     {
         $user = auth()->user();
-        $isFuture = Carbon::parse($date)->isFuture();
+        $isFuture = $this->parseDateOrFail($date, 'Y-m-d')->isFuture();
 
 
         $attendance = Attendance::with('breaks')
